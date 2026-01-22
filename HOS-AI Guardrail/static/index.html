@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOS-AI 围栏工作流插件</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <h1>HOS-AI 围栏工作流插件</h1>
+            <nav class="nav">
+                <button class="nav-btn active" data-tab="test">检测测试</button>
+                <button class="nav-btn" data-tab="config">配置管理</button>
+                <button class="nav-btn" data-tab="audit">审计日志</button>
+            </nav>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="main">
+            <!-- 检测测试页面 -->
+            <section id="test" class="tab-content active">
+                <div class="card">
+                    <h2>文本检测测试</h2>
+                    <div class="test-form">
+                        <div class="form-group">
+                            <label for="detection-type">检测类型</label>
+                            <select id="detection-type">
+                                <option value="input">输入检测</option>
+                                <option value="output">输出检测</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="asset-id">资产ID</label>
+                            <input type="text" id="asset-id" placeholder="default" value="default">
+                        </div>
+                        <div class="form-group">
+                            <label for="test-text">检测文本</label>
+                            <textarea id="test-text" rows="5" placeholder="请输入要检测的文本..."></textarea>
+                        </div>
+                        <button id="test-btn" class="btn btn-primary">开始检测</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>检测结果</h2>
+                    <div id="result" class="result"></div>
+                </div>
+            </section>
+
+            <!-- 配置管理页面 -->
+            <section id="config" class="tab-content">
+                <div class="card">
+                    <h2>模型配置</h2>
+                    <div class="config-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="provider">模型提供商</label>
+                                <select id="provider">
+                                    <option value="openai">OpenAI</option>
+                                    <option value="anthropic">Anthropic</option>
+                                    <option value="zhipu">智谱AI</option>
+                                    <option value="qwen">通义千问</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="model">模型名称</label>
+                                <input type="text" id="model" placeholder="gpt-4o-mini">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="api-key">API密钥</label>
+                                <input type="password" id="api-key" placeholder="sk-...">
+                            </div>
+                            <div class="form-group">
+                                <label for="temperature">温度</label>
+                                <input type="number" id="temperature" step="0.1" min="0" max="2" value="0.1">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="max-tokens">最大 tokens</label>
+                                <input type="number" id="max-tokens" min="100" max="4096" value="500">
+                            </div>
+                            <div class="form-group">
+                                <label for="timeout">超时时间（秒）</label>
+                                <input type="number" id="timeout" min="5" max="60" value="30">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="save-config" class="btn btn-primary">保存配置</button>
+                            <button id="load-config" class="btn btn-secondary">加载配置</button>
+                            <button id="reload-config" class="btn btn-secondary">重新加载</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>当前配置</h2>
+                    <pre id="current-config" class="config-display"></pre>
+                </div>
+            </section>
+
+            <!-- 审计日志页面 -->
+            <section id="audit" class="tab-content">
+                <div class="card">
+                    <h2>审计日志</h2>
+                    <div class="audit-controls">
+                        <button id="load-logs" class="btn btn-primary">加载日志</button>
+                        <input type="text" id="log-filter" placeholder="过滤日志..." class="log-filter">
+                    </div>
+                    <div id="logs" class="logs"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2026 HOS-AI 围栏工作流插件 | 版本 0.1.0</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+</html>

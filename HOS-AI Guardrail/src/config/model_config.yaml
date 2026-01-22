@@ -1,0 +1,25 @@
+# 模型配置文件
+
+# 默认模型配置
+default:
+  provider: "openai"
+  model: "gpt-4o-mini"
+  api_key: ""
+  temperature: 0.1
+  max_tokens: 500
+  timeout: 30
+
+# 模型提供商配置
+providers:
+  openai:
+    base_url: "https://api.openai.com/v1"
+    api_key_env: "OPENAI_API_KEY"
+  anthropic:
+    base_url: "https://api.anthropic.com/v1"
+    api_key_env: "ANTHROPIC_API_KEY"
+  zhipu:
+    base_url: "https://open.bigmodel.cn/api/paas/v4"
+    api_key_env: "ZHIPU_API_KEY"
+  qwen:
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    api_key_env: "QWEN_API_KEY"
