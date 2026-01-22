@@ -1,0 +1,59 @@
+{
+  "name": "hos_ai_fence",
+  "description": "HOS-AI 围栏工作流插件，用于文本、文件、图片的输入输出安全检测",
+  "parameters": [
+    {
+      "name": "detection_type",
+      "description": "检测类型：input（输入检测）或 output（输出检测）",
+      "type": "string",
+      "required": true,
+      "enum": ["input", "output"]
+    },
+    {
+      "name": "text",
+      "description": "要检测的文本内容",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "asset_id",
+      "description": "资产ID，用于区分不同业务场景的策略",
+      "type": "string",
+      "required": false,
+      "default": "default"
+    }
+  ],
+  "response_format": {
+    "type": "object",
+    "properties": {
+      "suggestion": {
+        "type": "string",
+        "description": "裁决建议：pass（通过）、block（拦截）、rewrite（重写）、error（错误）"
+      },
+      "categories": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "违规类型列表"
+      },
+      "answer": {
+        "type": "string",
+        "description": "安全代答内容，当suggestion为block或rewrite时返回"
+      }
+    },
+    "required": ["suggestion", "categories"]
+  },
+  "example": {
+    "input": {
+      "detection_type": "input",
+      "text": "你好，我想了解一下你们的产品",
+      "asset_id": "default"
+    },
+    "output": {
+      "suggestion": "pass",
+      "categories": [],
+      "answer": ""
+    }
+  }
+}
