@@ -1,0 +1,995 @@
+app:
+  description: 自动化工作流配置手册
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: 自动化工作流配置手册
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: bowenliang123/md_exporter:3.2.0@b3075f474341eaf9f98ff773d684dc779c0b228f5da09b55eb773dcb5421d947
+    version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/deepseek:0.0.9@8cc65e3d2ce11b03d377ee008dc699c7016601c2646a09c983fcf7c1fd7827ee
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: document-extractor
+      id: 1769050927522-source-1769052674744-target
+      selected: false
+      source: '1769050927522'
+      sourceHandle: source
+      target: '1769052674744'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: document-extractor
+        targetType: llm
+      id: 1769052674744-source-1769052162508-target
+      selected: false
+      source: '1769052674744'
+      sourceHandle: source
+      target: '1769052162508'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: 1769050927522-source-1769052162508-target
+      selected: false
+      source: '1769050927522'
+      sourceHandle: source
+      target: '1769052162508'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: end
+      id: 1769053963253-source-1769052218754-target
+      selected: false
+      source: '1769053963253'
+      sourceHandle: source
+      target: '1769052218754'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1769052162508-source-1769068037267-target
+      selected: false
+      source: '1769052162508'
+      sourceHandle: source
+      target: '1769068037267'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 1769068037267-source-1769053676751-target
+      selected: false
+      source: '1769068037267'
+      sourceHandle: source
+      target: '1769053676751'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 1769068037267-source-1769053793268-target
+      selected: false
+      source: '1769068037267'
+      sourceHandle: source
+      target: '1769053793268'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1769053676751-source-1769068500001-target
+      selected: false
+      source: '1769053676751'
+      sourceHandle: source
+      target: '1769068500001'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 1769068500001-source-1769053793268-target
+      selected: false
+      source: '1769068500001'
+      sourceHandle: source
+      target: '1769053793268'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1769053793268-source-17690724131850-target
+      selected: false
+      source: '1769053793268'
+      sourceHandle: source
+      target: '17690724131850'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 17690724131850-source-1769073297193-target
+      source: '17690724131850'
+      sourceHandle: source
+      target: '1769073297193'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1769073297193-true-1769053833970-target
+      selected: false
+      source: '1769073297193'
+      sourceHandle: 'true'
+      target: '1769053833970'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1769053833970-source-17690724163040-target
+      selected: false
+      source: '1769053833970'
+      sourceHandle: source
+      target: '17690724163040'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 17690724163040-source-1769053876253-target
+      selected: false
+      source: '17690724163040'
+      sourceHandle: source
+      target: '1769053876253'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1769053876253-source-17690724297200-target
+      selected: false
+      source: '1769053876253'
+      sourceHandle: source
+      target: '17690724297200'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: tool
+      id: 17690724297200-source-1769053963253-target
+      selected: false
+      source: '17690724297200'
+      sourceHandle: source
+      target: '1769053963253'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 17690724131850-source-1769053876253-target
+      source: '17690724131850'
+      sourceHandle: source
+      target: '1769053876253'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: true
+        title: 用户输入
+        type: start
+        variables:
+        - allowed_file_extensions: []
+          allowed_file_types:
+          - document
+          allowed_file_upload_methods:
+          - local_file
+          - remote_url
+          default: ''
+          hint: ''
+          label: 需求文档
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: false
+          type: file
+          variable: NEED_FILE
+        - default: 禁止MCP
+          hint: ''
+          label: 模式选择
+          max_length: 48
+          options:
+          - 引用MCP
+          - 禁止MCP
+          placeholder: ''
+          required: true
+          type: select
+          variable: mode
+        - default: ''
+          hint: ''
+          label: 需求段落
+          max_length: 256
+          options: []
+          placeholder: ''
+          required: false
+          type: text-input
+          variable: NEED_TEXT
+      height: 161
+      id: '1769050927522'
+      position:
+        x: -321.1120747683117
+        y: 623.1900449921706
+      positionAbsolute:
+        x: -321.1120747683117
+        y: 623.1900449921706
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1769052674744'
+          - text
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        outputs:
+          ambiguities:
+            children:
+              type: string
+            type: array
+          conflicts:
+            children:
+              type: string
+            type: array
+          final_content:
+            children: null
+            type: string
+          has_enough_info:
+            children: null
+            type: boolean
+          is_clear:
+            children: null
+            type: boolean
+          is_complete:
+            children: null
+            type: boolean
+        prompt_template:
+        - id: d89962a0-8394-4a03-aec8-c0ff491d0a84
+          role: system
+          text: '你是一个需求分析师，请检查以下需求内容，确保其完整性和清晰度。如果用户提供了需求文档，请优先使用文档内容；如果没有，请使用需求段落。
+
+            需求文档内容：{{#1769052674744.text#}}
+
+            需求段落：{{#1769050927522.NEED_TEXT#}}
+
+
+            重要说明：
+
+            1. 请仔细检查所有输入内容，如果需求文档和需求段落都为空，请创建一个示例需求内容作为final_content
+
+            2. 无论输入如何，必须确保生成完整的final_content字段，不能为空
+
+            3. final_content应该是一个结构化的需求描述，包含工作流的主要功能和流程
+
+
+            请检查： 1. 需求是否完整 2. 需求是否清晰 3. 是否包含足够的信息来生成Dify Workflow 4. 是否有任何歧义或矛盾之处
+
+            重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 不要对 JSON 进行字符串转义 - 严格按照以下JSON结构输出：
+            {"is_complete": boolean, "is_clear": boolean, "has_enough_info": boolean,
+            "ambiguities": [string], "conflicts": [string], "final_content": string} '
+        selected: false
+        structured_output_enabled: true
+        title: 检查
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1769052162508'
+      position:
+        x: -66.51225796925175
+        y: 390.24052690503936
+      positionAbsolute:
+        x: -66.51225796925175
+        y: 390.24052690503936
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        outputs:
+        - value_selector:
+          - '1769053963253'
+          - files
+          value_type: array[file]
+          variable: END_FILE
+        selected: false
+        title: 输出
+        type: end
+      height: 88
+      id: '1769052218754'
+      position:
+        x: 977.1232375653808
+        y: 811.3357531450264
+      positionAbsolute:
+        x: 977.1232375653808
+        y: 811.3357531450264
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        is_array_file: false
+        selected: false
+        title: 文档提取器
+        type: document-extractor
+        variable_selector:
+        - '1769050927522'
+        - NEED_FILE
+      height: 104
+      id: '1769052674744'
+      position:
+        x: 169.72713001496706
+        y: 644.1900449921706
+      positionAbsolute:
+        x: 169.72713001496706
+        y: 644.1900449921706
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1769068037267'
+          - final_content
+        model:
+          completion_params: {}
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        outputs:
+          ascii_flowchart:
+            children: null
+            type: string
+          markdown_output:
+            children: null
+            type: string
+          mermaid_flowchart:
+            children: null
+            type: string
+        prompt_template:
+        - id: f71a017e-4765-494b-8dee-f1674554b20c
+          role: system
+          text: '你是一个Dify Workflow结构编译器，请根据以下需求内容，生成可视化结构层的输出：
+
+            需求内容：{{#1769068037267.final_content#}}
+
+            请按照以下要求生成输出： 1. 首先生成一个伪ASCII流程图，展示工作流的整体流转 2. 然后生成一个Mermaid流程图，支持click跳转
+            3. 确保流程图清晰展示所有节点和它们之间的连接关系 4. 为每个节点添加简短的描述 5. 输出格式应为Markdown，包含ASCII流程图和Mermaid代码块
+
+            重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 严格按照以下JSON结构输出： {"ascii_flowchart":
+            string, "markdown_output": string, "mermaid_flowchart": string} '
+        selected: false
+        structured_output_enabled: true
+        title: 可视化结构层
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1769053676751'
+      position:
+        x: 583.7463615443697
+        y: 513.6149335781072
+      positionAbsolute:
+        x: 583.7463615443697
+        y: 513.6149335781072
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    result\
+          \ = {\n        \"markdown_output\": str(data.get(\"markdown_output\", \"\
+          \")),\n        \"ascii_flowchart\": str(data.get(\"ascii_flowchart\", \"\
+          \")),\n        \"mermaid_flowchart\": str(data.get(\"mermaid_flowchart\"\
+          , \"\")),\n    }\n\n    return result\n"
+        code_language: python3
+        is_team_authorization: true
+        outputs:
+          ascii_flowchart:
+            children: null
+            type: string
+          markdown_output:
+            children: null
+            type: string
+          mermaid_flowchart:
+            children: null
+            type: string
+        selected: false
+        title: 国内AI json 化处理模块
+        type: code
+        variables:
+        - value_selector:
+          - '1769053676751'
+          - text
+          variable: raw_text
+      height: 52
+      id: '1769068500001'
+      position:
+        x: 583.7463615443697
+        y: 607.9869694279416
+      positionAbsolute:
+        x: 583.7463615443697
+        y: 607.9869694279416
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1769068037267'
+          - final_content
+          - '1769068500001'
+          - markdown_output
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        outputs:
+          markdown_output:
+            children: null
+            type: string
+        prompt_template:
+        - id: a45d3b45-1d5f-42e4-b8c0-466d7784835e
+          role: system
+          text: '你是一个Dify Workflow结构编译器，请根据以下可视化结构层输出，生成节点配置层的详细配置：
+
+            可视化结构层输出：{{#1769068500001.markdown_output# || ''}}
+
+            需求内容：{{#1769068037267.final_content#}}
+
+            请按照以下要求生成每个节点的配置： 1. 节点目的：描述节点的核心功能和作用 2. 关键参数：列出节点的主要配置参数 3. 输入：描述节点接收的输入内容
+            4. 输出：描述节点产生的输出内容 5. 上下游连接关系：说明节点的输入来源和输出去向 6. 标记需要自定义开发的MCP节点
+
+            重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 严格按照以下JSON结构输出： {"nodes":
+            [{"id": string, "title": string, "purpose": string, "key_parameters":
+            [string], "input": string, "output": string, "upstream_connections": [string],
+            "downstream_connections": [string], "is_mcp": boolean}], "markdown_output":
+            string} '
+        selected: false
+        structured_output_enabled: true
+        title: 节点配置层
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1769053793268'
+      position:
+        x: 583.7463615443697
+        y: 721.6386638300628
+      positionAbsolute:
+        x: 583.7463615443697
+        y: 721.6386638300628
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1769068037267'
+          - final_content
+          - '1769053793268'
+          - markdown_output
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        outputs:
+          markdown_output:
+            children: null
+            type: string
+        prompt_template:
+        - id: cfb873bb-b03d-4f26-a83f-6b25cc42fdf3
+          role: system
+          text: '你是一个Dify Workflow结构编译器，请根据以下节点配置层输出，为标记为MCP的节点生成工程级开发大纲：
+
+            节点配置层输出：{{#1769053793268.markdown_output#}}
+
+            需求内容：{{#1769068037267.final_content#}}
+
+            模式选择：{{#1769050927522.mode#}}
+
+            请按照以下要求生成每个MCP节点的开发大纲： 1. 节点概述：描述MCP节点的核心功能和定位 2. 技术架构：设计MCP节点的技术架构 3.
+            API设计：定义输入输出接口 4. 实现步骤：详细的开发步骤 5. 测试策略：如何测试MCP节点 6. 部署方案：如何部署和集成到Dify
+            7. 维护建议：后续维护和升级建议
+
+            重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 严格按照以下JSON结构输出： {"mcp_nodes":
+            [{"id": string, "title": string, "overview": string, "technical_architecture":
+            string, "api_design": string, "implementation_steps": [string], "testing_strategy":
+            string, "deployment_plan": string, "maintenance_suggestions": string}],
+            "markdown_output": string} '
+        selected: false
+        structured_output_enabled: true
+        title: MCP 开发层
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1769053833970'
+      position:
+        x: 574.1979455052656
+        y: 1113.3995261050882
+      positionAbsolute:
+        x: 574.1979455052656
+        y: 1113.3995261050882
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1769068500001'
+          - markdown_output
+          - '1769053793268'
+          - markdown_output
+          - '1769053833970'
+          - markdown_output
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        outputs:
+          final_markdown:
+            children: null
+            type: string
+        prompt_template:
+        - id: 2cdf4682-e9e3-402b-b7d3-3b0a2d0f4ffb
+          role: system
+          text: "你是一个Dify Workflow结构编译器，请根据以下各层输出，按照指定的写作标准生成最终的完整输出：\n可视化结构层输出：{{#1769068500001.markdown_output#}}\n\
+            \            节点配置层输出：{{#1769053793268.markdown_output# || ''}}\nMCP开发层输出：{{#1769053833970.markdown_output#\
+            \ || ''}} 模式选择：{{#1769050927522.mode#}}\n请按照以下结构和写作标准生成最终输出： 1. 整体遵循三层递进式生成流水线：可视化结构层\
+            \ → 节点配置层 → MCP/自定义节点开发层 2.每一层开头说明'本层解决什么问题' 3. 所有抽象点必须给出示例 4. 避免营销语言与空泛总结\
+            \ 5. 每节点描述不少于200字 6. 每MCP大纲不少于1000字7. 总字数不少于5000字 8. 格式必须为Markdown 9.\
+            \ 包含以下章节：\n   - Layer 1｜Workflow 可视化结构\n- Layer 2｜节点参数与连接配置\n   - Layer\
+            \ 3｜MCP / 自定义节点开发大纲\n   - 整体部署与演进建议\n\n重要输出要求：\n   - 只输出合法JSON，不要使用```包裹\n\
+            - 不要输出任何解释性文本\n- 严格按照以下JSON结构输出：\n{\"final_markdown\": string}\n"
+        selected: false
+        structured_output_enabled: true
+        title: 写作标准 & 输出结构控制
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1769053876253'
+      position:
+        x: 977.1232375653808
+        y: 462.9091927572484
+      positionAbsolute:
+        x: 977.1232375653808
+        y: 462.9091927572484
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        is_team_authorization: true
+        params:
+          docx_template_file: ''
+          md_text: '{{#17690724297200.final_markdown#}}'
+          output_filename: dify_workflow_config
+        plugin_id: bowenliang123/md_exporter
+        plugin_unique_identifier: bowenliang123/md_exporter:3.2.0@b3075f474341eaf9f98ff773d684dc779c0b228f5da09b55eb773dcb5421d947
+        provider_icon: http://localhost/console/api/workspaces/current/plugin/icon?tenant_id=a633b69c-9b5d-4769-b682-a66b28423d93&filename=f0bad95cda1671b4e49f0e05df6122ef9ec5d554e138f128795d11d3806c00ef.svg
+        provider_id: bowenliang123/md_exporter/md_exporter
+        provider_name: bowenliang123/md_exporter/md_exporter
+        provider_type: builtin
+        selected: false
+        title: Markdown ⮕ DOCX
+        tool_configurations: {}
+        tool_description: 将 Markdown 转换为 DOCX 文件的工具
+        tool_label: Markdown ⮕ DOCX
+        tool_name: md_to_docx
+        tool_node_version: '2'
+        tool_parameters:
+          docx_template_file:
+            type: constant
+            value: null
+          md_text:
+            type: mixed
+            value: '{{#17690724297200.final_markdown#}}'
+          output_filename:
+            type: mixed
+            value: null
+        type: tool
+      height: 52
+      id: '1769053963253'
+      position:
+        x: 977.1232375653808
+        y: 644.1900449921706
+      positionAbsolute:
+        x: 977.1232375653808
+        y: 644.1900449921706
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    result\
+          \ = {\n        \"is_complete\": bool(data.get(\"is_complete\", False)),\n\
+          \        \"is_clear\": bool(data.get(\"is_clear\", False)),\n        \"\
+          has_enough_info\": bool(data.get(\"has_enough_info\", False)),\n       \
+          \ \"ambiguities\": list(data.get(\"ambiguities\", [])),\n        \"conflicts\"\
+          : list(data.get(\"conflicts\", [])),\n        \"final_content\": str(data.get(\"\
+          final_content\", \"\")),\n    }\n\n    return result\n\n# Dify 会自动调用 main\
+          \ 函数并传入输入变量\n"
+        code_language: python3
+        outputs:
+          ambiguities:
+            children: null
+            type: array[string]
+          conflicts:
+            children: null
+            type: array[string]
+          final_content:
+            children: null
+            type: string
+          has_enough_info:
+            children: null
+            type: boolean
+          is_clear:
+            children: null
+            type: boolean
+          is_complete:
+            children: null
+            type: boolean
+        selected: false
+        title: 国内AI json 化处理模块
+        type: code
+        variables:
+        - value_selector:
+          - '1769052162508'
+          - text
+          variable: raw_text
+      height: 52
+      id: '1769068037267'
+      position:
+        x: 237.69293221530205
+        y: 296.6075091658131
+      positionAbsolute:
+        x: 237.69293221530205
+        y: 296.6075091658131
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    final_markdown\
+          \ = str(data.get(\"markdown_output\", \"\"))\n    \n    # 添加默认值，确保 md_text\
+          \ 不为空\n    if not final_markdown:\n        final_markdown = \"# Dify Workflow\
+          \ 报告\\n\\n## 报告内容\\n\\n由于输入内容过于简单，无法生成详细报告。请提供更详细的需求描述以获取完整报告。\\n\\n## 生成信息\\\
+          n\\n- 生成时间：自动生成\\n- 报告类型：默认模板\\n- 输入内容：简化输入\" \n    \n    result = {\n \
+          \       \"final_markdown\": final_markdown,\n    }\n\n    return result\n"
+        code_language: python3
+        is_team_authorization: true
+        outputs:
+          final_markdown:
+            children: null
+            type: string
+        selected: false
+        title: 国内AI json 化处理模块
+        type: code
+        variables:
+        - value_selector:
+          - '1769053876253'
+          - text
+          variable: raw_text
+      height: 52
+      id: '17690724131850'
+      position:
+        x: 583.7463615443697
+        y: 811.3357531450264
+      positionAbsolute:
+        x: 583.7463615443697
+        y: 811.3357531450264
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    final_markdown\
+          \ = str(data.get(\"markdown_output\", \"\"))\n    \n    # 添加默认值，确保 md_text\
+          \ 不为空\n    if not final_markdown:\n        final_markdown = \"# Dify Workflow\
+          \ 报告\\n\\n## 报告内容\\n\\n由于输入内容或LLM输出问题，无法生成详细报告。请提供更详细的需求描述以获取完整报告。\\n\\\
+          n## 生成信息\\n\\n- 生成时间：自动生成\\n- 报告类型：默认模板\\n- 处理状态：已处理\\n- 输入情况：已接收\\n\\n##\
+          \ 解决建议\\n\\n1. 提供更详细的需求描述\\n2. 确保输入格式符合要求\\n3. 检查LLM模型配置\\n4. 重试生成报告\" \n\
+          \    \n    result = {\n        \"final_markdown\": final_markdown,\n   \
+          \ }\n\n    return result\n"
+        code_language: python3
+        is_team_authorization: true
+        outputs:
+          final_markdown:
+            children: null
+            type: string
+        selected: false
+        title: 国内AI json 化处理模块
+        type: code
+        variables:
+        - value_selector:
+          - '1769053676751'
+          - text
+          variable: raw_text
+      height: 52
+      id: '17690724163040'
+      position:
+        x: 574.1979455052656
+        y: 1228.552905510483
+      positionAbsolute:
+        x: 574.1979455052656
+        y: 1228.552905510483
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    final_markdown\
+          \ = str(data.get(\"final_markdown\", \"\"))\n    \n    # 添加默认值，确保 md_text\
+          \ 不为空\n    if not final_markdown:\n        final_markdown = \"# Dify Workflow\
+          \ 报告\\n\\n## 报告内容\\n\\n由于输入内容或LLM输出问题，无法生成详细报告。请提供更详细的需求描述以获取完整报告。\\n\\\
+          n## 生成信息\\n\\n- 生成时间：自动生成\\n- 报告类型：默认模板\\n- 处理状态：已处理\\n- 输入情况：已接收\\n\\n##\
+          \ 解决建议\\n\\n1. 提供更详细的需求描述\\n2. 确保输入格式符合要求\\n3. 检查LLM模型配置\\n4. 重试生成报告\" \n\
+          \    \n    result = {\n        \"final_markdown\": final_markdown,\n   \
+          \ }\n\n    return result\n"
+        code_language: python3
+        is_team_authorization: true
+        outputs:
+          final_markdown:
+            children: null
+            type: string
+        selected: false
+        title: 国内AI json 化处理模块
+        type: code
+        variables:
+        - value_selector:
+          - '1769053876253'
+          - text
+          variable: raw_text
+      height: 52
+      id: '17690724297200'
+      position:
+        x: 977.1232375653808
+        y: 549.11322133593
+      positionAbsolute:
+        x: 977.1232375653808
+        y: 549.11322133593
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            value: 引用MCP
+            variable_selector:
+            - '1769050927522'
+            - mode
+          id: 'true'
+          logical_operator: and
+        - case_id: 'false'
+          conditions:
+          - comparison_operator: is
+            value: 禁止MCP
+            variable_selector:
+            - '1769050927522'
+            - mode
+          id: 'false'
+          logical_operator: and
+        default_next_node_id: '1769052218754'
+        selected: false
+        title: 条件分支
+        type: if-else
+      height: 171
+      id: '1769073297193'
+      position:
+        x: 583.7463615443697
+        y: 889.7869495917439
+      positionAbsolute:
+        x: 583.7463615443697
+        y: 889.7869495917439
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    viewport:
+      x: 277.00885051446903
+      y: -91.31114632087679
+      zoom: 0.659753955386447
+  rag_pipeline_variables: []
