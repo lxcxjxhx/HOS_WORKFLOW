@@ -30,12 +30,17 @@ workflow:
       - .GIF
       - .WEBP
       - .SVG
+      - .MD
+      - .TXT
+      - .DOCX
+      - .PDF
       allowed_file_types:
       - image
+      - document
       allowed_file_upload_methods:
       - local_file
       - remote_url
-      enabled: false
+      enabled: true
       image:
         enabled: false
         number_limits: 3
@@ -68,30 +73,6 @@ workflow:
       source: '1769050927522'
       sourceHandle: source
       target: '1769052674744'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: document-extractor
-        targetType: llm
-      id: 1769052674744-source-1769052162508-target
-      selected: false
-      source: '1769052674744'
-      sourceHandle: source
-      target: '1769052162508'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: start
-        targetType: llm
-      id: 1769050927522-source-1769052162508-target
-      selected: false
-      source: '1769050927522'
-      sourceHandle: source
-      target: '1769052162508'
       targetHandle: target
       type: custom
       zIndex: 0
@@ -239,17 +220,61 @@ workflow:
       type: custom
       zIndex: 0
     - data:
+        id: 17690724131850-source-1769053876253-target
         isInLoop: false
+        source: '17690724131850'
+        sourceHandle: source
         sourceType: code
-        targetType: tool
-      id: 17690724297200-source-1769053963253-target
-      selected: false
-      source: '17690724297200'
+        target: '1769053876253'
+        targetHandle: target
+        targetType: llm
+        type: custom
+        zIndex: 0
       sourceHandle: source
-      target: '1769053963253'
       targetHandle: target
       type: custom
-      zIndex: 0
+    - data:
+        id: 1769073297193-yaml-1769074567890-target
+        isInLoop: false
+        source: '1769073297193'
+        sourceHandle: yaml
+        sourceType: if-else
+        target: '1769074567890'
+        targetHandle: target
+        targetType: llm
+        type: custom
+        zIndex: 0
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+    - data:
+        id: 1769074567890-source-1769075678901-target
+        isInLoop: false
+        source: '1769074567890'
+        sourceHandle: source
+        sourceType: llm
+        target: '1769075678901'
+        targetHandle: target
+        targetType: code
+        type: custom
+        zIndex: 0
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+    - data:
+        id: 1769075678901-source-1769053963253-target
+        isInLoop: false
+        source: '1769075678901'
+        sourceHandle: source
+        sourceType: code
+        target: '1769053963253'
+        targetHandle: target
+        targetType: tool
+        type: custom
+        zIndex: 0
+      sourceHandle: source
+      targetHandle: target
+      type: custom
     - data:
         isInLoop: false
         sourceType: code
@@ -261,12 +286,163 @@ workflow:
       targetHandle: target
       type: custom
       zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: if-else
+      id: 1769050927522-source-1769073297193-target
+      source: '1769050927522'
+      sourceHandle: source
+      target: '1769073297193'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: if-else
+      id: 1769050927522-source-1769094201733-target
+      source: '1769050927522'
+      sourceHandle: source
+      target: '1769094201733'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 17690724297200-source-1769094201733-target
+      selected: false
+      source: '17690724297200'
+      sourceHandle: source
+      target: '1769094201733'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1769074567890-source-1769075678901-target
+      source: '1769074567890'
+      sourceHandle: source
+      target: '1769075678901'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: 1769075678901-source-1769094370285-target
+      source: '1769075678901'
+      sourceHandle: source
+      target: '1769094370285'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: tool
+      id: 1769094201733-false-1769053963253-target
+      source: '1769094201733'
+      sourceHandle: 'false'
+      target: '1769053963253'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: knowledge-retrieval
+      id: 1769094201733-true-1769148240708-target
+      source: '1769094201733'
+      sourceHandle: 'true'
+      target: '1769148240708'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1769148240708-source-1769074567890-target
+      source: '1769148240708'
+      sourceHandle: source
+      target: '1769074567890'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: 1769050927522-source-1769052162508-target
+      source: '1769050927522'
+      sourceHandle: source
+      target: '1769052162508'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: document-extractor
+        targetType: code
+      id: 1769052674744-source-1769150000001-target
+      source: '1769052674744'
+      sourceHandle: source
+      target: '1769150000001'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 1769150000001-source-1769052162508-target
+      source: '1769150000001'
+      sourceHandle: source
+      target: '1769052162508'
+      targetHandle: target
+      type: custom
+      zIndex: 0
     nodes:
     - data:
-        selected: true
+        selected: false
         title: 用户输入
         type: start
         variables:
+        - hint: ''
+          label: MCP开关
+          max_length: 48
+          options:
+          - 启用MCP模式
+          - 禁用MCP模式
+          placeholder: ''
+          required: true
+          type: select
+          variable: mode_MCP
+        - hint: ''
+          label: YAML开关
+          max_length: 48
+          options:
+          - 启用YAML模式
+          - 禁用YAML模式
+          placeholder: ''
+          required: true
+          type: select
+          variable: mode_YAML
+        - default: ''
+          hint: ''
+          label: 需求段落
+          max_length: 256
+          options: []
+          placeholder: ''
+          required: false
+          type: text-input
+          variable: NEED_TEXT
         - allowed_file_extensions: []
           allowed_file_types:
           - document
@@ -282,35 +458,15 @@ workflow:
           required: false
           type: file
           variable: NEED_FILE
-        - default: 禁止MCP
-          hint: ''
-          label: 模式选择
-          max_length: 48
-          options:
-          - 引用MCP
-          - 禁止MCP
-          placeholder: ''
-          required: true
-          type: select
-          variable: mode
-        - default: ''
-          hint: ''
-          label: 需求段落
-          max_length: 256
-          options: []
-          placeholder: ''
-          required: false
-          type: text-input
-          variable: NEED_TEXT
-      height: 161
+      height: 186
       id: '1769050927522'
       position:
-        x: -321.1120747683117
-        y: 623.1900449921706
+        x: -360.52070549758207
+        y: 732.3216377809192
       positionAbsolute:
-        x: -321.1120747683117
-        y: 623.1900449921706
-      selected: true
+        x: -360.52070549758207
+        y: 732.3216377809192
+      selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -319,7 +475,7 @@ workflow:
         context:
           enabled: true
           variable_selector:
-          - '1769052674744'
+          - '1769150000001'
           - text
         model:
           completion_params:
@@ -351,11 +507,13 @@ workflow:
         prompt_template:
         - id: d89962a0-8394-4a03-aec8-c0ff491d0a84
           role: system
-          text: '你是一个需求分析师，请检查以下需求内容，确保其完整性和清晰度。如果用户提供了需求文档，请优先使用文档内容；如果没有，请使用需求段落。
+          text: '你是一个需求分析师，请检查以下需求内容，确保其完整性和清晰度。如果用户提供了需求文档，请优先使用文档内容；如果没有，请使用需求段落。同时利用知识检索结果来完善需求分析。
 
-            需求文档内容：{{#1769052674744.text#}}
+            需求文档内容：{{#1769150000001.text#}}
 
             需求段落：{{#1769050927522.NEED_TEXT#}}
+
+            知识检索结果：
 
 
             重要说明：
@@ -378,19 +536,19 @@ workflow:
         type: llm
         vision:
           enabled: false
-      height: 88
+      height: 87
       id: '1769052162508'
       position:
-        x: -66.51225796925175
-        y: 390.24052690503936
+        x: 38.072185119965866
+        y: 498.4577679130033
       positionAbsolute:
-        x: -66.51225796925175
-        y: 390.24052690503936
+        x: 38.072185119965866
+        y: 498.4577679130033
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         outputs:
         - value_selector:
@@ -399,21 +557,21 @@ workflow:
           value_type: array[file]
           variable: END_FILE
         selected: false
-        title: 输出
+        title: 手册输出
         type: end
-      height: 88
+      height: 87
       id: '1769052218754'
       position:
-        x: 977.1232375653808
-        y: 811.3357531450264
+        x: 1082.3958442910928
+        y: 1302.4243548915974
       positionAbsolute:
-        x: 977.1232375653808
-        y: 811.3357531450264
+        x: 1082.3958442910928
+        y: 1302.4243548915974
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         is_array_file: false
         selected: false
@@ -422,19 +580,47 @@ workflow:
         variable_selector:
         - '1769050927522'
         - NEED_FILE
-      height: 104
+      height: 103
       id: '1769052674744'
       position:
-        x: 169.72713001496706
-        y: 644.1900449921706
+        x: -360.52070549758207
+        y: 648.7371946917017
       positionAbsolute:
-        x: 169.72713001496706
-        y: 644.1900449921706
+        x: -360.52070549758207
+        y: 648.7371946917017
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
+    - data:
+        code: "import json\n\ndef main(text: any) -> dict:\n    \"\"\"\n    将输入转换为字符串类型\n    \"\"\"\n    # 确保text始终为字符串类型\n    if text is None:\n        string_text = \"\"\n    elif isinstance(text, str):\n        string_text = text\n    else:\n        try:\n            # 尝试将非字符串类型转换为字符串\n            string_text = str(text)\n        except:\n            # 转换失败时使用空字符串\n            string_text = \"\"\n    \n    return {\"text\": string_text}\n"
+        code_language: python3
+        outputs:
+          text:
+            children: null
+            type: string
+        selected: false
+        title: 文本类型转换
+        type: code
+        variables:
+        - value_selector:
+          - '1769052674744'
+          - text
+          variable: text
+      height: 51
+      id: '1769150000001'
+      position:
+        x: -360.52070549758207
+        y: 550.0
+      positionAbsolute:
+        x: -360.52070549758207
+        y: 550.0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
     - data:
         context:
           enabled: true
@@ -459,12 +645,12 @@ workflow:
         prompt_template:
         - id: f71a017e-4765-494b-8dee-f1674554b20c
           role: system
-          text: '你是一个Dify Workflow结构编译器，请根据以下需求内容，生成可视化结构层的输出：
+          text: '你是一个工作流可视化专家，请根据以下需求内容，生成对应的可视化结构层输出：
 
             需求内容：{{#1769068037267.final_content#}}
 
             请按照以下要求生成输出： 1. 首先生成一个伪ASCII流程图，展示工作流的整体流转 2. 然后生成一个Mermaid流程图，支持click跳转
-            3. 确保流程图清晰展示所有节点和它们之间的连接关系 4. 为每个节点添加简短的描述 5. 输出格式应为Markdown，包含ASCII流程图和Mermaid代码块
+            3. 确保流程图清晰展示所有节点和它们之间的连接关系 4. 为每个节点添加简短的描述 5. 根据需求内容生成对应类型的工作流可视化，如批量文档处理工作流
 
             重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 严格按照以下JSON结构输出： {"ascii_flowchart":
             string, "markdown_output": string, "mermaid_flowchart": string} '
@@ -474,19 +660,19 @@ workflow:
         type: llm
         vision:
           enabled: false
-      height: 88
+      height: 87
       id: '1769053676751'
       position:
-        x: 583.7463615443697
-        y: 513.6149335781072
+        x: 563.5879295396928
+        y: 355.39178469381335
       positionAbsolute:
-        x: 583.7463615443697
-        y: 513.6149335781072
+        x: 563.5879295396928
+        y: 355.39178469381335
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
           \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
@@ -526,19 +712,19 @@ workflow:
           - '1769053676751'
           - text
           variable: raw_text
-      height: 52
+      height: 51
       id: '1769068500001'
       position:
-        x: 583.7463615443697
-        y: 607.9869694279416
+        x: 563.5879295396928
+        y: 438.0305053230396
       positionAbsolute:
-        x: 583.7463615443697
-        y: 607.9869694279416
+        x: 563.5879295396928
+        y: 438.0305053230396
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         context:
           enabled: true
@@ -560,14 +746,14 @@ workflow:
         prompt_template:
         - id: a45d3b45-1d5f-42e4-b8c0-466d7784835e
           role: system
-          text: '你是一个Dify Workflow结构编译器，请根据以下可视化结构层输出，生成节点配置层的详细配置：
+          text: '你是一个工作流节点配置专家，请根据以下输入内容，生成对应工作流的节点配置层详细配置：
 
             可视化结构层输出：{{#1769068500001.markdown_output# || ''}}
 
             需求内容：{{#1769068037267.final_content#}}
 
             请按照以下要求生成每个节点的配置： 1. 节点目的：描述节点的核心功能和作用 2. 关键参数：列出节点的主要配置参数 3. 输入：描述节点接收的输入内容
-            4. 输出：描述节点产生的输出内容 5. 上下游连接关系：说明节点的输入来源和输出去向 6. 标记需要自定义开发的MCP节点
+            4. 输出：描述节点产生的输出内容 5. 上下游连接关系：说明节点的输入来源和输出去向 6. 仅在需要时标记需要自定义开发的特殊节点
 
             重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 严格按照以下JSON结构输出： {"nodes":
             [{"id": string, "title": string, "purpose": string, "key_parameters":
@@ -580,19 +766,19 @@ workflow:
         type: llm
         vision:
           enabled: false
-      height: 88
+      height: 87
       id: '1769053793268'
       position:
-        x: 583.7463615443697
-        y: 721.6386638300628
+        x: 563.5879295396928
+        y: 491.64216303195735
       positionAbsolute:
-        x: 583.7463615443697
-        y: 721.6386638300628
+        x: 563.5879295396928
+        y: 491.64216303195735
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         context:
           enabled: true
@@ -616,11 +802,11 @@ workflow:
           role: system
           text: '你是一个Dify Workflow结构编译器，请根据以下节点配置层输出，为标记为MCP的节点生成工程级开发大纲：
 
-            节点配置层输出：{{#1769053793268.markdown_output#}}
+            节点配置层输出：{{#1769053793268.markdown_output# || ''}}
 
             需求内容：{{#1769068037267.final_content#}}
 
-            模式选择：{{#1769050927522.mode#}}
+            模式选择：{{#1769050927522.mode_MCP#}}
 
             请按照以下要求生成每个MCP节点的开发大纲： 1. 节点概述：描述MCP节点的核心功能和定位 2. 技术架构：设计MCP节点的技术架构 3.
             API设计：定义输入输出接口 4. 实现步骤：详细的开发步骤 5. 测试策略：如何测试MCP节点 6. 部署方案：如何部署和集成到Dify
@@ -637,19 +823,19 @@ workflow:
         type: llm
         vision:
           enabled: false
-      height: 88
+      height: 87
       id: '1769053833970'
       position:
-        x: 574.1979455052656
-        y: 1113.3995261050882
+        x: 563.5879295396928
+        y: 799.6461968374359
       positionAbsolute:
-        x: 574.1979455052656
-        y: 1113.3995261050882
+        x: 563.5879295396928
+        y: 799.6461968374359
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         context:
           enabled: true
@@ -660,6 +846,8 @@ workflow:
           - markdown_output
           - '1769053833970'
           - markdown_output
+          - '1769146109239'
+          - results
         model:
           completion_params:
             temperature: 0.7
@@ -675,7 +863,7 @@ workflow:
           role: system
           text: "你是一个Dify Workflow结构编译器，请根据以下各层输出，按照指定的写作标准生成最终的完整输出：\n可视化结构层输出：{{#1769068500001.markdown_output#}}\n\
             \            节点配置层输出：{{#1769053793268.markdown_output# || ''}}\nMCP开发层输出：{{#1769053833970.markdown_output#\
-            \ || ''}} 模式选择：{{#1769050927522.mode#}}\n请按照以下结构和写作标准生成最终输出： 1. 整体遵循三层递进式生成流水线：可视化结构层\
+            \ || ''}} 模式选择：{{#1769050927522.mode_MCP#}}\n请按照以下结构和写作标准生成最终输出： 1. 整体遵循三层递进式生成流水线：可视化结构层\
             \ → 节点配置层 → MCP/自定义节点开发层 2.每一层开头说明'本层解决什么问题' 3. 所有抽象点必须给出示例 4. 避免营销语言与空泛总结\
             \ 5. 每节点描述不少于200字 6. 每MCP大纲不少于1000字7. 总字数不少于5000字 8. 格式必须为Markdown 9.\
             \ 包含以下章节：\n   - Layer 1｜Workflow 可视化结构\n- Layer 2｜节点参数与连接配置\n   - Layer\
@@ -687,7 +875,7 @@ workflow:
         type: llm
         vision:
           enabled: false
-      height: 88
+      height: 87
       id: '1769053876253'
       position:
         x: 977.1232375653808
@@ -699,13 +887,14 @@ workflow:
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         is_team_authorization: true
         params:
           docx_template_file: ''
-          md_text: '{{#17690724297200.final_markdown#}}'
-          output_filename: dify_workflow_config
+          md_text: '{{#17690724297200.final_markdown# || #1769075678901.final_yaml#}}'
+          output_filename: '{{#1769050927522.mode_YAML# == "启用YAML模式" ? "dify_workflow.yml"
+            : "dify_workflow_config"}}'
         plugin_id: bowenliang123/md_exporter
         plugin_unique_identifier: bowenliang123/md_exporter:3.2.0@b3075f474341eaf9f98ff773d684dc779c0b228f5da09b55eb773dcb5421d947
         provider_icon: http://localhost/console/api/workspaces/current/plugin/icon?tenant_id=a633b69c-9b5d-4769-b682-a66b28423d93&filename=f0bad95cda1671b4e49f0e05df6122ef9ec5d554e138f128795d11d3806c00ef.svg
@@ -725,24 +914,25 @@ workflow:
             value: null
           md_text:
             type: mixed
-            value: '{{#17690724297200.final_markdown#}}'
+            value: '{{#17690724297200.final_markdown# || #1769075678901.final_yaml#}}'
           output_filename:
             type: mixed
-            value: null
+            value: '{{#1769050927522.mode_YAML# == "启用YAML模式" ? "dify_workflow.yml"
+              : "dify_workflow_config"}}'
         type: tool
-      height: 52
+      height: 51
       id: '1769053963253'
       position:
-        x: 977.1232375653808
-        y: 644.1900449921706
+        x: 1082.3958442910928
+        y: 1249.3742750637334
       positionAbsolute:
-        x: 977.1232375653808
-        y: 644.1900449921706
+        x: 1082.3958442910928
+        y: 1249.3742750637334
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
           \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
@@ -793,19 +983,19 @@ workflow:
           - '1769052162508'
           - text
           variable: raw_text
-      height: 52
+      height: 51
       id: '1769068037267'
       position:
-        x: 237.69293221530205
-        y: 296.6075091658131
+        x: 38.072185119965866
+        y: 586.3693287706064
       positionAbsolute:
-        x: 237.69293221530205
-        y: 296.6075091658131
+        x: 38.072185119965866
+        y: 586.3693287706064
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
           \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
@@ -840,19 +1030,19 @@ workflow:
           - '1769053876253'
           - text
           variable: raw_text
-      height: 52
+      height: 51
       id: '17690724131850'
       position:
-        x: 583.7463615443697
-        y: 811.3357531450264
+        x: 563.5879295396928
+        y: 578.1116105581626
       positionAbsolute:
-        x: 583.7463615443697
-        y: 811.3357531450264
+        x: 563.5879295396928
+        y: 578.1116105581626
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
           \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
@@ -889,19 +1079,19 @@ workflow:
           - '1769053676751'
           - text
           variable: raw_text
-      height: 52
+      height: 51
       id: '17690724163040'
       position:
-        x: 574.1979455052656
-        y: 1228.552905510483
+        x: 563.5879295396928
+        y: 890.5481111786644
       positionAbsolute:
-        x: 574.1979455052656
-        y: 1228.552905510483
+        x: 563.5879295396928
+        y: 890.5481111786644
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
           \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
@@ -938,7 +1128,7 @@ workflow:
           - '1769053876253'
           - text
           variable: raw_text
-      height: 52
+      height: 51
       id: '17690724297200'
       position:
         x: 977.1232375653808
@@ -950,46 +1140,251 @@ workflow:
       sourcePosition: right
       targetPosition: left
       type: custom
-      width: 242
+      width: 241
     - data:
         cases:
         - case_id: 'true'
           conditions:
           - comparison_operator: is
-            value: 引用MCP
+            value: 启用MCP模式
             variable_selector:
             - '1769050927522'
-            - mode
+            - mode_MCP
           id: 'true'
           logical_operator: and
         - case_id: 'false'
           conditions:
           - comparison_operator: is
-            value: 禁止MCP
+            value: 禁用MCP模式
             variable_selector:
             - '1769050927522'
-            - mode
+            - mode_MCP
           id: 'false'
           logical_operator: and
         default_next_node_id: '1769052218754'
         selected: false
-        title: 条件分支
+        title: MCP模式
         type: if-else
       height: 171
       id: '1769073297193'
       position:
-        x: 583.7463615443697
-        y: 889.7869495917439
+        x: 563.5879295396928
+        y: 629.1376528313453
       positionAbsolute:
-        x: 583.7463615443697
-        y: 889.7869495917439
+        x: 563.5879295396928
+        y: 629.1376528313453
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1769068500001'
+          - markdown_output
+          - '1769053793268'
+          - markdown_output
+          - '1769053833970'
+          - markdown_output
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        outputs:
+          yaml_output:
+            children: null
+            type: string
+        prompt_template:
+        - id: 3c4a2b1d-5e6f-7g8h-9i0j-1k2l3m4n5o6p
+          role: system
+          text: '你是Dify Workflow YAML生成专家，根据以下输出生成完整的批量文档处理工作流YAML：
+
+            输入需求内容：{{#1769068037267.final_content# || ''}} 可视化结构：{{#1769068500001.markdown_output#
+            || ''}} 节点配置：{{#1769053793268.markdown_output# || ''}} 知识检索结果：{{#1769146109239.results#
+            || ''}}
+
+            要求： 1. 严格按照宝玉的英译中优化版.yml、完蛋！我被LLM包围了！.yml、MCP.yml等范例文件的结构生成 2. 生成完整的Dify
+            YAML，包含app、kind、version、workflow等所有必要部分 3. 遵循schema 0.5.0 4. 语法正确，使用2空格缩进
+            5. 可直接导入Dify平台使用 6. 仅输出纯YAML，无额外文本，无```yaml标记 7. 生成批量文档处理工作流，用于自动生成巡检报告/实施报告/问题报告
+
+            具体要求： - app部分：包含description、icon、icon_background、mode、name等字段 - kind:
+            app - version: 0.1.0 - workflow部分：包含features、graph（edges和nodes）等 - 节点配置：包含完整的节点数据和连接关系
+            - 使用正确的YAML语法，多行字符串使用|标记 - 避免使用未解析的变量引用 - 确保所有字段都有合理的值 - 包含文档提取器、报告类型分析、报告生成等核心节点
+            - 支持批量输入和报告类型路由 - 符合Dify Workflow格式规范
+
+            请根据输入的批量文档处理工作流需求，生成可直接使用的Dify Workflow YAML文件。'
+        selected: false
+        structured_output_enabled: true
+        title: YAML工作流生成器
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1769074567890'
+      position:
+        x: 1082.3958442910928
+        y: 926.1506328881483
+      positionAbsolute:
+        x: 1082.3958442910928
+        y: 926.1506328881483
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "import json\nimport re\n\n\ndef extract_yaml(text: str) -> str:\n \
+          \   \"\"\"\n    从文本中提取YAML内容\n    支持：\n    - 纯YAML字符串\n    - 带标记的YAML块（如```yaml\
+          \ ... ```）\n    - 前后带杂质文本\n    \"\"\"\n    \n    if not text:\n        return\
+          \ \"\"\n    text = text.strip()\n    \n    # 情况1：已经是纯YAML\n    try:\n  \
+          \      True\n        return text\n    except:\n        pass\n    \n    #\
+          \ 情况2：带有yaml标记\n    yaml_match = re.search(r'```yaml\\s*([\\s\\S]*?)\\s*```',\
+          \ text, re.IGNORECASE)\n    if yaml_match:\n        yaml_content = yaml_match.group(1).strip()\n\
+          \        try:\n            True\n            return yaml_content\n     \
+          \   except:\n            pass\n    \n    # 情况3：前后有杂质，尝试提取yaml结构\n    yaml_start\
+          \ = text.find('app:')\n    if yaml_start != -1:\n        yaml_candidate\
+          \ = text[yaml_start:]\n        try:\n            True\n            return\
+          \ yaml_candidate\n        except:\n            pass\n    \n    return text\n\
+          \ndef main(raw_text: str):\n    \"\"\"\n    处理LLM生成的YAML，确保格式正确\n    \"\"\
+          \"\n    # 提取YAML\n    yaml_content = extract_yaml(raw_text)\n    \n    #\
+          \ 基本验证和修复\n    if not yaml_content:\n        # 生成默认YAML模板\n        yaml_content\
+          \ = \"\"\"\napp:\n  description: 自动生成的Dify工作流\n  icon: \U0001F916\n  icon_background:\
+          \ '#FFEAD5'\n  mode: workflow\n  name: 自动生成工作流\n  use_icon_as_answer_icon:\
+          \ false\ndependencies: []\nkind: app\nversion: 0.5.0\nworkflow:\n  conversation_variables:\
+          \ []\n  environment_variables: []\n  features:\n    file_upload:\n     \
+          \ allowed_file_extensions:\n      - .JPG\n      - .JPEG\n      - .PNG\n\
+          \      - .GIF\n      - .WEBP\n      - .SVG\n      allowed_file_types:\n\
+          \      - image\n      allowed_file_upload_methods:\n      - local_file\n\
+          \      - remote_url\n      enabled: false\n      image:\n        enabled:\
+          \ false\n        number_limits: 3\n        transfer_methods:\n        -\
+          \ local_file\n        - remote_url\n      number_limits: 3\n    opening_statement:\
+          \ ''\n    retriever_resource:\n      enabled: false\n    sensitive_word_avoidance:\n\
+          \      enabled: false\n    speech_to_text:\n      enabled: false\n    suggested_questions:\
+          \ []\n    suggested_questions_after_answer:\n      enabled: false\n    text_to_speech:\n\
+          \      enabled: false\n      language: ''\n      voice: ''\n  graph:\n \
+          \   edges: []\n    nodes: []\n    viewport:\n      x: 0\n      y: 0\n  \
+          \    zoom: 1\n  rag_pipeline_variables: []\n            \"\"\"\n    \n \
+          \   result = {\n        \"final_yaml\": yaml_content\n    }\n    return\
+          \ result\n"
+        code_language: python3
+        is_team_authorization: true
+        outputs:
+          final_yaml:
+            children: null
+            type: string
+        selected: false
+        title: YAML后处理器
+        type: code
+        variables:
+        - value_selector:
+          - '1769074567890'
+          - text
+          variable: raw_text
+      height: 51
+      id: '1769075678901'
+      position:
+        x: 1082.3958442910928
+        y: 870.7043707060124
+      positionAbsolute:
+        x: 1082.3958442910928
+        y: 870.7043707060124
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            value: 启用YAML模式
+            variable_selector:
+            - '1769050927522'
+            - mode_YAML
+          id: 'true'
+          logical_operator: and
+        - case_id: 'false'
+          conditions:
+          - comparison_operator: is
+            value: 禁用YAML模式
+            variable_selector:
+            - '1769050927522'
+            - mode_YAML
+          id: 'false'
+          logical_operator: and
+        default_next_node_id: '1769052218754'
+        selected: false
+        title: YAML模式
+        type: if-else
+      height: 171
+      id: '1769094201733'
+      position:
+        x: 743.9582009544303
+        y: 1123.1937865344998
+      positionAbsolute:
+        x: 743.9582009544303
+        y: 1123.1937865344998
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        outputs:
+        - value_selector:
+          - '1769075678901'
+          - final_yaml
+          value_type: string
+          variable: YAML_OUTPUT
+        selected: false
+        title: YAML文件输出
+        type: end
+      height: 87
+      id: '1769094370285'
+      position:
+        x: 1082.3958442910928
+        y: 777.1804087047515
+      positionAbsolute:
+        x: 1082.3958442910928
+        y: 777.1804087047515
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        dataset_ids:
+        - XORKK5WbMGLElpUugvIfSDxaTqT09UIOtLOdSf91g5H+fyX157gkV5adFn0D7rDX
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: reranking_model
+          top_k: 4
+        query_attachment_selector: []
+        query_variable_selector: []
+        retrieval_mode: multiple
+        selected: false
+        title: 工作流数据集
+        type: knowledge-retrieval
+      height: 89
+      id: '1769148240708'
+      position:
+        x: 1082.3958442910928
+        y: 1013.1764126515723
+      positionAbsolute:
+        x: 1082.3958442910928
+        y: 1013.1764126515723
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
       width: 241
     viewport:
-      x: 277.00885051446903
-      y: -91.31114632087679
-      zoom: 0.659753955386447
+      x: 440.8813736528306
+      y: 89.44121896698584
+      zoom: 0.6597539553864473
   rag_pipeline_variables: []
