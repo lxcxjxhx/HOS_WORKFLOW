@@ -16,6 +16,11 @@ dependencies:
   value:
     marketplace_plugin_unique_identifier: langgenius/deepseek:0.0.9@8cc65e3d2ce11b03d377ee008dc699c7016601c2646a09c983fcf7c1fd7827ee
     version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.2.8@aae2be0913b8c6f0b80cff58e08d7a8b4c214569b41778413fcaea204561ff16
+    version: null
 kind: app
 version: 0.5.0
 workflow:
@@ -594,7 +599,12 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: "import json\n\ndef main(text: any) -> dict:\n    \"\"\"\n    将输入转换为字符串类型\n    \"\"\"\n    # 确保text始终为字符串类型\n    if text is None:\n        string_text = \"\"\n    elif isinstance(text, str):\n        string_text = text\n    else:\n        try:\n            # 尝试将非字符串类型转换为字符串\n            string_text = str(text)\n        except:\n            # 转换失败时使用空字符串\n            string_text = \"\"\n    \n    return {\"text\": string_text}\n"
+        code: "import json\n\ndef main(text: any) -> dict:\n    \"\"\"\n    将输入转换为字符串类型\n\
+          \    \"\"\"\n    # 确保text始终为字符串类型\n    if text is None:\n        string_text\
+          \ = \"\"\n    elif isinstance(text, str):\n        string_text = text\n\
+          \    else:\n        try:\n            # 尝试将非字符串类型转换为字符串\n            string_text\
+          \ = str(text)\n        except:\n            # 转换失败时使用空字符串\n            string_text\
+          \ = \"\"\n    \n    return {\"text\": string_text}\n"
         code_language: python3
         outputs:
           text:
@@ -612,10 +622,10 @@ workflow:
       id: '1769150000001'
       position:
         x: -360.52070549758207
-        y: 550.0
+        y: 550
       positionAbsolute:
         x: -360.52070549758207
-        y: 550.0
+        y: 550
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -1359,15 +1369,23 @@ workflow:
       width: 241
     - data:
         dataset_ids:
-        - XORKK5WbMGLElpUugvIfSDxaTqT09UIOtLOdSf91g5H+fyX157gkV5adFn0D7rDX
+        - CHiqEMjxow1iqexS8Vsv++eqVZ8IELOGXos5fodI7JXT1bgNUdJHu4hgSsQtkCN5
         multiple_retrieval_config:
           reranking_enable: false
-          reranking_mode: reranking_model
+          reranking_mode: weighted_score
           top_k: 4
+          weights:
+            keyword_setting:
+              keyword_weight: 0
+            vector_setting:
+              embedding_model_name: text-embedding-3-large
+              embedding_provider_name: langgenius/openai/openai
+              vector_weight: 1
+            weight_type: customized
         query_attachment_selector: []
         query_variable_selector: []
         retrieval_mode: multiple
-        selected: false
+        selected: true
         title: 工作流数据集
         type: knowledge-retrieval
       height: 89
@@ -1378,13 +1396,13 @@ workflow:
       positionAbsolute:
         x: 1082.3958442910928
         y: 1013.1764126515723
-      selected: false
+      selected: true
       sourcePosition: right
       targetPosition: left
       type: custom
       width: 241
     viewport:
-      x: 440.8813736528306
-      y: 89.44121896698584
+      x: 351.8813736528306
+      y: -150.55878103301416
       zoom: 0.6597539553864473
   rag_pipeline_variables: []
