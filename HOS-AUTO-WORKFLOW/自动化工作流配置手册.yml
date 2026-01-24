@@ -465,11 +465,11 @@ workflow:
       id: '1769050927522'
       position:
         x: -360.52070549758207
-        y: 732.3216377809192
+        y: 756.1804087047515
       positionAbsolute:
         x: -360.52070549758207
-        y: 732.3216377809192
-      selected: false
+        y: 756.1804087047515
+      selected: true
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -1040,8 +1040,9 @@ workflow:
         type: code
         variables:
         - value_selector:
-          - '1769053876253'
+          - '1769053793268'
           - text
+          value_type: string
           variable: raw_text
       height: 51
       id: '17690724131850'
@@ -1406,7 +1407,7 @@ workflow:
         - '1769068037267'
         - final_content
         retrieval_mode: multiple
-        selected: true
+        selected: false
         title: 工作流数据集
         type: knowledge-retrieval
       height: 89
@@ -1417,13 +1418,13 @@ workflow:
       positionAbsolute:
         x: 38.072185119965866
         y: 456.68281208139695
-      selected: true
+      selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
       width: 241
     viewport:
-      x: 220.8290495929591
-      y: -142.37089450941698
-      zoom: 0.6647559924751362
+      x: 551.6157815163814
+      y: -110.31227462856657
+      zoom: 0.578703703703704
   rag_pipeline_variables: []
