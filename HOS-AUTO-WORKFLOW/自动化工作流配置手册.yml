@@ -532,29 +532,47 @@ workflow:
         prompt_template:
         - id: d89962a0-8394-4a03-aec8-c0ff491d0a84
           role: system
-          text: '你是一个需求分析师，请检查以下需求内容，确保其完整性和清晰度。如果用户提供了需求文档，请优先使用文档内容；如果没有，请使用需求段落。同时利用知识检索结果来完善需求分析。
-
-            需求文档内容：{{#1769150000001.text#}}
-
-            需求段落：{{#1769050927522.NEED_TEXT#}}
-
-            知识检索结果：
+          text: '你是一个专业的Dify Workflow需求分析师，请严格按照以下要求检查和完善需求内容：
 
 
-            重要说明：
 
-            1. 请仔细检查所有输入内容，如果需求文档和需求段落都为空，请创建一个示例需求内容作为final_content
+            1. **输入优先级**：优先使用需求文档内容，若为空则使用需求段落
 
-            2. 无论输入如何，必须确保生成完整的final_content字段，不能为空
+            2. **知识利用**：结合知识检索结果完善需求分析
 
-            3. final_content应该是一个结构化的需求描述，包含工作流的主要功能和流程
+            3. **检查要点**：
+
+               - 需求完整性：是否包含工作流的核心功能、节点类型、连接关系
+
+               - 需求清晰度：是否存在歧义或模糊描述
+
+               - 生成可行性：是否包含足够信息生成符合1.11.x版本规范的Dify Workflow
+
+               - 矛盾检查：需求内容是否存在逻辑矛盾
 
 
-            请检查： 1. 需求是否完整 2. 需求是否清晰 3. 是否包含足够的信息来生成Dify Workflow 4. 是否有任何歧义或矛盾之处
 
-            重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 不要对 JSON 进行字符串转义 - 严格按照以下JSON结构输出：
-            {"is_complete": boolean, "is_clear": boolean, "has_enough_info": boolean,
-            "ambiguities": [string], "conflicts": [string], "final_content": string} '
+            4. **输入内容**：
+
+               - 需求文档：{{#1769150000001.text#}}
+
+               - 需求段落：{{#1769050927522.NEED_TEXT#}}
+
+               - 知识检索结果：
+
+
+
+            5. **输出要求**：
+
+               - 严格输出JSON格式，无其他解释
+
+               - 确保final_content字段非空，即使输入为空也需生成示例需求
+
+               - final_content需包含工作流名称、描述、模式、节点列表、连接关系等核心信息
+
+               - 输出结构：{"is_complete": boolean, "is_clear": boolean, "has_enough_info":
+            boolean, "ambiguities": [string], "conflicts": [string], "final_content":
+            string}'
         selected: false
         structured_output_enabled: true
         title: 检查
@@ -675,15 +693,66 @@ workflow:
         prompt_template:
         - id: f71a017e-4765-494b-8dee-f1674554b20c
           role: system
-          text: '你是一个工作流可视化专家，请根据以下需求内容，生成对应的可视化结构层输出：
+          text: '你是专业的Dify Workflow可视化专家，根据以下需求生成清晰的工作流可视化结构：
 
-            需求内容：{{#1769068037267.final_content#}}
 
-            请按照以下要求生成输出： 1. 首先生成一个伪ASCII流程图，展示工作流的整体流转 2. 然后生成一个Mermaid流程图，支持click跳转
-            3. 确保流程图清晰展示所有节点和它们之间的连接关系 4. 为每个节点添加简短的描述 5. 根据需求内容生成对应类型的工作流可视化，如批量文档处理工作流
 
-            重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 严格按照以下JSON结构输出： {"ascii_flowchart":
-            string, "markdown_output": string, "mermaid_flowchart": string} '
+            1. **输入内容**：
+
+               - 需求内容：{{#1769068037267.final_content#}}
+
+
+
+            2. **输出要求**：
+
+               - 生成三种可视化表示：
+
+                 - ASCII流程图：简洁的文本流程图，展示节点流转
+
+                 - Mermaid流程图：支持click跳转的结构化流程图
+
+                 - Markdown输出：包含可视化说明和节点关系描述
+
+               - 每个节点需包含：ID、类型、描述、连接关系
+
+               - 清晰展示工作流的开始、处理、判断、结束节点
+
+               - 支持并行流程和条件分支的可视化
+
+
+
+            3. **格式要求**：
+
+               - 输出JSON格式：{"ascii_flowchart": string, "markdown_output": string, "mermaid_flowchart":
+            string}
+
+               - 无其他解释性文本
+
+               - Mermaid流程图需支持节点点击跳转
+
+               - ASCII流程图需使用简洁的符号和连接线
+
+
+
+            4. **示例结构**：
+
+               - ASCII：使用ASCII字符绘制的流程图
+
+               - Mermaid：graph LR
+
+                         Start[开始节点] --> Node1[处理节点]
+
+                         Node1 --> Condition{条件判断}
+
+                         Condition -->|是| Node2[处理节点]
+
+                         Condition -->|否| Node3[处理节点]
+
+                         Node2 --> End[结束节点]
+
+                         Node3 --> End
+
+               - Markdown：详细的节点关系说明和可视化描述'
         selected: false
         structured_output_enabled: true
         title: 可视化结构层
@@ -776,20 +845,59 @@ workflow:
         prompt_template:
         - id: a45d3b45-1d5f-42e4-b8c0-466d7784835e
           role: system
-          text: '你是一个工作流节点配置专家，请根据以下输入内容，生成对应工作流的节点配置层详细配置：
+          text: '你是一个专业的Dify Workflow节点配置专家，熟悉1.11.x版本规范，请根据以下输入生成详细的节点配置：
 
-            可视化结构层输出：{{#1769068500001.markdown_output# || ''}}
 
-            需求内容：{{#1769068037267.final_content#}}
 
-            请按照以下要求生成每个节点的配置： 1. 节点目的：描述节点的核心功能和作用 2. 关键参数：列出节点的主要配置参数 3. 输入：描述节点接收的输入内容
-            4. 输出：描述节点产生的输出内容 5. 上下游连接关系：说明节点的输入来源和输出去向 6. 仅在需要时标记需要自定义开发的特殊节点
+            1. **输入内容**：
 
-            重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 严格按照以下JSON结构输出： {"nodes":
-            [{"id": string, "title": string, "purpose": string, "key_parameters":
-            [string], "input": string, "output": string, "upstream_connections": [string],
-            "downstream_connections": [string], "is_mcp": boolean}], "markdown_output":
-            string} '
+               - 可视化结构：{{#1769068500001.markdown_output# || ''''}}
+
+               - 需求内容：{{#1769068037267.final_content#}}
+
+               - 1.11.x规范：包含dependencies配置、节点type字段、desc字段、selected状态、cases数组结构等
+
+
+
+            2. **配置要求**：
+
+               - 每个节点必须包含：type、desc、selected等核心字段
+
+               - 变量配置需使用variable字段，包含selector、max_length等
+
+               - 条件分支使用cases数组结构，包含case_id、conditions、logical_operator
+
+               - 输出配置使用outputs数组，包含value_selector和variable
+
+               - LLM节点需包含vision、completion_params配置
+
+               - 代码节点需包含code_language字段
+
+
+
+            3. **输出内容**：
+
+               - 节点目的：核心功能和作用
+
+               - 关键参数：1.11.x规范要求的必填字段
+
+               - 输入：接收的变量和数据类型
+
+               - 输出：产生的变量和数据类型
+
+               - 连接关系：输入来源和输出去向
+
+               - MCP标记：需自定义开发的特殊节点
+
+
+
+            4. **格式要求**：
+
+               - 清晰的层级结构
+
+               - 每个节点配置不少于200字
+
+               - 严格遵循1.11.x版本规范'
         selected: false
         structured_output_enabled: true
         title: 节点配置层
@@ -830,23 +938,49 @@ workflow:
         prompt_template:
         - id: cfb873bb-b03d-4f26-a83f-6b25cc42fdf3
           role: system
-          text: '你是一个Dify Workflow结构编译器，请根据以下节点配置层输出，为标记为MCP的节点生成工程级开发大纲：
+          text: '你是一个专业的Dify Workflow MCP节点开发专家，请根据以下输入生成工程级开发大纲：
 
-            节点配置层输出：{{#1769053793268.markdown_output# || ''}}
 
-            需求内容：{{#1769068037267.final_content#}}
 
-            模式选择：{{#1769050927522.mode_MCP#}}
+            1. **输入内容**：
 
-            请按照以下要求生成每个MCP节点的开发大纲： 1. 节点概述：描述MCP节点的核心功能和定位 2. 技术架构：设计MCP节点的技术架构 3.
-            API设计：定义输入输出接口 4. 实现步骤：详细的开发步骤 5. 测试策略：如何测试MCP节点 6. 部署方案：如何部署和集成到Dify
-            7. 维护建议：后续维护和升级建议
+               - 节点配置：{{#1769053793268.markdown_output# || ''''}}
 
-            重要输出要求： - 只输出合法JSON，不要使用```包裹 - 不要输出任何解释性文本 - 严格按照以下JSON结构输出： {"mcp_nodes":
-            [{"id": string, "title": string, "overview": string, "technical_architecture":
-            string, "api_design": string, "implementation_steps": [string], "testing_strategy":
-            string, "deployment_plan": string, "maintenance_suggestions": string}],
-            "markdown_output": string} '
+               - 需求内容：{{#1769068037267.final_content#}}
+
+               - 模式选择：{{#1769050927522.mode_MCP#}}
+
+               - 1.11.x规范：包含节点结构、输入输出格式、依赖管理等
+
+
+
+            2. **开发大纲要求**：
+
+               - 节点概述：核心功能、定位、与其他节点的关系
+
+               - 技术架构：技术栈选择、模块划分、数据流设计
+
+               - API设计：严格遵循1.11.x规范的输入输出接口
+
+               - 实现步骤：详细的开发里程碑和代码实现要点
+
+               - 测试策略：单元测试、集成测试、性能测试方案
+
+               - 部署方案：Dify集成方式、依赖管理、版本控制
+
+               - 维护建议：监控指标、日志设计、升级策略
+
+
+
+            3. **输出要求**：
+
+               - 每个MCP节点大纲不少于1000字
+
+               - 技术细节具体，可直接指导开发
+
+               - 严格遵循1.11.x版本规范
+
+               - 考虑可扩展性和维护性'
         selected: false
         structured_output_enabled: true
         title: MCP 开发层
@@ -891,15 +1025,78 @@ workflow:
         prompt_template:
         - id: 2cdf4682-e9e3-402b-b7d3-3b0a2d0f4ffb
           role: system
-          text: "你是一个Dify Workflow结构编译器，请根据以下各层输出，按照指定的写作标准生成最终的完整输出：\n可视化结构层输出：{{#1769068500001.markdown_output#}}\n\
-            \            节点配置层输出：{{#1769053793268.markdown_output# || ''}}\nMCP开发层输出：{{#1769053833970.markdown_output#\
-            \ || ''}} 模式选择：{{#1769050927522.mode_MCP#}}\n请按照以下结构和写作标准生成最终输出： 1. 整体遵循三层递进式生成流水线：可视化结构层\
-            \ → 节点配置层 → MCP/自定义节点开发层 2.每一层开头说明'本层解决什么问题' 3. 所有抽象点必须给出示例 4. 避免营销语言与空泛总结\
-            \ 5. 每节点描述不少于200字 6. 每MCP大纲不少于1000字7. 总字数不少于5000字 8. 格式必须为Markdown 9.\
-            \ 包含以下章节：\n   - Layer 1｜Workflow 可视化结构\n- Layer 2｜节点参数与连接配置\n   - Layer\
-            \ 3｜MCP / 自定义节点开发大纲\n   - 整体部署与演进建议\n\n重要输出要求：\n   - 只输出合法JSON，不要使用```包裹\n\
-            - 不要输出任何解释性文本\n- 严格按照以下JSON结构输出：\n{\"final_markdown\": string}\n"
-        selected: false
+          text: '你是一个专业的Dify Workflow文档生成专家，请根据以下输入生成符合1.11.x规范的完整工作流配置文档：
+
+
+
+            1. **输入内容**：
+
+               - 可视化结构：{{#1769068500001.markdown_output#}}
+
+               - 节点配置：{{#1769053793268.markdown_output# || ''''}}
+
+               - MCP开发大纲：{{#1769053833970.markdown_output# || ''''}}
+
+               - 模式选择：{{#1769050927522.mode_MCP#}}
+
+               - 1.11.x规范：包含工作流结构、节点配置、输出格式等
+
+
+
+            2. **文档结构要求**：
+
+               - Layer 1｜Workflow 可视化结构：
+
+                 - 解决问题：展示工作流整体架构和连接关系
+
+                 - 包含：ASCII流程图、Mermaid流程图、节点关系说明
+
+               - Layer 2｜节点参数与连接配置：
+
+                 - 解决问题：详细定义每个节点的配置参数和连接关系
+
+                 - 包含：每个节点的type、desc、参数配置、输入输出、连接关系
+
+               - Layer 3｜MCP / 自定义节点开发大纲：
+
+                 - 解决问题：提供MCP节点的详细开发指南
+
+                 - 包含：节点概述、技术架构、API设计、实现步骤、测试策略、部署方案
+
+               - 整体部署与演进建议：
+
+                 - 解决问题：指导工作流的部署和长期维护
+
+                 - 包含：部署方式、版本管理、性能优化、扩展建议
+
+
+
+            3. **写作标准**：
+
+               - 每节点描述不少于200字
+
+               - 每MCP大纲不少于1000字
+
+               - 总字数不少于5000字
+
+               - 所有抽象点必须给出示例
+
+               - 避免营销语言与空泛总结
+
+               - 严格遵循1.11.x版本规范
+
+
+
+            4. **输出要求**：
+
+               - 输出格式：Markdown
+
+               - 输出结构：{"final_markdown": string}
+
+               - 无其他解释性文本
+
+               - 确保内容完整、结构清晰、技术准确'
+        selected: true
         structured_output_enabled: true
         title: 写作标准 & 输出结构控制
         type: llm
@@ -913,7 +1110,7 @@ workflow:
       positionAbsolute:
         x: 977.1232375653808
         y: 462.9091927572484
-      selected: false
+      selected: true
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -1229,34 +1426,73 @@ workflow:
         prompt_template:
         - id: 3c4a2b1d-5e6f-7g8h-9i0j-1k2l3m4n5o6p
           role: system
-          text: '你是Dify Workflow YAML生成专家，根据以下输出生成完整的批量文档处理工作流YAML：
+          text: '你是专业的Dify Workflow YAML生成专家，严格按照1.11.x版本规范生成完整的工作流YAML：
 
-            输入需求内容：{{#1769068037267.final_content# || ''}} 可视化结构：{{#1769068500001.final_markdown#
-            || ''}} 节点配置：{{#1769053793268.final_markdown# || ''}} 知识检索结果：{{#1769148240708.results#
-            || ''}}
 
-            要求： 1. 严格按照知识检索结果中的1.11.x版本结构规范生成 2. 生成完整的Dify YAML，包含所有1.11.x版本必需的字段
-            3. 遵循schema 0.5.0 4. 语法正确，使用2空格缩进 5. 可直接导入Dify平台使用 6. 仅输出纯YAML，无额外文本，无```yaml标记
-            7. 生成批量文档处理工作流，用于自动生成巡检报告/实施报告/问题报告
 
-            具体要求： - 严格使用2空格缩进，每个层级缩进2空格 - app部分：包含description、icon、icon_background、mode、name、use_icon_as_answer_icon等字段
-            - kind: app - version: 0.5.0（必须使用此版本号，不得修改） - workflow部分：包含conversation_variables、environment_variables、features、graph（edges和nodes）、rag_pipeline_variables等所有1.11.x必需字段
-            - graph.edges：每个edge是一个独立的列表项，包含data（sourceType、targetType、isInLoop）、id、source、sourceHandle、target、targetHandle、type、zIndex等完整属性
-            - graph.nodes：每个node是一个独立的列表项，包含data、height、id、position、positionAbsolute、selected、sourcePosition、targetPosition、type、width等完整属性
-            - 正确的缩进示例： app: description: 工作流描述 icon: 🤖 workflow: conversation_variables:
-            [] graph: edges: - data: sourceType: start targetType: code id: edge-1
-            source: start target: code_node nodes: - data: title: 开始 height: 64 id:
-            start position: x: 100 y: 200 positionAbsolute: x: 100 y: 200 type: start
-            width: 64 - 使用正确的YAML语法，多行字符串使用|标记 - 避免使用未解析的变量引用 - 确保所有字段都有合理的值 - 包含文档提取器、报告类型分析、报告生成等核心节点
-            - 支持批量输入和报告类型路由 - 完全符合1.11.x版本的Dify Workflow格式规范 - 条件语法必须严格符合Dify规范： *
-            条件语句必须返回单个布尔值，不能返回多个值 * contains函数只能接受两个参数：contains(字符串, 子串) * 多个条件使用
-            || 或 && 连接，不能在contains函数中使用多个子串参数 * 正确示例：{{contains "文本内容" "巡检" || contains
-            "文本内容" "检查" || contains "文本内容" "维护"}} * 错误示例：{{contains "文本内容" "巡检" "检查"
-            "维护"}}（多个参数） * 错误示例：{{#each extracted_contents}}{{#if (contains this.content
-            "巡检" "检查" "维护")}}true{{/if}}{{/each}}（each循环导致多个返回值） * 条件节点必须返回单个true或false值，不能返回多个值
-            * Dify不支持在条件中使用each循环，所有条件判断必须直接返回单个布尔值
+            1. **输入内容**：
 
-            请根据输入的批量文档处理工作流需求和知识检索结果，生成可直接使用的1.11.x版本Dify Workflow YAML文件。'
+               - 需求内容：{{#1769068037267.final_content# || ''''}}
+
+               - 可视化结构：{{#1769068500001.final_markdown# || ''''}}
+
+               - 节点配置：{{#1769053793268.final_markdown# || ''''}}
+
+               - 知识检索结果：{{#1769148240708.results# || ''''}}
+
+
+
+            2. **1.11.x规范核心要求**：
+
+               - 基本结构：包含dependencies配置
+
+               - workflow：包含version字段
+
+               - features：使用allowed_file_upload_methods而非transfer_methods
+
+               - 节点配置：
+
+                 - 所有节点data中包含type字段
+
+                 - 包含desc字段描述节点功能
+
+                 - 包含selected字段，默认为false
+
+               - 条件分支：使用cases数组，包含case_id、conditions、logical_operator
+
+               - LLM节点：包含vision、completion_params配置
+
+               - 代码节点：包含code_language字段
+
+               - 输出配置：使用outputs数组，包含value_selector和variable
+
+               - 视图配置：包含viewport配置
+
+
+
+            3. **YAML生成要求**：
+
+               - 严格遵循1.11.x版本的字段命名和结构规范
+
+               - 生成完整的YAML，包含所有必需字段
+
+               - 节点ID使用唯一标识符
+
+               - 正确配置节点连接关系
+
+               - 格式缩进规范，易于阅读
+
+               - 包含工作流基本信息、节点列表、边列表、视图配置等
+
+
+
+            4. **输出要求**：
+
+               - 直接输出YAML内容，无其他解释
+
+               - 确保语法正确，可直接导入Dify
+
+               - 严格遵循1.11.x版本规范'
         selected: false
         structured_output_enabled: true
         title: YAML工作流生成器
@@ -1267,10 +1503,10 @@ workflow:
       id: '1769074567890'
       position:
         x: 1082.3958442910928
-        y: 926.1506328881483
+        y: 925.0105780532404
       positionAbsolute:
         x: 1082.3958442910928
-        y: 926.1506328881483
+        y: 925.0105780532404
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -1417,7 +1653,7 @@ workflow:
         - '17690724297200'
         - final_markdown
         retrieval_mode: multiple
-        selected: true
+        selected: false
         title: 工作流数据集
         type: knowledge-retrieval
       height: 89
@@ -1428,7 +1664,7 @@ workflow:
       positionAbsolute:
         x: 1082.3958442910928
         y: 1014.6921292180828
-      selected: true
+      selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -1470,7 +1706,7 @@ workflow:
       type: custom
       width: 241
     viewport:
-      x: 170.86777918405778
-      y: -153.55221959342748
-      zoom: 0.6647559924751362
+      x: -145.22821757174768
+      y: -239.81308265301482
+      zoom: 0.6647559924751368
   rag_pipeline_variables: []
