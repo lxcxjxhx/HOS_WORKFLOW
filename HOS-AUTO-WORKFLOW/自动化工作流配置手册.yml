@@ -851,7 +851,7 @@ workflow:
 
             1. **输入内容**：
 
-               - 可视化结构：{{#1769068500001.markdown_output# || ''''}}
+               - 可视化结构：{{1769068500001.markdown_output || ''''}}
 
                - 需求内容：{{#1769068037267.final_content#}}
 
@@ -944,7 +944,7 @@ workflow:
 
             1. **输入内容**：
 
-               - 节点配置：{{#1769053793268.markdown_output# || ''''}}
+               - 节点配置：{{1769053793268.markdown_output || ''''}}
 
                - 需求内容：{{#1769068037267.final_content#}}
 
@@ -1033,9 +1033,9 @@ workflow:
 
                - 可视化结构：{{#1769068500001.markdown_output#}}
 
-               - 节点配置：{{#1769053793268.markdown_output# || ''''}}
+               - 节点配置：{{1769053793268.markdown_output || ''''}}
 
-               - MCP开发大纲：{{#1769053833970.markdown_output# || ''''}}
+               - MCP开发大纲：{{1769053833970.markdown_output || ''''}}
 
                - 模式选择：{{#1769050927522.mode_MCP#}}
 
@@ -1096,7 +1096,7 @@ workflow:
                - 无其他解释性文本
 
                - 确保内容完整、结构清晰、技术准确'
-        selected: true
+        selected: false
         structured_output_enabled: true
         title: 写作标准 & 输出结构控制
         type: llm
@@ -1110,7 +1110,7 @@ workflow:
       positionAbsolute:
         x: 977.1232375653808
         y: 462.9091927572484
-      selected: true
+      selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -1432,13 +1432,13 @@ workflow:
 
             1. **输入内容**：
 
-               - 需求内容：{{#1769068037267.final_content# || ''''}}
+               - 需求内容：{{1769068037267.final_content || ''''}}
 
-               - 可视化结构：{{#1769068500001.final_markdown# || ''''}}
+               - 可视化结构：{{1769068500001.final_markdown || ''''}}
 
-               - 节点配置：{{#1769053793268.final_markdown# || ''''}}
+               - 节点配置：{{1769053793268.final_markdown || ''''}}
 
-               - 知识检索结果：{{#1769148240708.results# || ''''}}
+               - 知识检索结果：{{1769148240708.results || ''''}}
 
 
 
@@ -1507,7 +1507,7 @@ workflow:
       positionAbsolute:
         x: 1082.3958442910928
         y: 925.0105780532404
-      selected: false
+      selected: true
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -1706,7 +1706,7 @@ workflow:
       type: custom
       width: 241
     viewport:
-      x: -145.22821757174768
-      y: -239.81308265301482
-      zoom: 0.6647559924751368
+      x: -306.13835618830694
+      y: -343.4039698009069
+      zoom: 1.007581670481627
   rag_pipeline_variables: []
