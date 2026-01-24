@@ -554,9 +554,9 @@ workflow:
 
             4. **输入内容**：
 
-               - 需求文档：{{#1769150000001.text#}}
+               - 需求文档：{{1769150000001.text || ''}}
 
-               - 需求段落：{{#1769050927522.NEED_TEXT#}}
+               - 需求段落：{{1769050927522.NEED_TEXT || ''}}
 
                - 知识检索结果：
 
@@ -699,7 +699,7 @@ workflow:
 
             1. **输入内容**：
 
-               - 需求内容：{{#1769068037267.final_content#}}
+               - 需求内容：{{1769068037267.final_content || ''}}
 
 
 
@@ -851,9 +851,9 @@ workflow:
 
             1. **输入内容**：
 
-               - 可视化结构：{{1769068500001.markdown_output || ''''}}
+               - 可视化结构：{{1769068500001.markdown_output || ''}}
 
-               - 需求内容：{{#1769068037267.final_content#}}
+               - 需求内容：{{1769068037267.final_content || ''}}
 
                - 1.11.x规范：包含dependencies配置、节点type字段、desc字段、selected状态、cases数组结构等
 
@@ -944,11 +944,11 @@ workflow:
 
             1. **输入内容**：
 
-               - 节点配置：{{1769053793268.markdown_output || ''''}}
+               - 节点配置：{{1769053793268.markdown_output || ''}}
 
-               - 需求内容：{{#1769068037267.final_content#}}
+               - 需求内容：{{1769068037267.final_content || ''}}
 
-               - 模式选择：{{#1769050927522.mode_MCP#}}
+               - 模式选择：{{1769050927522.mode_MCP}}
 
                - 1.11.x规范：包含节点结构、输入输出格式、依赖管理等
 
@@ -1010,8 +1010,6 @@ workflow:
           - markdown_output
           - '1769053833970'
           - markdown_output
-          - '1769146109239'
-          - results
         model:
           completion_params:
             temperature: 0.7
@@ -1031,13 +1029,13 @@ workflow:
 
             1. **输入内容**：
 
-               - 可视化结构：{{#1769068500001.markdown_output#}}
+               - 可视化结构：{{1769068500001.markdown_output || ''}}
 
-               - 节点配置：{{1769053793268.markdown_output || ''''}}
+               - 节点配置：{{1769053793268.markdown_output || ''}}
 
-               - MCP开发大纲：{{1769053833970.markdown_output || ''''}}
+               - MCP开发大纲：{{1769053833970.markdown_output || ''}}
 
-               - 模式选择：{{#1769050927522.mode_MCP#}}
+               - 模式选择：{{1769050927522.mode_MCP}}
 
                - 1.11.x规范：包含工作流结构、节点配置、输出格式等
 
@@ -1119,7 +1117,7 @@ workflow:
         is_team_authorization: true
         params:
           docx_template_file: ''
-          md_text: '{{#17690724297200.final_markdown#}}'
+          md_text: '{{17690724297200.final_markdown}}'
           output_filename: dify_workflow_config
         plugin_id: bowenliang123/md_exporter
         plugin_unique_identifier: bowenliang123/md_exporter:3.2.0@b3075f474341eaf9f98ff773d684dc779c0b228f5da09b55eb773dcb5421d947
@@ -1140,7 +1138,7 @@ workflow:
             value: null
           md_text:
             type: mixed
-            value: '{{#17690724297200.final_markdown#}}'
+            value: '{{17690724297200.final_markdown}}'
           output_filename:
             type: mixed
             value: dify_workflow_config
@@ -1408,11 +1406,11 @@ workflow:
           enabled: true
           variable_selector:
           - '1769068500001'
-          - final_markdown
+          - markdown_output
           - '1769053793268'
-          - final_markdown
+          - markdown_output
           - '1769053833970'
-          - final_markdown
+          - markdown_output
         model:
           completion_params:
             temperature: 0.7
@@ -1432,13 +1430,13 @@ workflow:
 
             1. **输入内容**：
 
-               - 需求内容：{{1769068037267.final_content || ''''}}
+               - 需求内容：{{1769068037267.final_content || ''}}
 
-               - 可视化结构：{{1769068500001.final_markdown || ''''}}
+               - 可视化结构：{{1769068500001.markdown_output || ''}}
 
-               - 节点配置：{{1769053793268.final_markdown || ''''}}
+               - 节点配置：{{1769053793268.markdown_output || ''}}
 
-               - 知识检索结果：{{1769148240708.results || ''''}}
+               - 知识检索结果：{{1769148240708.results || ''}}
 
 
 
