@@ -597,27 +597,12 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: |
-          import json
-          
-          def main(text: any) -> dict:
-              """
-              将输入转换为字符串类型
-              """
-              # 确保text始终为字符串类型
-              if text is None:
-                  string_text = ""
-              elif isinstance(text, str):
-                  string_text = text
-              else:
-                  try:
-                      # 尝试将非字符串类型转换为字符串
-                      string_text = str(text)
-                  except:
-                      # 转换失败时使用空字符串
-                      string_text = ""
-              
-              return {"text": string_text}
+        code: "import json\n\ndef main(text: any) -> dict:\n    \"\"\"\n    将输入转换为字符串类型\n\
+          \    \"\"\"\n    # 确保text始终为字符串类型\n    if text is None:\n        string_text\
+          \ = \"\"\n    elif isinstance(text, str):\n        string_text = text\n\
+          \    else:\n        try:\n            # 尝试将非字符串类型转换为字符串\n            string_text\
+          \ = str(text)\n        except:\n            # 转换失败时使用空字符串\n            string_text\
+          \ = \"\"\n    \n    return {\"text\": string_text}\n"
         code_language: python3
         outputs:
           text:
@@ -697,72 +682,26 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: |
-          import json
-          import re
-          
-          def extract_json(text: any) -> dict:
-              # 确保text始终为字符串类型
-              if text is None:
-                  text = ""
-              elif not isinstance(text, str):
-                  try:
-                      text = str(text)
-                  except:
-                      text = ""
-              
-              """
-              从 LLM 输出中提取 JSON 对象
-              支持：
-              - 纯 JSON 字符串
-              - 被转义的 JSON
-              - 前后带杂质文本
-              """
-
-              if not text:
-                  return {}
-              text = text.strip()
-
-              # 情况 1：已经是 JSON 对象字符串
-              try:
-                  obj = json.loads(text)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 2：被转义的 JSON 字符串
-              try:
-                  unescaped = bytes(text, "utf-8").decode("unicode_escape")
-                  obj = json.loads(unescaped)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 3：文本中包含 JSON（正则兜底）
-              match = re.search(r'\{[\s\S]*\}', text)
-              if match:
-                  candidate = match.group(0)
-                  try:
-                      return json.loads(candidate)
-                  except Exception:
-                      pass
-
-              return {}
-
-          # Dify Python 节点需要 main 函数接收输入变量
-          def main(raw_text: any):
-              data = extract_json(raw_text)
-
-              # 强制字段兜底（防止下游炸）
-              result = {
-                  "markdown_output": str(data.get("markdown_output", "")),
-                  "ascii_flowchart": str(data.get("ascii_flowchart", "")),
-                  "mermaid_flowchart": str(data.get("mermaid_flowchart", "")),
-              }
-
-              return result
+        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
+          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
+          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
+          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
+          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
+          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
+          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
+          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
+          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
+          \        try:\n            return json.loads(candidate)\n        except\
+          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
+          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
+          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"markdown_output\": str(data.get(\"\
+          markdown_output\", \"\")),\n        \"ascii_flowchart\": str(data.get(\"\
+          ascii_flowchart\", \"\")),\n        \"mermaid_flowchart\": str(data.get(\"\
+          mermaid_flowchart\", \"\")),\n    }\n\n    return result\n"
         code_language: python3
         is_team_authorization: true
         outputs:
@@ -1005,77 +944,29 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: |
-          import json
-          import re
-
-          def extract_json(text: any) -> dict:
-              # 确保text始终为字符串类型
-              if text is None:
-                  text = ""
-              elif not isinstance(text, str):
-                  try:
-                      text = str(text)
-                  except:
-                      text = ""
-              
-              """
-              从 LLM 输出中提取 JSON 对象
-              支持：
-              - 纯 JSON 字符串
-              - 被转义的 JSON
-              - 前后带杂质文本
-              """
-
-              if not text:
-                  return {}
-              text = text.strip()
-
-              # 情况 1：已经是 JSON 对象字符串
-              try:
-                  obj = json.loads(text)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 2：被转义的 JSON 字符串
-              try:
-                  unescaped = bytes(text, "utf-8").decode("unicode_escape")
-                  obj = json.loads(unescaped)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 3：文本中包含 JSON（正则兜底）
-              match = re.search(r'\{[\s\S]*\}', text)
-              if match:
-                  candidate = match.group(0)
-                  try:
-                      return json.loads(candidate)
-                  except Exception:
-                      pass
-
-              return {}
-
-          # Dify Python 节点需要 main 函数接收输入变量
-          def main(raw_text: any):
-              data = extract_json(raw_text)
-
-              # 强制字段兜底（防止下游炸）
-              result = {
-                  "is_complete": bool(data.get("is_complete", False)),
-                  "is_clear": bool(data.get("is_clear", False)),
-                  "has_enough_info": bool(data.get("has_enough_info", False)),
-                  "ambiguities": list(data.get("ambiguities", [])),
-                  "conflicts": list(data.get("conflicts", [])),
-                  "final_content": str(data.get("final_content", "")),
-              }
-
-              return result
-
-          # Dify 会自动调用 main 函数并传入输入变量
+        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
+          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
+          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
+          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
+          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
+          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
+          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
+          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
+          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
+          \        try:\n            return json.loads(candidate)\n        except\
+          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
+          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
+          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"is_complete\": bool(data.get(\"\
+          is_complete\", False)),\n        \"is_clear\": bool(data.get(\"is_clear\"\
+          , False)),\n        \"has_enough_info\": bool(data.get(\"has_enough_info\"\
+          , False)),\n        \"ambiguities\": list(data.get(\"ambiguities\", [])),\n\
+          \        \"conflicts\": list(data.get(\"conflicts\", [])),\n        \"final_content\"\
+          : str(data.get(\"final_content\", \"\")),\n    }\n\n    return result\n\n\
+          # Dify 会自动调用 main 函数并传入输入变量\n"
         code_language: python3
         outputs:
           ambiguities:
@@ -1118,72 +1009,26 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: |
-          import json
-          import re
-          
-          def extract_json(text: any) -> dict:
-              # 确保text始终为字符串类型
-              if text is None:
-                  text = ""
-              elif not isinstance(text, str):
-                  try:
-                      text = str(text)
-                  except:
-                      text = ""
-              
-              """
-              从 LLM 输出中提取 JSON 对象
-              支持：
-              - 纯 JSON 字符串
-              - 被转义的 JSON
-              - 前后带杂质文本
-              """
-
-              if not text:
-                  return {}
-              text = text.strip()
-
-              # 情况 1：已经是 JSON 对象字符串
-              try:
-                  obj = json.loads(text)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 2：被转义的 JSON 字符串
-              try:
-                  unescaped = bytes(text, "utf-8").decode("unicode_escape")
-                  obj = json.loads(unescaped)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 3：文本中包含 JSON（正则兜底）
-              match = re.search(r'\{[\s\S]*\}', text)
-              if match:
-                  candidate = match.group(0)
-                  try:
-                      return json.loads(candidate)
-                  except Exception:
-                      pass
-
-              return {}
-
-          # Dify Python 节点需要 main 函数接收输入变量
-          def main(raw_text: any):
-              data = extract_json(raw_text)
-
-              # 强制字段兜底（防止下游炸）
-              result = {
-                  "markdown_output": str(data.get("markdown_output", "")),
-                  "ascii_flowchart": str(data.get("ascii_flowchart", "")),
-                  "mermaid_flowchart": str(data.get("mermaid_flowchart", "")),
-              }
-
-              return result
+        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
+          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
+          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
+          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
+          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
+          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
+          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
+          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
+          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
+          \        try:\n            return json.loads(candidate)\n        except\
+          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
+          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
+          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"markdown_output\": str(data.get(\"\
+          markdown_output\", \"\")),\n        \"ascii_flowchart\": str(data.get(\"\
+          ascii_flowchart\", \"\")),\n        \"mermaid_flowchart\": str(data.get(\"\
+          mermaid_flowchart\", \"\")),\n    }\n\n    return result\n"
         code_language: python3
         is_team_authorization: true
         outputs:
@@ -1212,72 +1057,26 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: |
-          import json
-          import re
-          
-          def extract_json(text: any) -> dict:
-              # 确保text始终为字符串类型
-              if text is None:
-                  text = ""
-              elif not isinstance(text, str):
-                  try:
-                      text = str(text)
-                  except:
-                      text = ""
-              
-              """
-              从 LLM 输出中提取 JSON 对象
-              支持：
-              - 纯 JSON 字符串
-              - 被转义的 JSON
-              - 前后带杂质文本
-              """
-
-              if not text:
-                  return {}
-              text = text.strip()
-
-              # 情况 1：已经是 JSON 对象字符串
-              try:
-                  obj = json.loads(text)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 2：被转义的 JSON 字符串
-              try:
-                  unescaped = bytes(text, "utf-8").decode("unicode_escape")
-                  obj = json.loads(unescaped)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 3：文本中包含 JSON（正则兜底）
-              match = re.search(r'\{[\s\S]*\}', text)
-              if match:
-                  candidate = match.group(0)
-                  try:
-                      return json.loads(candidate)
-                  except Exception:
-                      pass
-
-              return {}
-
-          # Dify Python 节点需要 main 函数接收输入变量
-          def main(raw_text: any):
-              data = extract_json(raw_text)
-
-              # 强制字段兜底（防止下游炸）
-              result = {
-                  "markdown_output": str(data.get("markdown_output", "")),
-                  "ascii_flowchart": str(data.get("ascii_flowchart", "")),
-                  "mermaid_flowchart": str(data.get("mermaid_flowchart", "")),
-              }
-
-              return result
+        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
+          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
+          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
+          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
+          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
+          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
+          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
+          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
+          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
+          \        try:\n            return json.loads(candidate)\n        except\
+          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
+          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
+          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"markdown_output\": str(data.get(\"\
+          markdown_output\", \"\")),\n        \"ascii_flowchart\": str(data.get(\"\
+          ascii_flowchart\", \"\")),\n        \"mermaid_flowchart\": str(data.get(\"\
+          mermaid_flowchart\", \"\")),\n    }\n\n    return result\n"
         code_language: python3
         is_team_authorization: true
         outputs:
@@ -1306,72 +1105,26 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: |
-          import json
-          import re
-          
-          def extract_json(text: any) -> dict:
-              # 确保text始终为字符串类型
-              if text is None:
-                  text = ""
-              elif not isinstance(text, str):
-                  try:
-                      text = str(text)
-                  except:
-                      text = ""
-              
-              """
-              从 LLM 输出中提取 JSON 对象
-              支持：
-              - 纯 JSON 字符串
-              - 被转义的 JSON
-              - 前后带杂质文本
-              """
-
-              if not text:
-                  return {}
-              text = text.strip()
-
-              # 情况 1：已经是 JSON 对象字符串
-              try:
-                  obj = json.loads(text)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 2：被转义的 JSON 字符串
-              try:
-                  unescaped = bytes(text, "utf-8").decode("unicode_escape")
-                  obj = json.loads(unescaped)
-                  if isinstance(obj, dict):
-                      return obj
-              except Exception:
-                  pass
-
-              # 情况 3：文本中包含 JSON（正则兜底）
-              match = re.search(r'\{[\s\S]*\}', text)
-              if match:
-                  candidate = match.group(0)
-                  try:
-                      return json.loads(candidate)
-                  except Exception:
-                      pass
-
-              return {}
-
-          # Dify Python 节点需要 main 函数接收输入变量
-          def main(raw_text: any):
-              data = extract_json(raw_text)
-
-              # 强制字段兜底（防止下游炸）
-              result = {
-                  "markdown_output": str(data.get("markdown_output", "")),
-                  "ascii_flowchart": str(data.get("ascii_flowchart", "")),
-                  "mermaid_flowchart": str(data.get("mermaid_flowchart", "")),
-              }
-
-              return result
+        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
+          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
+          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
+          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
+          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
+          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
+          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
+          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
+          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
+          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
+          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
+          \        try:\n            return json.loads(candidate)\n        except\
+          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
+          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
+          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"markdown_output\": str(data.get(\"\
+          markdown_output\", \"\")),\n        \"ascii_flowchart\": str(data.get(\"\
+          ascii_flowchart\", \"\")),\n        \"mermaid_flowchart\": str(data.get(\"\
+          mermaid_flowchart\", \"\")),\n    }\n\n    return result\n"
         code_language: python3
         is_team_authorization: true
         outputs:
@@ -1495,58 +1248,21 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: |
-          import json
-          import re
-          
-          def extract_yaml(text: any) -> str:
-              # 确保text始终为字符串类型
-              if text is None:
-                  text = ""
-              elif not isinstance(text, str):
-                  try:
-                      text = str(text)
-                  except:
-                      text = ""
-              
-              """
-              从文本中提取YAML内容
-              支持：
-              - 纯YAML字符串
-              - 带标记的YAML块（如```yaml ... ```）
-              - 前后带杂质文本
-              """
-
-              if not text:
-                  return ""
-              text = text.strip()
-
-              # 情况 1：带标记的YAML块
-              yaml_match = re.search(r'```yaml[\s\S]*?```', text, re.IGNORECASE)
-              if yaml_match:
-                  return yaml_match.group(0).replace('```yaml', '').replace('```', '').strip()
-              
-              # 情况 2：纯YAML字符串
-              try:
-                  import yaml
-                  # 尝试解析为YAML
-                  yaml.safe_load(text)
-                  return text
-              except Exception:
-                  pass
-              
-              return ""
-
-          # Dify Python 节点需要 main 函数接收输入变量
-          def main(raw_text: any):
-              yaml_content = extract_yaml(raw_text)
-              
-              # 强制字段兜底（防止下游炸）
-              result = {
-                  "final_yaml": yaml_content
-              }
-
-              return result
+        code: "import json\nimport re\n\ndef extract_yaml(text: any) -> str:\n   \
+          \ # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
+          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
+          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从文本中提取YAML内容\n\
+          \    支持：\n    - 纯YAML字符串\n    - 带标记的YAML块（如```yaml ... ```）\n    - 前后带杂质文本\n\
+          \    \"\"\"\n\n    if not text:\n        return \"\"\n    text = text.strip()\n\
+          \n    # 情况 1：带标记的YAML块\n    yaml_match = re.search(r'```yaml[\\s\\S]*?```',\
+          \ text, re.IGNORECASE)\n    if yaml_match:\n        return yaml_match.group(0).replace('```yaml',\
+          \ '').replace('```', '').strip()\n    \n    # 情况 2：纯YAML字符串\n    try:\n\
+          \        import yaml\n        # 尝试解析为YAML\n        yaml.safe_load(text)\n\
+          \        return text\n    except Exception:\n        pass\n    \n    return\
+          \ \"\"\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text: any):\n \
+          \   yaml_content = extract_yaml(raw_text)\n    \n    # 强制字段兜底（防止下游炸）\n \
+          \   result = {\n        \"final_yaml\": yaml_content\n    }\n\n    return\
+          \ result\n"
         code_language: python3
         is_team_authorization: true
         outputs:
@@ -1687,8 +1403,8 @@ workflow:
             weight_type: customized
         query_attachment_selector: []
         query_variable_selector:
-        - '17690724297200'
-        - final_markdown
+        - '1769068037267'
+        - final_content
         retrieval_mode: multiple
         selected: true
         title: 工作流数据集
@@ -1707,7 +1423,7 @@ workflow:
       type: custom
       width: 241
     viewport:
-      x: 215.82904959295905
-      y: -109.37089450941687
+      x: 220.8290495929591
+      y: -142.37089450941698
       zoom: 0.6647559924751362
   rag_pipeline_variables: []
