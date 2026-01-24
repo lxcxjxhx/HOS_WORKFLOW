@@ -46,6 +46,17 @@ workflow:
       - local_file
       - remote_url
       enabled: true
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
       image:
         enabled: false
         number_limits: 3
@@ -411,6 +422,17 @@ workflow:
       targetHandle: target
       type: custom
       zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: tool
+      id: 1769094201733-true-1769053963253-target
+      source: '1769094201733'
+      sourceHandle: 'true'
+      target: '1769053963253'
+      targetHandle: target
+      type: custom
+      zIndex: 0
     nodes:
     - data:
         selected: false
@@ -465,11 +487,11 @@ workflow:
       id: '1769050927522'
       position:
         x: -360.52070549758207
-        y: 756.1804087047515
+        y: 732.3216377809192
       positionAbsolute:
         x: -360.52070549758207
-        y: 756.1804087047515
-      selected: true
+        y: 732.3216377809192
+      selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -682,26 +704,24 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
-          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
-          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
-          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
-          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
-          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
-          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
-          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
-          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
-          \        try:\n            return json.loads(candidate)\n        except\
-          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
-          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
-          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"markdown_output\": str(data.get(\"\
-          markdown_output\", \"\")),\n        \"ascii_flowchart\": str(data.get(\"\
-          ascii_flowchart\", \"\")),\n        \"mermaid_flowchart\": str(data.get(\"\
-          mermaid_flowchart\", \"\")),\n    }\n\n    return result\n"
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    result\
+          \ = {\n        \"markdown_output\": str(data.get(\"markdown_output\", \"\
+          \")),\n        \"ascii_flowchart\": str(data.get(\"ascii_flowchart\", \"\
+          \")),\n        \"mermaid_flowchart\": str(data.get(\"mermaid_flowchart\"\
+          , \"\")),\n    }\n\n    return result\n"
         code_language: python3
         is_team_authorization: true
         outputs:
@@ -902,9 +922,8 @@ workflow:
         is_team_authorization: true
         params:
           docx_template_file: ''
-          md_text: '{{#17690724297200.final_markdown# || #1769075678901.final_yaml#}}'
-          output_filename: '{{#1769050927522.mode_YAML# == "启用YAML模式" ? "dify_workflow.yml"
-            : "dify_workflow_config"}}'
+          md_text: '{{#17690724297200.final_markdown#}}'
+          output_filename: dify_workflow_config
         plugin_id: bowenliang123/md_exporter
         plugin_unique_identifier: bowenliang123/md_exporter:3.2.0@b3075f474341eaf9f98ff773d684dc779c0b228f5da09b55eb773dcb5421d947
         provider_icon: http://localhost/console/api/workspaces/current/plugin/icon?tenant_id=a633b69c-9b5d-4769-b682-a66b28423d93&filename=f0bad95cda1671b4e49f0e05df6122ef9ec5d554e138f128795d11d3806c00ef.svg
@@ -924,11 +943,10 @@ workflow:
             value: null
           md_text:
             type: mixed
-            value: '{{#17690724297200.final_markdown# || #1769075678901.final_yaml#}}'
+            value: '{{#17690724297200.final_markdown#}}'
           output_filename:
             type: mixed
-            value: '{{#1769050927522.mode_YAML# == "启用YAML模式" ? "dify_workflow.yml"
-              : "dify_workflow_config"}}'
+            value: dify_workflow_config
         type: tool
       height: 51
       id: '1769053963253'
@@ -944,29 +962,27 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
-          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
-          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
-          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
-          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
-          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
-          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
-          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
-          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
-          \        try:\n            return json.loads(candidate)\n        except\
-          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
-          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
-          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"is_complete\": bool(data.get(\"\
-          is_complete\", False)),\n        \"is_clear\": bool(data.get(\"is_clear\"\
-          , False)),\n        \"has_enough_info\": bool(data.get(\"has_enough_info\"\
-          , False)),\n        \"ambiguities\": list(data.get(\"ambiguities\", [])),\n\
-          \        \"conflicts\": list(data.get(\"conflicts\", [])),\n        \"final_content\"\
-          : str(data.get(\"final_content\", \"\")),\n    }\n\n    return result\n\n\
-          # Dify 会自动调用 main 函数并传入输入变量\n"
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    result\
+          \ = {\n        \"is_complete\": bool(data.get(\"is_complete\", False)),\n\
+          \        \"is_clear\": bool(data.get(\"is_clear\", False)),\n        \"\
+          has_enough_info\": bool(data.get(\"has_enough_info\", False)),\n       \
+          \ \"ambiguities\": list(data.get(\"ambiguities\", [])),\n        \"conflicts\"\
+          : list(data.get(\"conflicts\", [])),\n        \"final_content\": str(data.get(\"\
+          final_content\", \"\")),\n    }\n\n    return result\n\n# Dify 会自动调用 main\
+          \ 函数并传入输入变量\n"
         code_language: python3
         outputs:
           ambiguities:
@@ -1009,26 +1025,25 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
-          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
-          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
-          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
-          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
-          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
-          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
-          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
-          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
-          \        try:\n            return json.loads(candidate)\n        except\
-          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
-          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
-          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"markdown_output\": str(data.get(\"\
-          markdown_output\", \"\")),\n        \"ascii_flowchart\": str(data.get(\"\
-          ascii_flowchart\", \"\")),\n        \"mermaid_flowchart\": str(data.get(\"\
-          mermaid_flowchart\", \"\")),\n    }\n\n    return result\n"
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    final_markdown\
+          \ = str(data.get(\"markdown_output\", \"\"))\n    \n    # 添加默认值，确保 md_text\
+          \ 不为空\n    if not final_markdown:\n        final_markdown = \"# Dify Workflow\
+          \ 报告\\n\\n## 报告内容\\n\\n由于输入内容过于简单，无法生成详细报告。请提供更详细的需求描述以获取完整报告。\\n\\n## 生成信息\\\
+          n\\n- 生成时间：自动生成\\n- 报告类型：默认模板\\n- 输入内容：简化输入\" \n    \n    result = {\n \
+          \       \"final_markdown\": final_markdown,\n    }\n\n    return result\n"
         code_language: python3
         is_team_authorization: true
         outputs:
@@ -1040,9 +1055,8 @@ workflow:
         type: code
         variables:
         - value_selector:
-          - '1769053793268'
+          - '1769053876253'
           - text
-          value_type: string
           variable: raw_text
       height: 51
       id: '17690724131850'
@@ -1058,26 +1072,27 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
-          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
-          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
-          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
-          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
-          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
-          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
-          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
-          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
-          \        try:\n            return json.loads(candidate)\n        except\
-          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
-          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
-          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"markdown_output\": str(data.get(\"\
-          markdown_output\", \"\")),\n        \"ascii_flowchart\": str(data.get(\"\
-          ascii_flowchart\", \"\")),\n        \"mermaid_flowchart\": str(data.get(\"\
-          mermaid_flowchart\", \"\")),\n    }\n\n    return result\n"
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    final_markdown\
+          \ = str(data.get(\"markdown_output\", \"\"))\n    \n    # 添加默认值，确保 md_text\
+          \ 不为空\n    if not final_markdown:\n        final_markdown = \"# Dify Workflow\
+          \ 报告\\n\\n## 报告内容\\n\\n由于输入内容或LLM输出问题，无法生成详细报告。请提供更详细的需求描述以获取完整报告。\\n\\\
+          n## 生成信息\\n\\n- 生成时间：自动生成\\n- 报告类型：默认模板\\n- 处理状态：已处理\\n- 输入情况：已接收\\n\\n##\
+          \ 解决建议\\n\\n1. 提供更详细的需求描述\\n2. 确保输入格式符合要求\\n3. 检查LLM模型配置\\n4. 重试生成报告\" \n\
+          \    \n    result = {\n        \"final_markdown\": final_markdown,\n   \
+          \ }\n\n    return result\n"
         code_language: python3
         is_team_authorization: true
         outputs:
@@ -1106,26 +1121,27 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: "import json\nimport re\n\ndef extract_json(text: any) -> dict:\n  \
-          \  # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
-          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
-          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从 LLM 输出中提取\
-          \ JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的 JSON\n    - 前后带杂质文本\n \
-          \   \"\"\"\n\n    if not text:\n        return {}\n    text = text.strip()\n\
-          \n    # 情况 1：已经是 JSON 对象字符串\n    try:\n        obj = json.loads(text)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 2：被转义的 JSON 字符串\n    try:\n        unescaped =\
-          \ bytes(text, \"utf-8\").decode(\"unicode_escape\")\n        obj = json.loads(unescaped)\n\
-          \        if isinstance(obj, dict):\n            return obj\n    except Exception:\n\
-          \        pass\n\n    # 情况 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\\
-          {[\\s\\S]*\\}', text)\n    if match:\n        candidate = match.group(0)\n\
-          \        try:\n            return json.loads(candidate)\n        except\
-          \ Exception:\n            pass\n\n    return {}\n\n# Dify Python 节点需要 main\
-          \ 函数接收输入变量\ndef main(raw_text: any):\n    data = extract_json(raw_text)\n\
-          \n    # 强制字段兜底（防止下游炸）\n    result = {\n        \"markdown_output\": str(data.get(\"\
-          markdown_output\", \"\")),\n        \"ascii_flowchart\": str(data.get(\"\
-          ascii_flowchart\", \"\")),\n        \"mermaid_flowchart\": str(data.get(\"\
-          mermaid_flowchart\", \"\")),\n    }\n\n    return result\n"
+        code: "import json\nimport re\n\ndef extract_json(text: str) -> dict:\n  \
+          \  \"\"\"\n    从 LLM 输出中提取 JSON 对象\n    支持：\n    - 纯 JSON 字符串\n    - 被转义的\
+          \ JSON\n    - 前后带杂质文本\n    \"\"\"\n\n    if not text:\n        return {}\n\
+          \    text = text.strip()\n\n    # 情况 1：已经是 JSON 对象字符串\n    try:\n      \
+          \  obj = json.loads(text)\n        if isinstance(obj, dict):\n         \
+          \   return obj\n    except Exception:\n        pass\n\n    # 情况 2：被转义的 JSON\
+          \ 字符串\n    try:\n        unescaped = bytes(text, \"utf-8\").decode(\"unicode_escape\"\
+          )\n        obj = json.loads(unescaped)\n        if isinstance(obj, dict):\n\
+          \            return obj\n    except Exception:\n        pass\n\n    # 情况\
+          \ 3：文本中包含 JSON（正则兜底）\n    match = re.search(r'\\{[\\s\\S]*\\}', text)\n\
+          \    if match:\n        candidate = match.group(0)\n        try:\n     \
+          \       return json.loads(candidate)\n        except Exception:\n      \
+          \      pass\n\n    return {}\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text:\
+          \ str):\n    data = extract_json(raw_text)\n\n    # 强制字段兜底（防止下游炸）\n    final_markdown\
+          \ = str(data.get(\"final_markdown\", \"\"))\n    \n    # 添加默认值，确保 md_text\
+          \ 不为空\n    if not final_markdown:\n        final_markdown = \"# Dify Workflow\
+          \ 报告\\n\\n## 报告内容\\n\\n由于输入内容或LLM输出问题，无法生成详细报告。请提供更详细的需求描述以获取完整报告。\\n\\\
+          n## 生成信息\\n\\n- 生成时间：自动生成\\n- 报告类型：默认模板\\n- 处理状态：已处理\\n- 输入情况：已接收\\n\\n##\
+          \ 解决建议\\n\\n1. 提供更详细的需求描述\\n2. 确保输入格式符合要求\\n3. 检查LLM模型配置\\n4. 重试生成报告\" \n\
+          \    \n    result = {\n        \"final_markdown\": final_markdown,\n   \
+          \ }\n\n    return result\n"
         code_language: python3
         is_team_authorization: true
         outputs:
@@ -1195,11 +1211,11 @@ workflow:
           enabled: true
           variable_selector:
           - '1769068500001'
-          - markdown_output
+          - final_markdown
           - '1769053793268'
-          - markdown_output
+          - final_markdown
           - '1769053833970'
-          - markdown_output
+          - final_markdown
         model:
           completion_params:
             temperature: 0.7
@@ -1215,20 +1231,32 @@ workflow:
           role: system
           text: '你是Dify Workflow YAML生成专家，根据以下输出生成完整的批量文档处理工作流YAML：
 
-            输入需求内容：{{#1769068037267.final_content# || ''}} 可视化结构：{{#1769068500001.markdown_output#
-            || ''}} 节点配置：{{#1769053793268.markdown_output# || ''}} 知识检索结果：{{#1769146109239.results#
+            输入需求内容：{{#1769068037267.final_content# || ''}} 可视化结构：{{#1769068500001.final_markdown#
+            || ''}} 节点配置：{{#1769053793268.final_markdown# || ''}} 知识检索结果：{{#1769148240708.results#
             || ''}}
 
-            要求： 1. 严格按照宝玉的英译中优化版.yml、完蛋！我被LLM包围了！.yml、MCP.yml等范例文件的结构生成 2. 生成完整的Dify
-            YAML，包含app、kind、version、workflow等所有必要部分 3. 遵循schema 0.5.0 4. 语法正确，使用2空格缩进
-            5. 可直接导入Dify平台使用 6. 仅输出纯YAML，无额外文本，无```yaml标记 7. 生成批量文档处理工作流，用于自动生成巡检报告/实施报告/问题报告
+            要求： 1. 严格按照知识检索结果中的1.11.x版本结构规范生成 2. 生成完整的Dify YAML，包含所有1.11.x版本必需的字段
+            3. 遵循schema 0.5.0 4. 语法正确，使用2空格缩进 5. 可直接导入Dify平台使用 6. 仅输出纯YAML，无额外文本，无```yaml标记
+            7. 生成批量文档处理工作流，用于自动生成巡检报告/实施报告/问题报告
 
-            具体要求： - app部分：包含description、icon、icon_background、mode、name等字段 - kind:
-            app - version: 0.1.0 - workflow部分：包含features、graph（edges和nodes）等 - 节点配置：包含完整的节点数据和连接关系
-            - 使用正确的YAML语法，多行字符串使用|标记 - 避免使用未解析的变量引用 - 确保所有字段都有合理的值 - 包含文档提取器、报告类型分析、报告生成等核心节点
-            - 支持批量输入和报告类型路由 - 符合Dify Workflow格式规范
+            具体要求： - 严格使用2空格缩进，每个层级缩进2空格 - app部分：包含description、icon、icon_background、mode、name、use_icon_as_answer_icon等字段
+            - kind: app - version: 0.5.0（必须使用此版本号，不得修改） - workflow部分：包含conversation_variables、environment_variables、features、graph（edges和nodes）、rag_pipeline_variables等所有1.11.x必需字段
+            - graph.edges：每个edge是一个独立的列表项，包含data（sourceType、targetType、isInLoop）、id、source、sourceHandle、target、targetHandle、type、zIndex等完整属性
+            - graph.nodes：每个node是一个独立的列表项，包含data、height、id、position、positionAbsolute、selected、sourcePosition、targetPosition、type、width等完整属性
+            - 正确的缩进示例： app: description: 工作流描述 icon: 🤖 workflow: conversation_variables:
+            [] graph: edges: - data: sourceType: start targetType: code id: edge-1
+            source: start target: code_node nodes: - data: title: 开始 height: 64 id:
+            start position: x: 100 y: 200 positionAbsolute: x: 100 y: 200 type: start
+            width: 64 - 使用正确的YAML语法，多行字符串使用|标记 - 避免使用未解析的变量引用 - 确保所有字段都有合理的值 - 包含文档提取器、报告类型分析、报告生成等核心节点
+            - 支持批量输入和报告类型路由 - 完全符合1.11.x版本的Dify Workflow格式规范 - 条件语法必须严格符合Dify规范： *
+            条件语句必须返回单个布尔值，不能返回多个值 * contains函数只能接受两个参数：contains(字符串, 子串) * 多个条件使用
+            || 或 && 连接，不能在contains函数中使用多个子串参数 * 正确示例：{{contains "文本内容" "巡检" || contains
+            "文本内容" "检查" || contains "文本内容" "维护"}} * 错误示例：{{contains "文本内容" "巡检" "检查"
+            "维护"}}（多个参数） * 错误示例：{{#each extracted_contents}}{{#if (contains this.content
+            "巡检" "检查" "维护")}}true{{/if}}{{/each}}（each循环导致多个返回值） * 条件节点必须返回单个true或false值，不能返回多个值
+            * Dify不支持在条件中使用each循环，所有条件判断必须直接返回单个布尔值
 
-            请根据输入的批量文档处理工作流需求，生成可直接使用的Dify Workflow YAML文件。'
+            请根据输入的批量文档处理工作流需求和知识检索结果，生成可直接使用的1.11.x版本Dify Workflow YAML文件。'
         selected: false
         structured_output_enabled: true
         title: YAML工作流生成器
@@ -1249,20 +1277,38 @@ workflow:
       type: custom
       width: 241
     - data:
-        code: "import json\nimport re\n\ndef extract_yaml(text: any) -> str:\n   \
-          \ # 确保text始终为字符串类型\n    if text is None:\n        text = \"\"\n    elif\
-          \ not isinstance(text, str):\n        try:\n            text = str(text)\n\
-          \        except:\n            text = \"\"\n    \n    \"\"\"\n    从文本中提取YAML内容\n\
-          \    支持：\n    - 纯YAML字符串\n    - 带标记的YAML块（如```yaml ... ```）\n    - 前后带杂质文本\n\
-          \    \"\"\"\n\n    if not text:\n        return \"\"\n    text = text.strip()\n\
-          \n    # 情况 1：带标记的YAML块\n    yaml_match = re.search(r'```yaml[\\s\\S]*?```',\
-          \ text, re.IGNORECASE)\n    if yaml_match:\n        return yaml_match.group(0).replace('```yaml',\
-          \ '').replace('```', '').strip()\n    \n    # 情况 2：纯YAML字符串\n    try:\n\
-          \        import yaml\n        # 尝试解析为YAML\n        yaml.safe_load(text)\n\
-          \        return text\n    except Exception:\n        pass\n    \n    return\
-          \ \"\"\n\n# Dify Python 节点需要 main 函数接收输入变量\ndef main(raw_text: any):\n \
-          \   yaml_content = extract_yaml(raw_text)\n    \n    # 强制字段兜底（防止下游炸）\n \
-          \   result = {\n        \"final_yaml\": yaml_content\n    }\n\n    return\
+        code: "import json\nimport re\n\n\ndef extract_yaml(text: str) -> str:\n \
+          \   \"\"\"\n    从文本中提取YAML内容\n    支持：\n    - 纯YAML字符串\n    - 带标记的YAML块（如```yaml\
+          \ ... ```）\n    - 前后带杂质文本\n    \"\"\"\n    \n    if not text:\n        return\
+          \ \"\"\n    text = text.strip()\n    \n    # 情况1：已经是纯YAML\n    try:\n  \
+          \      True\n        return text\n    except:\n        pass\n    \n    #\
+          \ 情况2：带有yaml标记\n    yaml_match = re.search(r'```yaml\\s*([\\s\\S]*?)\\s*```',\
+          \ text, re.IGNORECASE)\n    if yaml_match:\n        yaml_content = yaml_match.group(1).strip()\n\
+          \        try:\n            True\n            return yaml_content\n     \
+          \   except:\n            pass\n    \n    # 情况3：前后有杂质，尝试提取yaml结构\n    yaml_start\
+          \ = text.find('app:')\n    if yaml_start != -1:\n        yaml_candidate\
+          \ = text[yaml_start:]\n        try:\n            True\n            return\
+          \ yaml_candidate\n        except:\n            pass\n    \n    return text\n\
+          \ndef main(raw_text: str):\n    \"\"\"\n    处理LLM生成的YAML，确保格式正确\n    \"\"\
+          \"\n    # 提取YAML\n    yaml_content = extract_yaml(raw_text)\n    \n    #\
+          \ 基本验证和修复\n    if not yaml_content:\n        # 生成默认YAML模板\n        yaml_content\
+          \ = \"\"\"\napp:\n  description: 自动生成的Dify工作流\n  icon: \U0001F916\n  icon_background:\
+          \ '#FFEAD5'\n  mode: workflow\n  name: 自动生成工作流\n  use_icon_as_answer_icon:\
+          \ false\ndependencies: []\nkind: app\nversion: 0.5.0\nworkflow:\n  conversation_variables:\
+          \ []\n  environment_variables: []\n  features:\n    file_upload:\n     \
+          \ allowed_file_extensions:\n      - .JPG\n      - .JPEG\n      - .PNG\n\
+          \      - .GIF\n      - .WEBP\n      - .SVG\n      allowed_file_types:\n\
+          \      - image\n      allowed_file_upload_methods:\n      - local_file\n\
+          \      - remote_url\n      enabled: false\n      image:\n        enabled:\
+          \ false\n        number_limits: 3\n        transfer_methods:\n        -\
+          \ local_file\n        - remote_url\n      number_limits: 3\n    opening_statement:\
+          \ ''\n    retriever_resource:\n      enabled: false\n    sensitive_word_avoidance:\n\
+          \      enabled: false\n    speech_to_text:\n      enabled: false\n    suggested_questions:\
+          \ []\n    suggested_questions_after_answer:\n      enabled: false\n    text_to_speech:\n\
+          \      enabled: false\n      language: ''\n      voice: ''\n  graph:\n \
+          \   edges: []\n    nodes: []\n    viewport:\n      x: 0\n      y: 0\n  \
+          \    zoom: 1\n  rag_pipeline_variables: []\n            \"\"\"\n    \n \
+          \   result = {\n        \"final_yaml\": yaml_content\n    }\n    return\
           \ result\n"
         code_language: python3
         is_team_authorization: true
@@ -1371,7 +1417,7 @@ workflow:
         - '17690724297200'
         - final_markdown
         retrieval_mode: multiple
-        selected: false
+        selected: true
         title: 工作流数据集
         type: knowledge-retrieval
       height: 89
@@ -1382,7 +1428,7 @@ workflow:
       positionAbsolute:
         x: 1082.3958442910928
         y: 1014.6921292180828
-      selected: false
+      selected: true
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -1404,8 +1450,8 @@ workflow:
             weight_type: customized
         query_attachment_selector: []
         query_variable_selector:
-        - '1769068037267'
-        - final_content
+        - '1769052162508'
+        - reasoning_content
         retrieval_mode: multiple
         selected: false
         title: 工作流数据集
@@ -1414,17 +1460,17 @@ workflow:
       id: '17691653957600'
       position:
         x: 38.072185119965866
-        y: 456.68281208139695
+        y: 455.1785007080214
       positionAbsolute:
         x: 38.072185119965866
-        y: 456.68281208139695
+        y: 455.1785007080214
       selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
       width: 241
     viewport:
-      x: 551.6157815163814
-      y: -110.31227462856657
-      zoom: 0.578703703703704
+      x: 170.86777918405778
+      y: -153.55221959342748
+      zoom: 0.6647559924751362
   rag_pipeline_variables: []
