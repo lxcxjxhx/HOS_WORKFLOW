@@ -1060,7 +1060,7 @@ workflow:
               return {}
 
           # Dify Python 节点需要 main 函数接收输入变量
-          def main(raw_text: str):
+          def main(raw_text: any):
               data = extract_json(raw_text)
 
               # 强制字段兜底（防止下游炸）
