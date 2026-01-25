@@ -317,6 +317,7 @@ workflow:
         sourceType: llm
         targetType: code
       id: 1769074567890-source-1769075678901-target
+      selected: false
       source: '1769074567890'
       sourceHandle: source
       target: '1769075678901'
@@ -491,7 +492,7 @@ workflow:
       positionAbsolute:
         x: -360.52070549758207
         y: 732.3216377809192
-      selected: false
+      selected: true
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -1005,11 +1006,11 @@ workflow:
           enabled: true
           variable_selector:
           - '1769068500001'
-          - markdown_output
+          - final_markdown
           - '1769053793268'
-          - markdown_output
+          - final_markdown
           - '1769053833970'
-          - markdown_output
+          - final_markdown
         model:
           completion_params:
             temperature: 0.7
@@ -1406,11 +1407,11 @@ workflow:
           enabled: true
           variable_selector:
           - '1769068500001'
-          - markdown_output
+          - final_markdown
           - '1769053793268'
-          - markdown_output
+          - final_markdown
           - '1769053833970'
-          - markdown_output
+          - final_markdown
         model:
           completion_params:
             temperature: 0.7
@@ -1424,73 +1425,656 @@ workflow:
         prompt_template:
         - id: 3c4a2b1d-5e6f-7g8h-9i0j-1k2l3m4n5o6p
           role: system
-          text: '你是专业的Dify Workflow YAML生成专家，严格按照1.11.x版本规范生成完整的工作流YAML：
+          text: '你是一个专业的YAML工作流配置生成器，严格按照Dify Workflow 1.11.x规范生成YAML文件。请根据用户需求，生成完整的、符合规范的YAML配置，确保可以直接导入Dify系统。
 
 
 
-            1. **输入内容**：
-
-               - 需求内容：{{1769068037267.final_content || ''}}
-
-               - 可视化结构：{{1769068500001.markdown_output || ''}}
-
-               - 节点配置：{{1769053793268.markdown_output || ''}}
-
-               - 知识检索结果：{{1769148240708.results || ''}}
+            ### 核心结构要求
 
 
 
-            2. **1.11.x规范核心要求**：
+            #### 1. 基础元数据（所有模式必须包含）
 
-               - 基本结构：包含dependencies配置
+            ```yaml
 
-               - workflow：包含version字段
+            app:
 
-               - features：使用allowed_file_upload_methods而非transfer_methods
+              description: ''''
 
-               - 节点配置：
+              icon: 🤖
 
-                 - 所有节点data中包含type字段
+              icon_background: ''#FEF7C3''  # 可选颜色
 
-                 - 包含desc字段描述节点功能
+              mode: workflow  # 或 chat, completion, agent-chat, advanced-chat
 
-                 - 包含selected字段，默认为false
+              name: 工作流名称
 
-               - 条件分支：使用cases数组，包含case_id、conditions、logical_operator
+              use_icon_as_answer_icon: false
 
-               - LLM节点：包含vision、completion_params配置
+            dependencies: []  # 或依赖列表
 
-               - 代码节点：包含code_language字段
+            kind: app
 
-               - 输出配置：使用outputs数组，包含value_selector和variable
+            version: 0.5.0
 
-               - 视图配置：包含viewport配置
-
-
-
-            3. **YAML生成要求**：
-
-               - 严格遵循1.11.x版本的字段命名和结构规范
-
-               - 生成完整的YAML，包含所有必需字段
-
-               - 节点ID使用唯一标识符
-
-               - 正确配置节点连接关系
-
-               - 格式缩进规范，易于阅读
-
-               - 包含工作流基本信息、节点列表、边列表、视图配置等
+            ```
 
 
 
-            4. **输出要求**：
+            #### 2. 模式特定配置
 
-               - 直接输出YAML内容，无其他解释
 
-               - 确保语法正确，可直接导入Dify
 
-               - 严格遵循1.11.x版本规范'
+            ##### 2.1 workflow 和 advanced-chat 模式
+
+            必须包含完整的 workflow 配置：
+
+            ```yaml
+
+            workflow:
+
+              conversation_variables: []  # 会话变量定义
+
+              environment_variables: []  # 环境变量定义
+
+              features:  # 功能配置
+
+                file_upload:  # 文件上传配置
+
+                  allowed_file_extensions: []
+
+                  allowed_file_types: []
+
+                  allowed_file_upload_methods: []
+
+                  enabled: false
+
+                  image:
+
+                    enabled: false
+
+                    number_limits: 3
+
+                    transfer_methods: []
+
+                  number_limits: 3
+
+                opening_statement: ''''  # 开场白
+
+                retriever_resource:  # 检索资源配置
+
+                  enabled: false
+
+                sensitive_word_avoidance:  # 敏感词过滤
+
+                  enabled: false
+
+                speech_to_text:  # 语音转文字
+
+                  enabled: false
+
+                suggested_questions: []  # 建议问题
+
+                suggested_questions_after_answer:  # 回答后建议问题
+
+                  enabled: false
+
+                text_to_speech:  # 文字转语音
+
+                  enabled: false
+
+                  language: ''''
+
+                  voice: ''''
+
+              graph:  # 工作流图结构
+
+                edges:  # 边定义
+
+                - data:
+
+                    isInIteration: false
+
+                    sourceType: start
+
+                    targetType: llm
+
+                  id: edge-id-1
+
+                  selected: false
+
+                  source: ''start-node-id''
+
+                  sourceHandle: source
+
+                  target: ''llm-node-id''
+
+                  targetHandle: target
+
+                  type: custom
+
+                  zIndex: 0
+
+                nodes:  # 节点定义
+
+                - data:
+
+                    desc: ''''
+
+                    selected: false
+
+                    title: 开始
+
+                    type: start
+
+                    variables: []
+
+                  height: 53
+
+                  id: ''start-node-id''
+
+                  position:
+
+                    x: 30
+
+                    y: 266
+
+                  positionAbsolute:
+
+                    x: 30
+
+                    y: 266
+
+                  selected: false
+
+                  sourcePosition: right
+
+                  targetPosition: left
+
+                  type: custom
+
+                  width: 244
+
+                # 其他节点...
+
+              rag_pipeline_variables: []  # RAG管道变量
+
+            ```
+
+
+
+            ##### 2.2 chat, completion, agent-chat 模式
+
+            必须包含完整的 model_config 配置：
+
+            ```yaml
+
+            model_config:
+
+              agent_mode:  # 智能体模式配置
+
+                enabled: false
+
+                max_iteration: 5
+
+                strategy: react  # 或 function_call, router
+
+                tools: []  # 工具列表
+
+              annotation_reply:  # 注释回复
+
+                enabled: false
+
+              chat_prompt_config: {}  # 聊天提示词配置
+
+              completion_prompt_config: {}  # 补全提示词配置
+
+              dataset_configs:  # 数据集配置
+
+                datasets:
+
+                  datasets: []
+
+                retrieval_model: single  # 或 multi
+
+              dataset_query_variable: ''''  # 数据集查询变量
+
+              external_data_tools: []  # 外部数据工具
+
+              file_upload:  # 文件上传配置（同workflow）
+
+                image:
+
+                  detail: high
+
+                  enabled: false
+
+                  number_limits: 3
+
+                  transfer_methods: []
+
+              model:  # 模型配置
+
+                completion_params:
+
+                  frequency_penalty: 0
+
+                  max_tokens: 512
+
+                  presence_penalty: 0
+
+                  stop: []
+
+                  temperature: 0.7
+
+                  top_p: 1
+
+                mode: chat  # 或 completion
+
+                name: model-name
+
+                provider: provider-name
+
+              more_like_this:  # 相似问题
+
+                enabled: false
+
+              opening_statement: ''''  # 开场白
+
+              pre_prompt: ''''  # 前置提示词
+
+              prompt_type: simple  # 或 complex
+
+              retriever_resource:  # 检索资源
+
+                enabled: false
+
+              sensitive_word_avoidance:  # 敏感词过滤
+
+                enabled: false
+
+                words: ''''
+
+              speech_to_text:  # 语音转文字
+
+                enabled: false
+
+              suggested_questions: []  # 建议问题
+
+              suggested_questions_after_answer:  # 回答后建议问题
+
+                enabled: false
+
+              text_to_speech:  # 文字转语音
+
+                enabled: false
+
+              user_input_form: []  # 用户输入表单
+
+            ```
+
+
+
+            ### 3. 节点类型及配置
+
+
+
+            #### 3.1 开始节点 (start)
+
+            ```yaml
+
+            - data:
+
+                desc: ''''
+
+                selected: false
+
+                title: 开始
+
+                type: start
+
+                variables:  # 输入变量定义
+
+                - label: 变量名称
+
+                  max_length: 256
+
+                  options: []
+
+                  required: true
+
+                  type: text-input  # 或 paragraph, select, file, etc.
+
+                  variable: variable_name
+
+              height: 89
+
+              id: ''start-node-id''
+
+              position:
+
+                x: 80
+
+                y: 282
+
+              positionAbsolute:
+
+                x: 80
+
+                y: 282
+
+              selected: false
+
+              sourcePosition: right
+
+              targetPosition: left
+
+              type: custom
+
+              width: 244
+
+            ```
+
+
+
+            #### 3.2 LLM节点 (llm)
+
+            ```yaml
+
+            - data:
+
+                context:
+
+                  enabled: false
+
+                  variable_selector: []
+
+                desc: ''''
+
+                model:
+
+                  completion_params:
+
+                    temperature: 0.7
+
+                  mode: chat
+
+                  name: model-name
+
+                  provider: provider-name
+
+                prompt_template:
+
+                - id: prompt-id
+
+                  role: system
+
+                  text: 系统提示词
+
+                - id: prompt-id-2
+
+                  role: user
+
+                  text: 用户提示词
+
+                selected: false
+
+                title: LLM节点名称
+
+                type: llm
+
+                variables: []
+
+                vision:
+
+                  enabled: false
+
+              height: 97
+
+              id: ''llm-node-id''
+
+              position:
+
+                x: 334
+
+                y: 266
+
+              positionAbsolute:
+
+                x: 334
+
+                y: 266
+
+              selected: false
+
+              sourcePosition: right
+
+              targetPosition: left
+
+              type: custom
+
+              width: 244
+
+            ```
+
+
+
+            #### 3.3 条件分支节点 (if-else)
+
+            ```yaml
+
+            - data:
+
+                cases:
+
+                - case_id: ''true''
+
+                  conditions:
+
+                  - comparison_operator: ''=''
+
+                    id: condition-id
+
+                    value: ''1''
+
+                    varType: number
+
+                    variable_selector:
+
+                    - sys
+
+                    - dialogue_count
+
+                  id: ''true''
+
+                  logical_operator: and
+
+                desc: ''''
+
+                selected: false
+
+                title: 条件分支
+
+                type: if-else
+
+              height: 173
+
+              id: ''if-else-node-id''
+
+              position:
+
+                x: 638
+
+                y: 286.5
+
+              positionAbsolute:
+
+                x: 638
+
+                y: 286.5
+
+              selected: false
+
+              sourcePosition: right
+
+              targetPosition: left
+
+              type: custom
+
+              width: 244
+
+            ```
+
+
+
+            #### 3.4 代码节点 (code)
+
+            ```yaml
+
+            - data:
+
+                code: "def main(arg1):\n    return {}"
+
+                code_language: python3
+
+                desc: ''''
+
+                outputs:
+
+                  result:
+
+                    children: null
+
+                    type: string
+
+                selected: false
+
+                title: 代码节点
+
+                type: code
+
+                variables:
+
+                - value_selector:
+
+                  - ''node-id''
+
+                  - field
+
+                  variable: arg1
+
+              height: 53
+
+              id: ''code-node-id''
+
+              position:
+
+                x: 942
+
+                y: 266
+
+              positionAbsolute:
+
+                x: 942
+
+                y: 266
+
+              selected: false
+
+              sourcePosition: right
+
+              targetPosition: left
+
+              type: custom
+
+              width: 244
+
+            ```
+
+
+
+            #### 3.5 结束节点 (end)
+
+            ```yaml
+
+            - data:
+
+                desc: ''''
+
+                outputs:
+
+                - value_selector:
+
+                  - ''node-id''
+
+                  - field
+
+                  variable: output
+
+                selected: false
+
+                title: 结束
+
+                type: end
+
+              height: 89
+
+              id: ''end-node-id''
+
+              position:
+
+                x: 1256
+
+                y: 280
+
+              positionAbsolute:
+
+                x: 1256
+
+                y: 280
+
+              selected: false
+
+              sourcePosition: right
+
+              targetPosition: left
+
+              type: custom
+
+              width: 244
+
+            ```
+
+
+
+
+
+
+            ### 5. 生成规则
+
+
+
+            1. **严格遵循YAML语法**：正确的缩进、冒号、引号使用
+
+            2. **完整结构**：确保所有必填字段都包含
+
+            3. **模式匹配**：根据app.mode生成对应的配置结构
+
+            4. **节点完整性**：每个节点都有唯一ID、位置信息、类型等
+
+            5. **边连接正确**：确保边的source和target指向有效节点
+
+            6. **变量一致性**：变量引用与定义匹配
+
+            7. **符合1.11.x规范**：不要使用旧版本或自定义字段
+
+
+
+            ### 6. 示例输出
+
+
+
+            根据以上规则，生成完整的YAML配置，确保可以直接导入Dify系统。'
         selected: false
         structured_output_enabled: true
         title: YAML工作流生成器
@@ -1505,7 +2089,7 @@ workflow:
       positionAbsolute:
         x: 1082.3958442910928
         y: 925.0105780532404
-      selected: true
+      selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -1704,7 +2288,7 @@ workflow:
       type: custom
       width: 241
     viewport:
-      x: -306.13835618830694
-      y: -343.4039698009069
+      x: -793.5158042062262
+      y: -496.90253713427785
       zoom: 1.007581670481627
   rag_pipeline_variables: []
