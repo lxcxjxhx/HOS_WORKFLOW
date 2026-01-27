@@ -8,3 +8,8 @@ HOS工作流提示词工厂
 
 ### HOS-AI Guardrail(BUILDING)
 ###### V0.1 基本框架确立，模型引用自 https://huggingface.co/lxcxjxhx 的 SPACE
+
+
+### JSON结构化提示词
+###### V0.1 测试版本：实际使用于HOS团队
+
