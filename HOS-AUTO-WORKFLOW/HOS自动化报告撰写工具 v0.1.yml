@@ -40,12 +40,14 @@ workflow:
       - .GIF
       - .WEBP
       - .SVG
+      - .docx
       allowed_file_types:
       - image
+      - document
       allowed_file_upload_methods:
       - local_file
       - remote_url
-      enabled: false
+      enabled: true
       fileUploadConfig:
         attachment_image_file_size_limit: 2
         audio_file_size_limit: 50
@@ -205,8 +207,19 @@ workflow:
         isInLoop: false
         sourceType: code
         targetType: llm
-      id: 1773752424789-source-1773752626396-target
+      id: 1773752424789-source-1773752700000-target
       source: '1773752424789'
+      sourceHandle: source
+      target: '1773752700000'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: llm
+      id: 1773752700000-source-1773752626396-target
+      source: '1773752700000'
       sourceHandle: source
       target: '1773752626396'
       targetHandle: target
@@ -239,7 +252,9 @@ workflow:
         selected: false
         title: 用户输入
         type: start
-        variables: []
+        variables:
+        - value_selector: ["file"]
+          variable: user_input
       height: 72
       id: '1773752364237'
       position:
@@ -255,16 +270,16 @@ workflow:
     - data:
         classes:
         - id: '1'
-          name: ''
+          name: '安全服务'
         - id: '2'
-          name: ''
+          name: '产品实施'
         model:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: ''
-          provider: ''
-        query_variable_selector: []
+          name: 'deepseek-chat'
+          provider: 'langgenius/deepseek/deepseek'
+        query_variable_selector: ["1773752364237", "user_input"]
         selected: false
         title: 问题分类器
         type: question-classifier
@@ -318,10 +333,8 @@ workflow:
         title: 模板文件转换
         type: code
         variables:
-        - value_selector: []
-          variable: arg1
-        - value_selector: []
-          variable: arg2
+        - value_selector: ["file"]
+          variable: file
       height: 51
       id: '1773752424789'
       position:
@@ -341,7 +354,7 @@ workflow:
           reranking_enable: false
           top_k: 4
         query_attachment_selector: []
-        query_variable_selector: []
+        query_variable_selector: ["1773752364237", "user_input"]
         retrieval_mode: multiple
         selected: false
         title: 知识检索
@@ -835,6 +848,9 @@ workflow:
         tool_node_version: '2'
         tool_parameters: {}
         type: tool
+        variables:
+        - value_selector: ["1773752364237", "user_input"]
+          variable: url
       height: 51
       id: '1773752446300'
       position:
@@ -861,12 +877,36 @@ workflow:
         prompt_template:
         - id: 8ea30e8e-fd80-4587-8d47-50cb15ff4492
           role: system
-          text: ''
+          text: '你是信息安全服务专家，负责撰写安全服务部门的SOP文档。
+
+任务：
+根据用户输入和爬取的信息，生成详细的安全服务SOP文档。
+
+要求：
+1. 内容必须符合信息安全行业标准
+2. 包含完整的安全服务流程
+3. 覆盖风险评估、安全测试、漏洞管理等关键环节
+4. 提供具体的实施步骤和最佳实践
+5. 输出格式为Markdown
+
+输入：
+{{user_input}}
+
+爬取结果：
+{{crawl_result}}
+
+输出：
+详细的安全服务SOP文档（Markdown格式）'
         selected: true
         title: 安全服务
         type: llm
         vision:
           enabled: false
+        variables:
+        - value_selector: ["1773752446300", "result"]
+          variable: crawl_result
+        - value_selector: ["1773752364237", "user_input"]
+          variable: user_input
       height: 87
       id: '1773752451732'
       position:
@@ -892,12 +932,31 @@ workflow:
           provider: langgenius/deepseek/deepseek
         prompt_template:
         - role: system
-          text: ''
+          text: '你是AI产品实施专家，负责撰写产品实施部门的SOP文档。
+
+任务：
+根据用户输入，生成详细的产品实施SOP文档。
+
+要求：
+1. 内容必须符合AI产品实施标准
+2. 包含完整的实施流程
+3. 覆盖需求分析、部署配置、测试验证等关键环节
+4. 提供具体的实施步骤和最佳实践
+5. 输出格式为Markdown
+
+输入：
+{{user_input}}
+
+输出：
+详细的产品实施SOP文档（Markdown格式）'
         selected: false
         title: 产品实施
         type: llm
         vision:
           enabled: false
+        variables:
+        - value_selector: ["1773752364237", "user_input"]
+          variable: user_input
       height: 87
       id: '1773752455196'
       position:
@@ -983,6 +1042,9 @@ workflow:
         tool_node_version: '2'
         tool_parameters: {}
         type: tool
+        variables:
+        - value_selector: ["1773752451732", "result"]
+          variable: md_text
       height: 51
       id: '1773752470244'
       position:
@@ -1224,6 +1286,9 @@ workflow:
         tool_node_version: '2'
         tool_parameters: {}
         type: tool
+        variables:
+        - value_selector: ["1773752451732", "result"]
+          variable: mermaid_code
       height: 51
       id: '1773752482653'
       position:
@@ -1278,10 +1343,10 @@ workflow:
         title: xml模板化处理
         type: code
         variables:
-        - value_selector: []
-          variable: arg1
-        - value_selector: []
-          variable: arg2
+        - value_selector: ["1773752626396", "result"]
+          variable: xml_template
+        - value_selector: ["1773752451732", "result"]
+          variable: markdown
       height: 51
       id: '1773752489596'
       position:
@@ -1336,10 +1401,8 @@ workflow:
         title: xml->docx
         type: code
         variables:
-        - value_selector: []
-          variable: arg1
-        - value_selector: []
-          variable: arg2
+        - value_selector: ["1773752489596", "template_xml"]
+          variable: document_xml
       height: 51
       id: '1773752493523'
       position:
@@ -1383,12 +1446,102 @@ workflow:
           provider: langgenius/deepseek/deepseek
         prompt_template:
         - role: system
-          text: ''
+          text: '你是信息安全与AI系统实施专家。
+
+任务：
+在不改变XML结构的前提下，填充模板中的空字段。
+
+严格要求：
+1. 不允许新增/删除XML标签
+2. 不允许改变结构层级
+3. 只填写空标签内容
+4. 输出必须是合法XML
+5. 内容符合"信息安全 + AI产品实施SOP"
+
+填充规则：
+- background：描述业务背景 + AI应用场景
+- objectives：明确安全目标（CIA + AI安全）
+- threat_model：包含攻击面（模型/数据/API）
+- risk_analysis：结合实际风险
+- vulnerabilities：列出典型漏洞（如Prompt Injection等）
+- deployment_steps：分步骤实施
+- monitoring：包含日志/告警/AI行为监控
+- incident_response：安全响应流程
+
+输入：
+
+【用户需求】
+{{user_input}}
+
+【上下文】
+{{context_data}}
+
+【XML模板】
+{{xml_files}}
+
+输出：
+完整XML（仅填充值）'
+        selected: false
+        title: AI填写器
+        type: llm
+        vision:
+          enabled: false
+        variables:
+        - value_selector: ["1773752424789", "xml_files"]
+          variable: xml_files
+        - value_selector: ["1773752364237", "user_input"]
+          variable: user_input
+        - value_selector: ["1773752364237", "user_input"]
+          variable: context_data
+      height: 87
+      id: '1773752700000'
+      position:
+        x: 600
+        y: 218
+      positionAbsolute:
+        x: 600
+        y: 218
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        prompt_template:
+        - role: system
+          text: '你是XML模板专家，负责从XML文件中提炼模板。
+
+任务：
+从输入的XML文件中提炼出SOP模板，保留结构，移除具体内容。
+
+要求：
+1. 分析XML结构，识别SOP文档的各个部分
+2. 保留XML标签和结构，仅移除具体内容
+3. 确保生成的模板结构完整
+4. 输出格式为XML
+
+输入：
+{{xml_content}}
+
+输出：
+提炼后的XML模板'
         selected: false
         title: 提炼模板
         type: llm
         vision:
           enabled: false
+        variables:
+        - value_selector: ["1773752700000", "result"]
+          variable: xml_content
       height: 87
       id: '1773752626396'
       position:
