@@ -1,0 +1,721 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOS-LS 安全检测报告</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .summary {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .summary-item {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .high-risk {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .medium-risk {
+            color: #f57c00;
+            font-weight: bold;
+        }
+        .low-risk {
+            color: #388e3c;
+            font-weight: bold;
+        }
+        .risk-level {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+        .risk-high {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .risk-medium {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        .risk-low {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        .project-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .security-assessment {
+            background-color: #f3e5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .recommendations {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .recommendation-item {
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        /* 选项卡样式 */
+        .tab-button {
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+            transition: background-color 0.3s;
+        }
+        .tab-button:hover {
+            background-color: #ddd;
+        }
+        .tab-button.active {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .tab-content {
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        /* 复制按钮样式 */
+        .copy-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .copy-button:hover {
+            background-color: #45a049;
+        }
+        .copy-button:active {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HOS-LS 安全检测报告</h1>
+        
+        <div class="project-info">
+            <h2>项目信息</h2>
+            <div class="summary-item">检测目标: HOS-LS/tests/test-ai-tool</div>
+            <div class="summary-item">检测时间: 2026-03-27 00:04:53</div>
+            <div class="summary-item">项目类型: unknown</div>
+            <div class="summary-item">使用规则集: default</div>
+        </div>
+        
+        <div class="summary">
+            <h2>检测摘要</h2>
+            <div class="summary-item high-risk">高风险: 10</div>
+            <div class="summary-item medium-risk">中风险: 8</div>
+            <div class="summary-item low-risk">低风险: 3</div>
+            <div class="summary-item">总体风险等级: <span class="risk-level risk-high">高风险</span></div>
+        </div>
+        
+        <div class="security-assessment">
+            <h2>安全评估</h2>
+            <p>本次安全扫描共发现 10 个高风险问题，8 个中风险问题，3 个低风险问题。 系统存在严重安全隐患，建议立即处理高风险问题。</p>
+        </div>
+        
+        <div class="recommendations">
+            <h2>安全建议</h2>
+            
+            <div class="recommendation-item">
+                <strong>高风险:</strong> 立即处理所有高风险问题，特别是硬编码的敏感信息和后门代码。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>中风险:</strong> 尽快处理中风险问题，如网络访问代码的安全验证和依赖库版本管理。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>低风险:</strong> 定期进行安全检查，保持系统和依赖库的更新。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>低风险:</strong> 使用环境变量存储敏感信息，避免硬编码。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>低风险:</strong> 遵循最小权限原则，限制文件和目录权限。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>低风险:</strong> 定期进行安全扫描，及时发现和处理安全问题。
+            </div>
+            
+        </div>
+        
+        
+        <h2>代码安全</h2>
+        <table>
+            <tr>
+                <th>文件</th>
+                <th>问题</th>
+                <th>严重程度</th>
+                <th>详情</th>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\test.py</td>
+                <td>发现硬编码的api_key</td>
+                <td class="high-risk">high</td>
+                <td>匹配到: api_key</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\test.py</td>
+                <td>发现硬编码的password</td>
+                <td class="high-risk">high</td>
+                <td>匹配到: password</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\test.py</td>
+                <td>发现硬编码的token</td>
+                <td class="high-risk">high</td>
+                <td>匹配到: token</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\test.py</td>
+                <td>发现潜在的后门代码</td>
+                <td class="high-risk">high</td>
+                <td>匹配到: exec(</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\test.py</td>
+                <td>发现潜在的后门代码</td>
+                <td class="high-risk">high</td>
+                <td>匹配到: system(</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\test.py</td>
+                <td>发现网络访问代码</td>
+                <td class="medium-risk">medium</td>
+                <td>匹配到: requests.</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\test.py</td>
+                <td>发现AI输出处理代码，可能缺少输出过滤</td>
+                <td class="medium-risk">medium</td>
+                <td>匹配到: response</td>
+            </tr>
+            
+        </table>
+        
+        
+        
+        <h2>权限安全</h2>
+        <table>
+            <tr>
+                <th>文件</th>
+                <th>问题</th>
+                <th>严重程度</th>
+                <th>详情</th>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\config.json</td>
+                <td>文件具有执行权限</td>
+                <td class="medium-risk">medium</td>
+                <td>建议仅对必要的脚本设置执行权限</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\requirements.txt</td>
+                <td>文件具有执行权限</td>
+                <td class="medium-risk">medium</td>
+                <td>建议仅对必要的脚本设置执行权限</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\test.py</td>
+                <td>文件具有执行权限</td>
+                <td class="medium-risk">medium</td>
+                <td>建议仅对必要的脚本设置执行权限</td>
+            </tr>
+            
+        </table>
+        
+        
+        
+        <h2>网络安全</h2>
+        <table>
+            <tr>
+                <th>文件</th>
+                <th>问题</th>
+                <th>严重程度</th>
+                <th>详情</th>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\test.py</td>
+                <td>发现硬编码的IP地址</td>
+                <td class="medium-risk">medium</td>
+                <td>IP地址: 192.168.1.1</td>
+            </tr>
+            
+        </table>
+        
+        
+        
+        <h2>依赖安全</h2>
+        <table>
+            <tr>
+                <th>文件</th>
+                <th>问题</th>
+                <th>严重程度</th>
+                <th>详情</th>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\requirements.txt</td>
+                <td>发现依赖包</td>
+                <td class="low-risk">low</td>
+                <td>依赖: requests==2.31.0</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\requirements.txt</td>
+                <td>发现依赖包</td>
+                <td class="low-risk">low</td>
+                <td>依赖: pyyaml==6.0.1</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\requirements.txt</td>
+                <td>发现依赖包</td>
+                <td class="low-risk">low</td>
+                <td>依赖: jinja2==3.1.3</td>
+            </tr>
+            
+        </table>
+        
+        
+        
+        <h2>配置安全</h2>
+        <table>
+            <tr>
+                <th>文件</th>
+                <th>问题</th>
+                <th>严重程度</th>
+                <th>详情</th>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\config.json</td>
+                <td>配置文件中可能包含敏感信息</td>
+                <td class="high-risk">high</td>
+                <td>匹配到敏感模式: (?i)api[_\s-]?key</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\config.json</td>
+                <td>配置文件中可能包含敏感信息</td>
+                <td class="high-risk">high</td>
+                <td>匹配到敏感模式: (?i)password</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\config.json</td>
+                <td>配置文件中可能包含敏感信息</td>
+                <td class="high-risk">high</td>
+                <td>匹配到敏感模式: (?i)secret</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\config.json</td>
+                <td>配置文件中可能包含敏感信息</td>
+                <td class="high-risk">high</td>
+                <td>匹配到敏感模式: (?i)token</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\config.json</td>
+                <td>配置文件中可能包含敏感信息</td>
+                <td class="high-risk">high</td>
+                <td>匹配到敏感模式: (?i)database[_\s-]?url</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\config.json</td>
+                <td>发现AI特定配置</td>
+                <td class="medium-risk">medium</td>
+                <td>匹配到: (?i)api_key</td>
+            </tr>
+            
+            <tr>
+                <td>HOS-LS/tests/test-ai-tool\config.json</td>
+                <td>发现AI特定配置</td>
+                <td class="medium-risk">medium</td>
+                <td>匹配到: (?i)url</td>
+            </tr>
+            
+        </table>
+        
+        
+        <div class="recommendations">
+            <h2>AI安全建议</h2>
+            
+            <div class="recommendation-item">
+                <strong>风险评估:</strong> 本次扫描发现10个高风险问题，8个中风险问题，3个低风险问题。系统存在严重安全隐患，建议立即处理高风险问题。
+            </div>
+            
+            
+            
+            <h3>针对性建议</h3>
+            
+            <div class="recommendation-item">
+                请查看各工具的安全提示词文件获取详细建议
+            </div>
+            
+            
+            
+            
+            <h3>安全最佳实践</h3>
+            
+            <div class="recommendation-item">
+                请参考生成的安全提示词文件
+            </div>
+            
+            
+            
+            <h3>AI工具提示词</h3>
+            
+            <!-- 选项卡 -->
+            <div style="margin-bottom: 10px;">
+                <button class="tab-button active" onclick="switchTab('cursor')">Cursor</button>
+                <button class="tab-button" onclick="switchTab('trae')">Trae</button>
+                <button class="tab-button" onclick="switchTab('kiro')">Kiro</button>
+            </div>
+            
+            <!-- 提示词内容 -->
+            <div id="cursor-tab" class="tab-content active" style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace;">
+                ## 敏感信息保护
+要求：禁止在代码中硬编码密钥、令牌等敏感信息，应使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+API_KEY = "sk-live-123456789"
+
+# 正确做法
+import os
+API_KEY = os.getenv("API_KEY")
+```
+
+## 危险函数禁用
+要求：避免使用 `eval()`、`exec()` 等可能执行任意代码的危险函数，防止代码注入。
+示例：```python
+# 错误做法
+user_input = "os.system('rm -rf /')"
+eval(user_input)
+
+# 正确做法
+# 使用安全的替代方案，如字典映射或条件判断。
+```
+
+## 输入验证过滤
+要求：对所有外部输入（如用户输入、API 响应）进行严格的类型、格式和范围验证。
+示例：```python
+# 错误做法
+user_id = request.args.get('id')
+query = f"SELECT * FROM users WHERE id = {user_id}"
+
+# 正确做法
+import re
+user_id = request.args.get('id')
+if not re.match(r'^\d+$', user_id):
+    raise ValueError("Invalid ID")
+# 使用参数化查询
+```
+
+## 文件权限控制
+要求：设置最小必要文件系统权限，避免配置文件或日志等文件被不当读写。
+示例：```python
+# 错误做法
+with open('config.yaml', 'w') as f:  # 默认权限可能过宽
+    f.write(config)
+
+# 正确做法
+import os
+# 设置文件仅所有者可读写 (0o600)
+with open('config.yaml', 'w') as f:
+    os.chmod('config.yaml', 0o600)
+    f.write(config)
+```
+
+## 网络请求安全
+要求：对外部网络请求使用 HTTPS 等加密协议，并验证 SSL/TLS 证书有效性。
+示例：```python
+# 错误做法
+import urllib.request
+response = urllib.request.urlopen('http://example.com/api')  # 未加密
+
+# 正确做法
+import requests
+response = requests.get('https://example.com/api', verify=True)  # 启用证书验证
+```
+            </div>
+            
+            <div id="trae-tab" class="tab-content" style="display: none; background-color: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace;">
+                ## 敏感信息处理
+要求：禁止在代码中硬编码密码、密钥等敏感信息，应使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+db_password = "MySuperSecret123"
+
+# 正确做法
+import os
+db_password = os.getenv('DB_PASSWORD')
+```
+
+## 危险函数调用
+要求：避免使用 `eval()`、`exec()` 等可执行任意代码的危险函数，防止代码注入。
+示例：```python
+# 错误做法
+user_input = "__import__('os').system('rm -rf /')"
+result = eval(user_input)
+
+# 正确做法
+# 使用安全的替代方案，如字典映射或函数调用
+```
+
+## 输入验证与过滤
+要求：对所有外部输入（如用户输入、API 响应）进行严格的验证、过滤或转义。
+示例：```python
+# 错误做法
+query = f"SELECT * FROM users WHERE name = '{user_input}'"
+
+# 正确做法（使用参数化查询）
+import sqlite3
+conn = sqlite3.connect('test.db')
+cursor = conn.cursor()
+cursor.execute("SELECT * FROM users WHERE name = ?", (user_input,))
+```
+
+## 文件操作权限
+要求：为文件操作设置最小必要权限，并验证文件路径，防止路径遍历攻击。
+示例：```python
+# 错误做法
+with open(user_provided_path, 'r') as f:
+    data = f.read()
+
+# 正确做法
+import os
+base_dir = '/safe/directory'
+abs_path = os.path.abspath(os.path.join(base_dir, user_filename))
+if not abs_path.startswith(base_dir):
+    raise ValueError("非法路径")
+with open(abs_path, 'r') as f:
+    data = f.read()
+```
+
+## 网络请求安全
+要求：发起网络请求时使用 HTTPS 并验证 TLS 证书，避免中间人攻击。
+示例：```python
+# 错误做法（不验证证书）
+import urllib.request
+response = urllib.request.urlopen('https://example.com/data')
+
+# 正确做法（默认验证证书）
+import requests
+response = requests.get('https://example.com/data', verify=True)
+```
+            </div>
+            
+            <div id="kiro-tab" class="tab-content" style="display: none; background-color: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace;">
+                ## 敏感信息处理
+要求：禁止在代码中硬编码密码、API密钥等敏感信息，应使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+db_password = "MyS3cr3tP@ssw0rd"
+
+# 正确做法
+import os
+db_password = os.environ.get('DB_PASSWORD')
+```
+
+## 危险函数调用
+要求：避免使用可能导致命令注入或代码执行的危险函数（如`eval`, `os.system`），优先使用安全的替代方案。
+示例：```python
+# 错误做法
+user_input = input("Enter calculation: ")
+result = eval(user_input)  # 危险！
+
+# 正确做法
+# 使用安全的数学库或严格限制的解析器
+```
+
+## 输入验证与过滤
+要求：对所有外部输入（用户输入、API响应、文件内容）进行严格的验证、过滤和转义，防止注入攻击。
+示例：```python
+# 错误做法
+query = f"SELECT * FROM users WHERE name = '{user_input}'"  # SQL注入风险
+
+# 正确做法
+import sqlite3
+conn = sqlite3.connect('database.db')
+cursor = conn.cursor()
+cursor.execute("SELECT * FROM users WHERE name = ?", (user_input,))  # 参数化查询
+```
+
+## 文件权限管理
+要求：为创建的文件和目录设置最小必要权限，避免使用过于宽松的权限（如`777`）。
+示例：```python
+# 错误做法
+with open('config.json', 'w') as f:
+    f.write(data)
+os.chmod('config.json', 0o777)  # 权限过高
+
+# 正确做法
+import os
+with open('config.json', 'w') as f:
+    f.write(data)
+os.chmod('config.json', 0o600)  # 仅所有者可读写
+```
+
+## 网络请求安全
+要求：发起网络请求时使用HTTPS协议，并验证SSL证书有效性，避免中间人攻击。
+示例：```python
+# 错误做法
+import urllib.request
+response = urllib.request.urlopen('http://example.com/data')  # 未加密
+
+# 正确做法
+import urllib.request
+import ssl
+context = ssl.create_default_context()
+response = urllib.request.urlopen('https://example.com/data', context=context)
+```
+            </div>
+            
+            <!-- 复制按钮 -->
+            <div style="margin-top: 10px;">
+                <button onclick="copyContent('cursor-tab')" class="copy-button">复制Cursor提示词</button>
+                <button onclick="copyContent('trae-tab')" class="copy-button">复制Trae提示词</button>
+                <button onclick="copyContent('kiro-tab')" class="copy-button">复制Kiro提示词</button>
+            </div>
+            <p style="margin-top: 10px; font-size: 12px; color: #666;">提示：点击上方按钮复制对应IDE的提示词</p>
+        </div>
+        
+        <div class="footer">
+            <p>报告生成时间: 2026-03-27 00:04:53</p>
+            <p>HOS-LS 安全检测工具 v1.0.0</p>
+        </div>
+    </div>
+    <script>
+        // 选项卡切换功能
+        function switchTab(tabName) {
+            // 隐藏所有选项卡内容
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // 移除所有选项卡按钮的活动状态
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // 显示选中的选项卡内容
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // 激活选中的选项卡按钮
+            event.currentTarget.classList.add('active');
+        }
+        
+        // 复制内容到剪贴板
+        function copyContent(tabId) {
+            const content = document.getElementById(tabId).innerText;
+            navigator.clipboard.writeText(content)
+                .then(() => {
+                    // 显示复制成功提示
+                    const button = event.currentTarget;
+                    const originalText = button.innerText;
+                    button.innerText = '已复制!';
+                    button.style.backgroundColor = '#4CAF50';
+                    
+                    // 2秒后恢复按钮状态
+                    setTimeout(() => {
+                        button.innerText = originalText;
+                        button.style.backgroundColor = '';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('复制失败:', err);
+                });
+        }
+    </script>
+</body>
+</html>

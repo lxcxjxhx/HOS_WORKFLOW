@@ -1,0 +1,170 @@
+{
+  "version": "1.0",
+  "rule_sets": {
+    "default": {
+      "name": "默认规则集",
+      "description": "适用于一般AI项目的默认安全规则",
+      "enabled_rules": [
+        "code_security.hardcoded_secrets",
+        "code_security.backdoor_code",
+        "code_security.network_access",
+        "code_security.ai_model_loading",
+        "code_security.ai_input_validation",
+        "permission_security.root_user",
+        "permission_security.executable_files",
+        "permission_security.model_file_permissions",
+        "network_security.public_ports",
+        "network_security.firewall_disabled",
+        "dependency_security.unpinned_versions",
+        "config_security.sensitive_config",
+        "config_security.ai_config"
+      ]
+    },
+    "openclaw": {
+      "name": "OpenClaw项目规则集",
+      "description": "专门针对OpenClaw项目的安全规则",
+      "enabled_rules": [
+        "code_security.hardcoded_secrets",
+        "code_security.backdoor_code",
+        "code_security.network_access",
+        "code_security.ai_model_loading",
+        "permission_security.root_user",
+        "permission_security.executable_files",
+        "permission_security.model_file_permissions",
+        "network_security.public_ports",
+        "network_security.firewall_disabled",
+        "dependency_security.unpinned_versions",
+        "config_security.sensitive_config",
+        "config_security.ai_config",
+        "openclaw_security.version_outdated",
+        "openclaw_security.untrusted_source",
+        "openclaw_security.public_ports",
+        "openclaw_security.skill_malicious_code"
+      ]
+    },
+    "cursor": {
+      "name": "Cursor生成项目规则集",
+      "description": "针对Cursor生成的项目的安全规则",
+      "enabled_rules": [
+        "code_security.hardcoded_secrets",
+        "code_security.backdoor_code",
+        "code_security.network_access",
+        "code_security.ai_model_loading",
+        "code_security.ai_input_validation",
+        "permission_security.executable_files",
+        "permission_security.model_file_permissions",
+        "network_security.public_ports",
+        "dependency_security.unpinned_versions",
+        "config_security.sensitive_config",
+        "cursor_security.hardcoded_api_keys",
+        "cursor_security.unsafe_prompts"
+      ]
+    },
+    "trae": {
+      "name": "Trae生成项目规则集",
+      "description": "针对Trae生成的项目的安全规则",
+      "enabled_rules": [
+        "code_security.hardcoded_secrets",
+        "code_security.backdoor_code",
+        "code_security.network_access",
+        "code_security.ai_model_loading",
+        "permission_security.executable_files",
+        "permission_security.model_file_permissions",
+        "network_security.public_ports",
+        "dependency_security.unpinned_versions",
+        "config_security.sensitive_config"
+      ]
+    },
+    "kiro": {
+      "name": "Kiro生成项目规则集",
+      "description": "针对Kiro生成的项目的安全规则",
+      "enabled_rules": [
+        "code_security.hardcoded_secrets",
+        "code_security.backdoor_code",
+        "code_security.network_access",
+        "code_security.ai_model_loading",
+        "permission_security.executable_files",
+        "permission_security.model_file_permissions",
+        "network_security.public_ports",
+        "dependency_security.unpinned_versions",
+        "config_security.sensitive_config"
+      ]
+    },
+    "high_security": {
+      "name": "高安全要求规则集",
+      "description": "适用于对安全要求较高的项目",
+      "enabled_rules": [
+        "code_security.hardcoded_secrets",
+        "code_security.backdoor_code",
+        "code_security.network_access",
+        "code_security.ai_model_loading",
+        "code_security.ai_input_validation",
+        "code_security.ai_output_processing",
+        "code_security.ai_inference",
+        "code_security.ai_data_processing",
+        "permission_security.root_user",
+        "permission_security.executable_files",
+        "permission_security.model_file_permissions",
+        "permission_security.ssh_key_permissions",
+        "network_security.public_ports",
+        "network_security.firewall_disabled",
+        "network_security.ssh_root_login",
+        "network_security.reverse_shell",
+        "dependency_security.unpinned_versions",
+        "dependency_security.ai_dependencies",
+        "config_security.sensitive_config",
+        "config_security.ai_config"
+      ]
+    },
+    "minimal": {
+      "name": "最小规则集",
+      "description": "适用于快速扫描的最小规则集",
+      "enabled_rules": [
+        "code_security.hardcoded_secrets",
+        "code_security.backdoor_code",
+        "network_security.public_ports",
+        "config_security.sensitive_config"
+      ]
+    }
+  },
+  "project_types": {
+    "openclaw": {
+      "name": "OpenClaw项目",
+      "rule_set": "openclaw",
+      "detect_patterns": [
+        "openclaw",
+        "skill",
+        "gateway"
+      ]
+    },
+    "cursor": {
+      "name": "Cursor生成项目",
+      "rule_set": "cursor",
+      "detect_patterns": [
+        "cursor",
+        "trae",
+        "kiro"
+      ]
+    },
+    "ai_model": {
+      "name": "AI模型项目",
+      "rule_set": "high_security",
+      "detect_patterns": [
+        "model",
+        "tensorflow",
+        "pytorch",
+        "transformers"
+      ]
+    },
+    "web_app": {
+      "name": "Web应用项目",
+      "rule_set": "default",
+      "detect_patterns": [
+        "flask",
+        "django",
+        "express",
+        "react"
+      ]
+    }
+  }
+}

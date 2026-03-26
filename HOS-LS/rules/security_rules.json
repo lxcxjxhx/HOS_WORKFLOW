@@ -1,0 +1,207 @@
+{
+  "version": "1.0",
+  "rules": {
+    "code_security": {
+      "hardcoded_secrets": {
+        "description": "检测硬编码的敏感信息",
+        "patterns": [
+          "api[_-]?key",
+          "api[_-]?token",
+          "password",
+          "passwd",
+          "pwd",
+          "secret",
+          "private[_-]?key",
+          "token",
+          "auth[_-]?token"
+        ],
+        "severity": "HIGH",
+        "fix": "移除硬编码的敏感信息，使用环境变量或配置文件存储"
+      },
+      "backdoor_code": {
+        "description": "检测潜在的后门代码",
+        "patterns": [
+          "exec(",
+          "eval(",
+          "system(",
+          "os\\\\.system("
+        ],
+        "severity": "HIGH",
+        "fix": "审查代码，确保这些函数的使用是安全的"
+      },
+      "network_access": {
+        "description": "检测网络访问代码",
+        "patterns": [
+          "requests\\\\.",
+          "urllib\\\\.",
+          "socket\\\\."
+        ],
+        "severity": "MEDIUM",
+        "fix": "确保网络访问代码有适当的错误处理和安全验证"
+      },
+      "ai_model_loading": {
+        "description": "检测AI模型加载代码",
+        "patterns": [
+          "torch\\\\.load",
+          "torch\\\\.jit\\\\.load",
+          "tf\\\\.keras\\\\.models\\\\.load_model",
+          "onnxruntime\\\\.InferenceSession",
+          "transformers\\\\.AutoModel",
+          "transformers\\\\.AutoTokenizer"
+        ],
+        "severity": "MEDIUM",
+        "fix": "确保模型加载路径安全，避免加载恶意模型"
+      },
+      "ai_input_validation": {
+        "description": "检测AI输入处理代码，可能缺少输入验证",
+        "patterns": [
+          "input",
+          "prompt",
+          "query"
+        ],
+        "exclude_patterns": [
+          "validate",
+          "sanitize",
+          "check"
+        ],
+        "severity": "MEDIUM",
+        "fix": "添加输入验证和sanitization代码"
+      }
+    },
+    "permission_security": {
+      "root_user": {
+        "description": "检测使用root用户运行",
+        "severity": "MEDIUM",
+        "fix": "创建专用用户运行AI工具，遵循最小权限原则"
+      },
+      "executable_files": {
+        "description": "检测可执行文件",
+        "severity": "MEDIUM",
+        "fix": "仅对必要的脚本设置执行权限"
+      },
+      "model_file_permissions": {
+        "description": "检测AI模型文件权限过于宽松",
+        "severity": "HIGH",
+        "fix": "执行 'chmod 640 <file>' 限制模型文件访问"
+      },
+      "ssh_key_permissions": {
+        "description": "检测SSH私钥权限不安全",
+        "severity": "HIGH",
+        "fix": "执行 'chmod 600 <key>' 限制私钥访问"
+      }
+    },
+    "network_security": {
+      "public_ports": {
+        "description": "检测端口暴露到公网",
+        "severity": "HIGH",
+        "fix": "修改配置，将监听地址改为 127.0.0.1 或配置防火墙限制访问"
+      },
+      "firewall_disabled": {
+        "description": "检测防火墙未启用",
+        "severity": "HIGH",
+        "fix": "安装并启用防火墙，如 ufw、firewalld 或 iptables"
+      },
+      "ssh_root_login": {
+        "description": "检测SSH允许root登录",
+        "severity": "HIGH",
+        "fix": "修改 /etc/ssh/sshd_config，设置 'PermitRootLogin no'"
+      },
+      "reverse_shell": {
+        "description": "检测反向Shell",
+        "severity": "HIGH",
+        "fix": "立即检查进程详情并终止可疑进程"
+      }
+    },
+    "dependency_security": {
+      "unpinned_versions": {
+        "description": "检测依赖库版本未固定",
+        "severity": "MEDIUM",
+        "fix": "固定依赖库版本，避免自动更新引入安全问题"
+      },
+      "ai_dependencies": {
+        "description": "检测AI相关依赖库",
+        "severity": "MEDIUM",
+        "fix": "确保依赖库版本安全，定期更新"
+      }
+    },
+    "config_security": {
+      "sensitive_config": {
+        "description": "检测配置文件中包含敏感信息",
+        "patterns": [
+          "api[_-]?key",
+          "password",
+          "secret",
+          "token",
+          "database[_-]?url"
+        ],
+        "severity": "HIGH",
+        "fix": "移除敏感信息，使用环境变量存储"
+      },
+      "ai_config": {
+        "description": "检测AI特定配置",
+        "patterns": [
+          "model_path",
+          "model_name",
+          "model_dir",
+          "api_key",
+          "api_token",
+          "endpoint",
+          "url"
+        ],
+        "severity": "MEDIUM",
+        "fix": "确保配置安全，避免硬编码敏感信息"
+      }
+    },
+    "openclaw_security": {
+      "version_outdated": {
+        "description": "检测OpenClaw版本过旧",
+        "severity": "HIGH",
+        "fix": "立即执行 'openclaw update' 升级到最新版本"
+      },
+      "untrusted_source": {
+        "description": "检测OpenClaw安装来源非官方",
+        "severity": "MEDIUM",
+        "fix": "建议从官方渠道安装：https://openclaw.ai 或 https://github.com/openclaw/openclaw"
+      },
+      "public_ports": {
+        "description": "检测OpenClaw端口暴露到公网",
+        "severity": "HIGH",
+        "fix": "修改 ~/.openclaw/config.json 中的 'host' 配置，将 '0.0.0.0' 改为 '127.0.0.1'，或在防火墙中限制访问"
+      },
+      "skill_malicious_code": {
+        "description": "检测OpenClaw技能包可能包含恶意代码",
+        "severity": "HIGH",
+        "fix": "审查技能包代码，确保不包含恶意代码"
+      }
+    },
+    "cursor_security": {
+      "hardcoded_api_keys": {
+        "description": "检测Cursor生成的代码中硬编码的API密钥",
+        "severity": "HIGH",
+        "fix": "使用环境变量存储API密钥"
+      },
+      "unsafe_prompts": {
+        "description": "检测不安全的AI提示模板",
+        "severity": "MEDIUM",
+        "fix": "确保提示模板不包含敏感信息，并且经过安全审查"
+      }
+    }
+  },
+  "tool_formats": {
+    "cursor": {
+      "prompt_prefix": "请确保代码符合以下安全规则：",
+      "rule_format": "- {description}: {fix}",
+      "footer": "请严格按照上述安全规则编写代码，避免安全漏洞。"
+    },
+    "trae": {
+      "prompt_prefix": "[安全规则] 请遵循以下安全要求：",
+      "rule_format": "{description} - {fix}",
+      "footer": "确保代码符合安全最佳实践。"
+    },
+    "kiro": {
+      "prompt_prefix": "安全规则提醒：",
+      "rule_format": "• {description}: {fix}",
+      "footer": "代码安全是首要考虑因素。"
+    }
+  }
+}

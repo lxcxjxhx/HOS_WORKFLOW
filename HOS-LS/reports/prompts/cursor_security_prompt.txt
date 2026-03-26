@@ -1,0 +1,63 @@
+## 敏感信息保护
+要求：禁止在代码中硬编码密钥、令牌等敏感信息，应使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+API_KEY = "sk-live-123456789"
+
+# 正确做法
+import os
+API_KEY = os.getenv("API_KEY")
+```
+
+## 危险函数禁用
+要求：避免使用 `eval()`、`exec()` 等可能执行任意代码的危险函数，防止代码注入。
+示例：```python
+# 错误做法
+user_input = "os.system('rm -rf /')"
+eval(user_input)
+
+# 正确做法
+# 使用安全的替代方案，如字典映射或条件判断。
+```
+
+## 输入验证过滤
+要求：对所有外部输入（如用户输入、API 响应）进行严格的类型、格式和范围验证。
+示例：```python
+# 错误做法
+user_id = request.args.get('id')
+query = f"SELECT * FROM users WHERE id = {user_id}"
+
+# 正确做法
+import re
+user_id = request.args.get('id')
+if not re.match(r'^\d+$', user_id):
+    raise ValueError("Invalid ID")
+# 使用参数化查询
+```
+
+## 文件权限控制
+要求：设置最小必要文件系统权限，避免配置文件或日志等文件被不当读写。
+示例：```python
+# 错误做法
+with open('config.yaml', 'w') as f:  # 默认权限可能过宽
+    f.write(config)
+
+# 正确做法
+import os
+# 设置文件仅所有者可读写 (0o600)
+with open('config.yaml', 'w') as f:
+    os.chmod('config.yaml', 0o600)
+    f.write(config)
+```
+
+## 网络请求安全
+要求：对外部网络请求使用 HTTPS 等加密协议，并验证 SSL/TLS 证书有效性。
+示例：```python
+# 错误做法
+import urllib.request
+response = urllib.request.urlopen('http://example.com/api')  # 未加密
+
+# 正确做法
+import requests
+response = requests.get('https://example.com/api', verify=True)  # 启用证书验证
+```
