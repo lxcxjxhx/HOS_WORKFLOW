@@ -1,189 +1,1569 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "rules": {
     "code_security": {
       "hardcoded_secrets": {
-        "description": "检测硬编码的敏感信息",
-        "patterns": [
-          "api[_-]?key",
-          "api[_-]?token",
-          "password",
-          "passwd",
-          "pwd",
-          "secret",
-          "private[_-]?key",
-          "token",
-          "auth[_-]?token"
-        ],
+        "id": "code_security.hardcoded_secrets",
+        "name": "硬编码敏感信息",
+        "description": "检测硬编码的敏感信息（API 密钥、密码、令牌等）",
         "severity": "HIGH",
-        "fix": "移除硬编码的敏感信息，使用环境变量或配置文件存储"
-      },
-      "backdoor_code": {
-        "description": "检测潜在的后门代码",
+        "confidence": 0.95,
+        "weight": 1.5,
+        "cwe": "CWE-798",
+        "owasp": "A07:2021",
         "patterns": [
-          "exec(",
-          "eval(",
-          "system(",
-          "os\\\\.system("
-        ],
-        "severity": "HIGH",
-        "fix": "审查代码，确保这些函数的使用是安全的"
-      },
-      "network_access": {
-        "description": "检测网络访问代码",
-        "patterns": [
-          "requests\\\\.",
-          "urllib\\\\.",
-          "socket\\\\."
-        ],
-        "severity": "MEDIUM",
-        "fix": "确保网络访问代码有适当的错误处理和安全验证"
-      },
-      "ai_model_loading": {
-        "description": "检测AI模型加载代码",
-        "patterns": [
-          "torch\\\\.load",
-          "torch\\\\.jit\\\\.load",
-          "tf\\\\.keras\\\\.models\\\\.load_model",
-          "onnxruntime\\\\.InferenceSession",
-          "transformers\\\\.AutoModel",
-          "transformers\\\\.AutoTokenizer"
-        ],
-        "severity": "MEDIUM",
-        "fix": "确保模型加载路径安全，避免加载恶意模型"
-      },
-      "ai_input_validation": {
-        "description": "检测AI输入处理代码，可能缺少输入验证",
-        "patterns": [
-          "input",
-          "prompt",
-          "query"
+          "(?i)(api[_\\s-]?key|api[_\\s-]?token)\\s*[:=]\\s*[\"']([^\"']{8,})[\"']",
+          "(?i)(password|passwd|pwd)\\s*[:=]\\s*[\"']([^\"']{4,})[\"']",
+          "(?i)(secret|private[_\\s-]?key)\\s*[:=]\\s*[\"']([^\"']{8,})[\"']",
+          "(?i)(token|auth[_\\s-]?token)\\s*[:=]\\s*[\"']([^\"']{8,})[\"']",
+          "(?i)(sk-[a-zA-Z0-9]{32,})",
+          "(?i)(ghp_[a-zA-Z0-9]{36})",
+          "(?i)(xox[baprs]-[a-zA-Z0-9-]{10,})"
         ],
         "exclude_patterns": [
-          "validate",
-          "sanitize",
-          "check"
+          "os\\.environ\\.get\\(",
+          "load_dotenv\\(",
+          "getenv\\(",
+          "#\\s*nosec",
+          "#\\s*safe",
+          "//\\s*nosec",
+          "//\\s*safe",
+          "your_.*_here",
+          "xxx",
+          "placeholder",
+          "example"
         ],
+        "context_patterns": [
+          {
+            "pattern": "os\\.environ\\.get\\([^)]+\\)",
+            "type": "safe",
+            "description": "使用环境变量"
+          },
+          {
+            "pattern": "load_dotenv\\(\\)",
+            "type": "safe",
+            "description": "使用 dotenv 加载"
+          }
+        ],
+        "fix": "移除硬编码的敏感信息，使用环境变量或配置文件存储",
+        "references": [
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/",
+          "https://cwe.mitre.org/data/definitions/798.html"
+        ]
+      },
+      "hardcoded_secrets_encoded": {
+        "id": "code_security.hardcoded_secrets_encoded",
+        "name": "编码的敏感信息",
+        "description": "检测 Base64/Hex 编码的敏感信息",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "weight": 1.5,
+        "cwe": "CWE-798",
+        "owasp": "A07:2021",
+        "patterns": [
+          "base64\\.b64decode\\s*\\([^)]*[\"'][A-Za-z0-9+/=]{20,}[\"']",
+          "bytes\\.fromhex\\s*\\([^)]*[\"'][0-9a-fA-F]{20,}[\"']",
+          "\\b[A-Za-z0-9+/]{40,}={0,2}\\b",
+          "\\b0x[0-9a-fA-F]{32,}\\b"
+        ],
+        "exclude_patterns": [
+          "test_encoded",
+          "example_base64",
+          "mock_secret"
+        ],
+        "context_patterns": [],
+        "fix": "避免使用编码隐藏敏感信息，应使用密钥管理服务",
+        "references": [
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+        ]
+      },
+      "hardcoded_secrets_env_fallback": {
+        "id": "code_security.hardcoded_secrets_env_fallback",
+        "name": "环境变量 fallback 泄露",
+        "description": "检测环境变量 fallback 中的硬编码默认值",
+        "severity": "HIGH",
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-798",
+        "owasp": "A07:2021",
+        "patterns": [
+          "os\\.environ\\.get\\s*\\([^,]+,\\s*['\"][^'\"]{8,}['\"]\\)",
+          "process\\.env\\.\\w+\\s*\\|\\|\\s*['\"][^'\"]{8,}['\"]",
+          "getenv\\s*\\([^,]+,\\s*['\"][^'\"]{8,}['\"]\\)"
+        ],
+        "exclude_patterns": [
+          "test_fallback",
+          "default_value"
+        ],
+        "context_patterns": [],
+        "fix": "移除默认值，强制通过环境变量配置",
+        "references": [
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+        ]
+      },
+      "hardcoded_secrets_cloud": {
+        "id": "code_security.hardcoded_secrets_cloud",
+        "name": "云凭证硬编码",
+        "description": "检测硬编码的云凭证（AWS/GitHub/Slack/Google）",
+        "severity": "CRITICAL",
+        "confidence": 0.95,
+        "weight": 2.0,
+        "cwe": "CWE-798",
+        "owasp": "A07:2021",
+        "patterns": [
+          "AKIA[0-9A-Z]{16}",
+          "ghp_[a-zA-Z0-9]{36}",
+          "xox[baprs]-[a-zA-Z0-9-]{10,}",
+          "AIza[0-9A-Za-z\\-_]{35}"
+        ],
+        "exclude_patterns": [
+          "test_credentials",
+          "mock_token"
+        ],
+        "context_patterns": [],
+        "fix": "使用 IAM 角色或密钥管理服务",
+        "references": [
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+        ]
+      },
+      "hardcoded_secrets_private_key": {
+        "id": "code_security.hardcoded_secrets_private_key",
+        "name": "私钥硬编码",
+        "description": "检测硬编码的私钥",
+        "severity": "CRITICAL",
+        "confidence": 0.95,
+        "weight": 2.0,
+        "cwe": "CWE-798",
+        "owasp": "A07:2021",
+        "patterns": [
+          "-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----",
+          "PRIVATE KEY-----"
+        ],
+        "exclude_patterns": [
+          "test_key",
+          "example_key"
+        ],
+        "context_patterns": [],
+        "fix": "使用密钥管理服务存储私钥",
+        "references": [
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+        ]
+      },
+      "backdoor_code": {
+        "id": "code_security.backdoor_code",
+        "name": "后门代码",
+        "description": "检测潜在的后门代码（危险函数使用）",
+        "severity": "HIGH",
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-94",
+        "owasp": "A03:2021",
+        "patterns": [
+          "(?i)\\bexec\\s*\\(",
+          "(?i)\\beval\\s*\\(",
+          "(?i)\\bsystem\\s*\\(",
+          "(?i)\\bos\\.system\\s*\\(",
+          "(?i)\\bsubprocess\\.call\\s*\\([^)]*shell\\s*=\\s*True",
+          "(?i)\\bos\\.popen\\s*\\(",
+          "(?i)\\bcommands\\.getoutput\\s*\\("
+        ],
+        "exclude_patterns": [
+          "#\\s*nosec",
+          "#\\s*safe",
+          "//\\s*nosec",
+          "test_",
+          "_test\\.py",
+          "example",
+          "demo"
+        ],
+        "context_patterns": [
+          {
+            "pattern": "ast\\.literal_eval\\(",
+            "type": "safe",
+            "description": "使用安全的 ast.literal_eval 替代"
+          }
+        ],
+        "fix": "审查代码，避免使用 eval()、exec() 等危险函数，使用 ast.literal_eval() 替代",
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/",
+          "https://cwe.mitre.org/data/definitions/94.html"
+        ]
+      },
+      "command_injection_ai_generated": {
+        "id": "code_security.command_injection_ai_generated",
+        "name": "AI 生成代码执行",
+        "description": "检测 AI 生成的代码直接执行",
+        "severity": "CRITICAL",
+        "confidence": 0.95,
+        "weight": 2.0,
+        "cwe": "CWE-94",
+        "owasp": "LLM01:2023",
+        "patterns": [
+          "llm\\.generate_code.*exec",
+          "ai\\.complete.*execute",
+          "model\\.predict.*code",
+          "eval\\s*\\(.*llm",
+          "exec\\s*\\(.*model"
+        ],
+        "exclude_patterns": [
+          "test_ai",
+          "mock_generate"
+        ],
+        "context_patterns": [],
+        "fix": "禁止执行 AI 生成的代码，实施代码审查",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "command_injection_shell_true_enhanced": {
+        "id": "code_security.command_injection_shell_true_enhanced",
+        "name": "Shell=True 增强检测",
+        "description": "检测 shell=True 与字符串拼接的组合",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "weight": 1.5,
+        "cwe": "CWE-78",
+        "owasp": "A03:2021",
+        "patterns": [
+          "subprocess\\..*shell\\s*=\\s*True.*f['\"]",
+          "subprocess\\..*shell\\s*=\\s*True.*\\+",
+          "os\\.system\\s*\\(.*%",
+          "os\\.system\\s*\\(.*\\.format"
+        ],
+        "exclude_patterns": [
+          "shell\\s*=\\s*False"
+        ],
+        "context_patterns": [],
+        "fix": "使用参数列表替代字符串拼接，设置 shell=False",
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/"
+        ]
+      },
+      "command_injection_user_input": {
+        "id": "code_security.command_injection_user_input",
+        "name": "用户输入命令注入",
+        "description": "检测用户输入直接用于命令执行",
+        "severity": "CRITICAL",
+        "confidence": 0.95,
+        "weight": 2.0,
+        "cwe": "CWE-78",
+        "owasp": "A03:2021",
+        "patterns": [
+          "os\\.system\\s*\\(.*request\\.",
+          "subprocess.*input",
+          "exec\\s*\\(.*input\\s*\\("
+        ],
+        "exclude_patterns": [
+          "test_input",
+          "mock_request"
+        ],
+        "context_patterns": [],
+        "fix": "验证并过滤用户输入，使用白名单机制",
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/"
+        ]
+      },
+      "network_access": {
+        "id": "code_security.network_access",
+        "name": "网络访问代码",
+        "description": "检测网络访问代码，需要适当的安全验证",
         "severity": "MEDIUM",
-        "fix": "添加输入验证和sanitization代码"
+        "confidence": 0.75,
+        "weight": 1.0,
+        "cwe": "CWE-939",
+        "owasp": "A05:2021",
+        "patterns": [
+          "(?i)requests\\.(get|post|put|delete|patch)\\s*\\(",
+          "(?i)urllib\\.(request|parse)\\.",
+          "(?i)socket\\.(socket|connect|bind)\\s*\\(",
+          "(?i)http\\.client\\.",
+          "(?i)aiohttp\\.(ClientSession|get|post)\\s*\\("
+        ],
+        "exclude_patterns": [
+          "timeout\\s*=\\s*\\d+",
+          "verify\\s*=\\s*True",
+          "cert\\s*="
+        ],
+        "context_patterns": [],
+        "fix": "确保网络访问代码有适当的错误处理、超时设置和 SSL 验证",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
+      },
+      "ai_model_loading": {
+        "id": "code_security.ai_model_loading",
+        "name": "AI 模型加载",
+        "description": "检测 AI 模型加载代码，需要确保来源可信",
+        "severity": "MEDIUM",
+        "confidence": 0.85,
+        "weight": 1.0,
+        "cwe": "CWE-829",
+        "owasp": "A08:2021",
+        "patterns": [
+          "(?i)torch\\.load\\s*\\(",
+          "(?i)torch\\.jit\\.load\\s*\\(",
+          "(?i)tf\\.keras\\.models\\.load_model\\s*\\(",
+          "(?i)onnxruntime\\.InferenceSession\\s*\\(",
+          "(?i)transformers\\.AutoModel",
+          "(?i)transformers\\.AutoTokenizer",
+          "(?i)pickle\\.load\\s*\\(",
+          "(?i)joblib\\.load\\s*\\(",
+          "(?i)model_from_weights\\s*\\("
+        ],
+        "exclude_patterns": [
+          "pretrained\\s*=\\s*['\"](transformers|pytorch|tensorflow)",
+          "trust_remote_code\\s*=\\s*False"
+        ],
+        "context_patterns": [],
+        "fix": "确保模型加载路径安全，验证模型来源，避免加载恶意模型",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "ai_input_validation": {
+        "id": "code_security.ai_input_validation",
+        "name": "AI 输入验证",
+        "description": "检测 AI 输入处理代码，可能缺少输入验证",
+        "severity": "MEDIUM",
+        "confidence": 0.70,
+        "weight": 1.0,
+        "cwe": "CWE-20",
+        "owasp": "A03:2021",
+        "patterns": [
+          "(?i)\\binput\\s*\\(",
+          "(?i)\\bprompt\\s*[=:]",
+          "(?i)\\bquery\\s*[=:]",
+          "(?i)user_input",
+          "(?i)user_message",
+          "(?i)chat_input"
+        ],
+        "exclude_patterns": [
+          "(?i)validate",
+          "(?i)sanitize",
+          "(?i)check",
+          "(?i)filter",
+          "(?i)verify",
+          "max_length",
+          "min_length"
+        ],
+        "context_patterns": [],
+        "fix": "添加输入验证和 sanitization 代码，限制输入长度和内容",
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/"
+        ]
+      }
+    },
+    "injection_security": {
+      "command_injection": {
+        "id": "injection_security.command_injection",
+        "name": "命令注入",
+        "description": "检测潜在的命令注入漏洞",
+        "severity": "HIGH",
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-78",
+        "owasp": "A03:2021",
+        "patterns": [
+          "(?i)os\\.system\\s*\\([^)]*\\+",
+          "(?i)os\\.system\\s*\\([^)]*%",
+          "(?i)os\\.popen\\s*\\([^)]*\\+",
+          "(?i)subprocess\\.call\\s*\\([^)]*shell\\s*=\\s*True",
+          "(?i)subprocess\\.run\\s*\\([^)]*shell\\s*=\\s*True",
+          "(?i)exec\\s*\\([^)]*\\+",
+          "(?i)eval\\s*\\([^)]*\\+",
+          "(?i)commands\\.getoutput\\s*\\([^)]*\\+"
+        ],
+        "exclude_patterns": [
+          "#\\s*nosec",
+          "shell\\s*=\\s*False"
+        ],
+        "context_patterns": [],
+        "fix": "避免使用 shell=True，使用参数列表替代字符串拼接，使用 subprocess.run 并设置 shell=False",
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/",
+          "https://cwe.mitre.org/data/definitions/78.html"
+        ]
+      },
+      "sql_injection": {
+        "id": "injection_security.sql_injection",
+        "name": "SQL 注入",
+        "description": "检测潜在的 SQL 注入漏洞",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "weight": 1.5,
+        "cwe": "CWE-89",
+        "owasp": "A03:2021",
+        "patterns": [
+          "(?i)execute\\s*\\(\\s*[\"'].*%s.*[\"']\\s*%",
+          "(?i)execute\\s*\\([^)]*\\+",
+          "(?i)cursor\\.execute\\s*\\([^)]*\\+",
+          "(?i)cursor\\.executemany\\s*\\([^)]*\\+",
+          "(?i)raw\\s*\\(\\s*[\"'].*%.*[\"']",
+          "(?i)extra\\s*=\\s*\\{[^}]*\\}",
+          "(?i)\\.raw\\s*\\([^)]*\\+"
+        ],
+        "exclude_patterns": [
+          "parameterized",
+          "prepared\\s+statement",
+          "\\?\\s*,\\s*\\[",
+          ":\\w+\\s*,\\s*\\{"
+        ],
+        "context_patterns": [],
+        "fix": "使用参数化查询或预编译语句，避免字符串拼接 SQL 查询",
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/",
+          "https://cwe.mitre.org/data/definitions/89.html"
+        ]
+      },
+      "xss": {
+        "id": "injection_security.xss",
+        "name": "跨站脚本 (XSS)",
+        "description": "检测潜在的跨站脚本漏洞",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "weight": 1.5,
+        "cwe": "CWE-79",
+        "owasp": "A03:2021",
+        "patterns": [
+          "(?i)innerHTML\\s*=",
+          "(?i)document\\.write\\s*\\(",
+          "(?i)\\$\\s*\\([^)]*\\)\\.html\\s*\\(",
+          "(?i)render_template_string\\s*\\([^)]*request\\.",
+          "(?i)v-html\\s*=",
+          "(?i)v-on\\s*=",
+          "(?i)dangerouslySetInnerHTML",
+          "(?i)\\.after\\s*\\([^)]*\\+",
+          "(?i)\\.prepend\\s*\\([^)]*\\+"
+        ],
+        "exclude_patterns": [
+          "textContent",
+          "innerText",
+          "DOMPurify",
+          "sanitize",
+          "escape"
+        ],
+        "context_patterns": [],
+        "fix": "使用 textContent 替代 innerHTML，对用户输入进行 HTML 实体编码，使用 CSP",
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/",
+          "https://cwe.mitre.org/data/definitions/79.html"
+        ]
+      },
+      "path_traversal": {
+        "id": "injection_security.path_traversal",
+        "name": "路径遍历",
+        "description": "检测潜在的路径遍历漏洞",
+        "severity": "HIGH",
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-22",
+        "owasp": "A01:2021",
+        "patterns": [
+          "(?i)open\\s*\\([^)]*request\\.",
+          "(?i)open\\s*\\([^)]*\\+[^)]*\\.\\./",
+          "(?i)os\\.path\\.join\\s*\\([^)]*request\\.",
+          "(?i)send_file\\s*\\([^)]*request\\.",
+          "(?i)FileResponse\\s*\\([^)]*request\\.",
+          "(?i)read_file\\s*\\([^)]*\\$",
+          "(?i)file_get_contents\\s*\\([^)]*\\$"
+        ],
+        "exclude_patterns": [
+          "os.path.abspath",
+          "os.path.realpath",
+          "pathlib.Path",
+          "safe_join",
+          "secure_path"
+        ],
+        "context_patterns": [],
+        "fix": "使用白名单验证文件路径，使用 os.path.abspath 规范化路径，限制访问目录",
+        "references": [
+          "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+          "https://cwe.mitre.org/data/definitions/22.html"
+        ]
+      },
+      "deserialization": {
+        "id": "injection_security.deserialization",
+        "name": "不安全的反序列化",
+        "description": "检测潜在的不安全反序列化漏洞",
+        "severity": "HIGH",
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-502",
+        "owasp": "A08:2021",
+        "patterns": [
+          "(?i)pickle\\.loads?\\s*\\(",
+          "(?i)cPickle\\.loads?\\s*\\(",
+          "(?i)yaml\\.load\\s*\\([^)]*\\)",
+          "(?i)marshal\\.loads?\\s*\\(",
+          "(?i)shelve\\.open\\s*\\(",
+          "(?i)eval\\s*\\([^)]*json\\.",
+          "(?i)JSONDecoder\\s*\\([^)]*object_hook"
+        ],
+        "exclude_patterns": [
+          "yaml\\.safe_load",
+          "Loader\\s*=\\s*yaml\\.SafeLoader",
+          "json\\.loads",
+          "pickle\\.HIGHEST_PROTOCOL"
+        ],
+        "context_patterns": [],
+        "fix": "使用安全的反序列化方法（如 yaml.safe_load），验证输入来源，使用数字签名",
+        "references": [
+          "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/",
+          "https://cwe.mitre.org/data/definitions/502.html"
+        ]
+      }
+    },
+    "ai_security": {
+      "prompt_injection": {
+        "id": "ai_security.prompt_injection",
+        "name": "提示词注入",
+        "description": "检测潜在的提示词注入攻击",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "weight": 1.5,
+        "cwe": "CWE-1333",
+        "owasp": "LLM01:2023",
+        "patterns": [
+          "(?i)ignore\\s+previous\\s+instructions",
+          "(?i)ignore\\s+all\\s+previous",
+          "(?i)you\\s+are\\s+now\\s+",
+          "(?i)from\\s+now\\s+on\\s+",
+          "(?i)bypass\\s+safety\\s+filters",
+          "(?i)bypass\\s+content\\s+filters",
+          "(?i)output\\s+your\\s+system\\s+message",
+          "(?i)show\\s+your\\s+instructions",
+          "(?i)dan\\s+mode",
+          "(?i)developer\\s+mode",
+          "(?i)do\\s+anything\\s+now",
+          "(?i)roleplay\\s+as\\s+",
+          "(?i)act\\s+as\\s+[^a]"
+        ],
+        "exclude_patterns": [
+          "test_prompt",
+          "example_prompt",
+          "sample_prompt"
+        ],
+        "context_patterns": [],
+        "fix": "实施输入过滤，使用提示词模板，检测并阻止注入尝试，限制输出内容",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+          "https://cwe.mitre.org/data/definitions/1333.html"
+        ]
+      },
+      "prompt_injection_enhanced": {
+        "id": "ai_security.prompt_injection_enhanced",
+        "name": "提示词注入增强",
+        "description": "检测用户输入拼接到系统提示词",
+        "severity": "HIGH",
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-1333",
+        "owasp": "LLM01:2023",
+        "patterns": [
+          "system_prompt\\s*\\+\\s*user_input",
+          "base_prompt\\s*\\+\\s*input",
+          "f['\"].*\\{user_input\\}.*system",
+          "prompt.*=.*user.*\\+.*template",
+          "messages.*\\+.*user_input"
+        ],
+        "exclude_patterns": [
+          "test_prompt",
+          "example_prompt"
+        ],
+        "context_patterns": [],
+        "fix": "使用隔离上下文，避免直接拼接用户输入到系统提示词",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "prompt_injection_multi_turn": {
+        "id": "ai_security.prompt_injection_multi_turn",
+        "name": "多轮对话注入",
+        "description": "检测多轮对话中的注入攻击",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "weight": 1.5,
+        "cwe": "CWE-1333",
+        "owasp": "LLM01:2023",
+        "patterns": [
+          "conversation_history.*user",
+          "chat_history.*append",
+          "messages.*user_input",
+          "dialog.*user.*input"
+        ],
+        "exclude_patterns": [
+          "test_conversation",
+          "example_dialog"
+        ],
+        "context_patterns": [],
+        "fix": "过滤对话历史，实施上下文隔离，验证每轮对话内容",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "jailbreak_keyword": {
+        "id": "ai_security.jailbreak_keyword",
+        "name": "越狱关键词检测",
+        "description": "检测越狱相关的关键词",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "weight": 1.5,
+        "cwe": "CWE-1333",
+        "owasp": "LLM01:2023",
+        "patterns": [
+          "(?i)ignore all previous instructions",
+          "(?i)ignore safety guidelines",
+          "(?i)bypass content filters",
+          "(?i)disable safety measures",
+          "(?i)turn off moderation"
+        ],
+        "exclude_patterns": [
+          "test_jailbreak",
+          "example_bypass"
+        ],
+        "context_patterns": [],
+        "fix": "检测并阻止越狱尝试，实施安全过滤器",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "jailbreak_developer_mode": {
+        "id": "ai_security.jailbreak_developer_mode",
+        "name": "开发者模式越狱",
+        "description": "检测假装开发者/管理员的越狱",
+        "severity": "CRITICAL",
+        "confidence": 0.90,
+        "weight": 2.0,
+        "cwe": "CWE-1333",
+        "owasp": "LLM01:2023",
+        "patterns": [
+          "(?i)developer mode",
+          "(?i)debug mode",
+          "(?i)admin mode",
+          "(?i)maintenance mode",
+          "(?i)system override"
+        ],
+        "exclude_patterns": [
+          "test_mode",
+          "debug_config"
+        ],
+        "context_patterns": [],
+        "fix": "检测权限提升尝试，实施角色锁定",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "prompt_leakage_output": {
+        "id": "ai_security.prompt_leakage_output",
+        "name": "Prompt 输出泄露",
+        "description": "检测系统提示词泄露到输出",
+        "severity": "HIGH",
+        "confidence": 0.80,
+        "weight": 1.5,
+        "cwe": "CWE-200",
+        "owasp": "LLM06:2023",
+        "patterns": [
+          "print.*system_prompt",
+          "output.*prompt_template",
+          "return.*instruction",
+          "show.*base_prompt"
+        ],
+        "exclude_patterns": [
+          "test_output",
+          "debug_print"
+        ],
+        "context_patterns": [],
+        "fix": "过滤输出中的提示词信息，避免泄露系统指令",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "tool_call_auto_execute": {
+        "id": "ai_security.tool_call_auto_execute",
+        "name": "自动执行工具调用",
+        "description": "检测 AI 自动调用工具无确认",
+        "severity": "HIGH",
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-94",
+        "owasp": "LLM01:2023",
+        "patterns": [
+          "auto_execute.*tool",
+          "llm.*decide.*call",
+          "ai.*trigger.*function",
+          "agent.*execute.*tool"
+        ],
+        "exclude_patterns": [
+          "test_tool",
+          "mock_execute"
+        ],
+        "context_patterns": [],
+        "fix": "实施人工确认机制，验证工具调用参数",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "tool_call_shell": {
+        "id": "ai_security.tool_call_shell",
+        "name": "工具调用 Shell 执行",
+        "description": "检测 AI 工具调用 Shell 命令",
+        "severity": "CRITICAL",
+        "confidence": 0.95,
+        "weight": 2.0,
+        "cwe": "CWE-78",
+        "owasp": "LLM01:2023",
+        "patterns": [
+          "function_call.*shell",
+          "tool.*os\\.system",
+          "agent.*subprocess",
+          "ai.*execute.*command"
+        ],
+        "exclude_patterns": [
+          "test_shell",
+          "mock_command"
+        ],
+        "context_patterns": [],
+        "fix": "禁止 AI 直接调用 Shell，实施命令白名单",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "rag_data_leak": {
+        "id": "ai_security.rag_data_leak",
+        "name": "RAG 数据泄露",
+        "description": "检测 RAG 系统中的数据泄露",
+        "severity": "MEDIUM",
+        "confidence": 0.75,
+        "weight": 1.0,
+        "cwe": "CWE-200",
+        "owasp": "LLM06:2023",
+        "patterns": [
+          "vector_db.*sensitive",
+          "embedding.*private",
+          "retrieval.*confidential",
+          "rag.*leak"
+        ],
+        "exclude_patterns": [
+          "test_rag",
+          "mock_embedding"
+        ],
+        "context_patterns": [],
+        "fix": "实施向量数据访问控制，加密敏感数据",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "model_poisoning": {
+        "id": "ai_security.model_poisoning",
+        "name": "模型投毒",
+        "description": "检测潜在的模型投毒风险",
+        "severity": "HIGH",
+        "confidence": 0.80,
+        "weight": 1.5,
+        "cwe": "CWE-829",
+        "owasp": "LLM02:2023",
+        "patterns": [
+          "(?i)torch\\.load\\s*\\([^)]*pickle",
+          "(?i)pickle\\.load\\s*\\([^)]*model",
+          "(?i)joblib\\.load\\s*\\([^)]*http",
+          "(?i)requests\\.get\\s*\\([^)]*model",
+          "(?i)urllib\\.request\\.urlopen\\s*\\([^)]*\\.pth",
+          "(?i)download_url\\s*=\\s*['\"]http",
+          "(?i)model_url\\s*=\\s*['\"]http"
+        ],
+        "exclude_patterns": [
+          "huggingface\\.co",
+          "pytorch\\.org",
+          "tensorflow\\.org",
+          "verify_hash",
+          "checksum"
+        ],
+        "context_patterns": [],
+        "fix": "验证模型来源和完整性，使用哈希校验，从可信源加载模型",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "training_data_leakage": {
+        "id": "ai_security.training_data_leakage",
+        "name": "训练数据泄露",
+        "description": "检测潜在的训练数据泄露风险",
+        "severity": "MEDIUM",
+        "confidence": 0.75,
+        "weight": 1.0,
+        "cwe": "CWE-200",
+        "owasp": "LLM06:2023",
+        "patterns": [
+          "(?i)print\\s*\\([^)]*train.*data",
+          "(?i)logging\\.[^)]*train.*sample",
+          "(?i)save.*train.*text",
+          "(?i)export.*training.*data",
+          "(?i)dump.*dataset",
+          "(?i)write.*train.*example"
+        ],
+        "exclude_patterns": [
+          "anonymize",
+          "redact",
+          "mask",
+          "encrypt",
+          "hash"
+        ],
+        "context_patterns": [],
+        "fix": "避免打印或保存训练数据，使用数据脱敏，限制日志中的敏感信息",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      },
+      "adversarial_examples": {
+        "id": "ai_security.adversarial_examples",
+        "name": "对抗样本",
+        "description": "检测潜在的对抗样本攻击",
+        "severity": "MEDIUM",
+        "confidence": 0.70,
+        "weight": 1.0,
+        "cwe": "CWE-1333",
+        "owasp": "LLM03:2023",
+        "patterns": [
+          "(?i)\\\\u200b",
+          "(?i)\\\\u200c",
+          "(?i)\\\\u200d",
+          "(?i)\\\\uFEFF",
+          "(?i)\\\\x00",
+          "(?i)base64\\.b64decode\\s*\\([^)]*prompt",
+          "(?i)rot13\\s*\\(",
+          "(?i)caesar_cipher\\s*\\("
+        ],
+        "exclude_patterns": [
+          "encoding",
+          "decoding",
+          "normalization"
+        ],
+        "context_patterns": [],
+        "fix": "实施输入规范化，检测并过滤特殊字符，使用对抗训练",
+        "references": [
+          "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        ]
+      }
+    },
+    "container_security": {
+      "privileged_container": {
+        "id": "container_security.privileged_container",
+        "name": "特权容器",
+        "description": "检测使用特权模式运行的容器",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "weight": 1.5,
+        "cwe": "CWE-250",
+        "owasp": "A05:2021",
+        "patterns": [
+          "privileged:\\s*true",
+          "securityContext:\\s*\\{[^}]*privileged:\\s*true",
+          "--privileged",
+          "cap_add:\\s*-\\s*ALL",
+          "cap_add:\\s*-\\s*SYS_ADMIN",
+          "cap_add:\\s*-\\s*NET_ADMIN"
+        ],
+        "exclude_patterns": [],
+        "context_patterns": [],
+        "fix": "移除特权模式，使用最小权限原则，仅添加必要的 capabilities",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
+      },
+      "root_in_container": {
+        "id": "container_security.root_in_container",
+        "name": "容器内 root 用户",
+        "description": "检测容器以 root 用户运行",
+        "severity": "MEDIUM",
+        "confidence": 0.90,
+        "weight": 1.0,
+        "cwe": "CWE-250",
+        "owasp": "A05:2021",
+        "patterns": [
+          "USER\\s+root",
+          "runAsUser:\\s*0",
+          "runAsUser:\\s*\"0\"",
+          "USER\\s+0",
+          "user:\\s*\"?0\"?"
+        ],
+        "exclude_patterns": [
+          "USER\\s+app",
+          "USER\\s+nonroot",
+          "runAsUser:\\s*[1-9][0-9]*",
+          "runAsNonRoot:\\s*true"
+        ],
+        "context_patterns": [],
+        "fix": "创建并使用非 root 用户运行容器，设置 runAsNonRoot: true",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
+      },
+      "sensitive_mounts": {
+        "id": "container_security.sensitive_mounts",
+        "name": "敏感挂载",
+        "description": "检测容器挂载敏感目录",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "weight": 1.5,
+        "cwe": "CWE-284",
+        "owasp": "A01:2021",
+        "patterns": [
+          "mounts:\\s*-\\s*[^}]*hostPath:\\s*\\{[^}]*path:\\s*/etc",
+          "mounts:\\s*-\\s*[^}]*hostPath:\\s*\\{[^}]*path:\\s*/var/run/docker\\.sock",
+          "mounts:\\s*-\\s*[^}]*hostPath:\\s*\\{[^}]*path:\\s*/proc",
+          "mounts:\\s*-\\s*[^}]*hostPath:\\s*\\{[^}]*path:\\s*/sys",
+          "mounts:\\s*-\\s*[^}]*hostPath:\\s*\\{[^}]*path:\\s*/",
+          "volumes:\\s*-\\s*[^}]*hostPath:\\s*\\{[^}]*path:\\s*/root"
+        ],
+        "exclude_patterns": [],
+        "context_patterns": [],
+        "fix": "避免挂载敏感目录，使用 emptyDir 或配置映射替代",
+        "references": [
+          "https://owasp.org/Top10/A01_2021-Broken_Access_Control/"
+        ]
+      },
+      "latest_tag": {
+        "id": "container_security.latest_tag",
+        "name": "使用 latest 标签",
+        "description": "检测使用 latest 标签的容器镜像",
+        "severity": "MEDIUM",
+        "confidence": 0.90,
+        "weight": 1.0,
+        "cwe": "CWE-829",
+        "owasp": "A05:2021",
+        "patterns": [
+          "FROM\\s+\\w+\\s*:\\s*latest",
+          "image:\\s*\\w+\\s*:\\s*latest",
+          "image:\\s*\"?\\w+:latest\"?",
+          "FROM\\s+\\w+$"
+        ],
+        "exclude_patterns": [
+          "FROM\\s+\\w+:\\d+",
+          "image:\\s*\\w+:v\\d+",
+          "image:\\s*\\w+@[a-f0-9]{64}"
+        ],
+        "context_patterns": [],
+        "fix": "使用具体的版本号或 SHA256 哈希值替代 latest 标签",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
+      }
+    },
+    "cloud_security": {
+      "hardcoded_cloud_credentials": {
+        "id": "cloud_security.hardcoded_cloud_credentials",
+        "name": "云凭证硬编码",
+        "description": "检测硬编码的云凭证",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "weight": 1.5,
+        "cwe": "CWE-798",
+        "owasp": "A07:2021",
+        "patterns": [
+          "(?i)aws_access_key_id\\s*[:=]\\s*[\"']AKIA[A-Z0-9]{16}[\"']",
+          "(?i)aws_secret_access_key\\s*[:=]\\s*[\"']([^\"']{40})[\"']",
+          "(?i)azure_client_secret\\s*[:=]\\s*[\"']([^\"']{44})[\"']",
+          "(?i)gcp_service_account_key\\s*[:=]\\s*[\"']",
+          "(?i)google_application_credentials\\s*[:=]\\s*[\"']",
+          "(?i)alicloud_access_key\\s*[:=]\\s*[\"']"
+        ],
+        "exclude_patterns": [
+          "os\\.environ\\.get\\(",
+          "getenv\\(",
+          "SecretsManager",
+          "ParameterStore"
+        ],
+        "context_patterns": [],
+        "fix": "使用环境变量、密钥管理服务（如 AWS Secrets Manager）存储云凭证",
+        "references": [
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+        ]
+      },
+      "overly_permissive_iam": {
+        "id": "cloud_security.overly_permissive_iam",
+        "name": "过度宽松的 IAM 策略",
+        "description": "检测过度宽松的 IAM 策略配置",
+        "severity": "HIGH",
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-269",
+        "owasp": "A01:2021",
+        "patterns": [
+          "Effect:\\s*[\"']?Allow[\"']?,\\s*Action:\\s*[\"']?\\*[\"']?",
+          "Resource:\\s*[\"']?\\*[\"']?",
+          "\"Action\":\\s*\"\\*\"",
+          "\"Resource\":\\s*\"\\*\"",
+          "Action:\\s*-\\s*\\*",
+          "s3:\\*",
+          "ec2:\\*",
+          "iam:\\*"
+        ],
+        "exclude_patterns": [],
+        "context_patterns": [],
+        "fix": "遵循最小权限原则，限制 Action 和 Resource 范围",
+        "references": [
+          "https://owasp.org/Top10/A01_2021-Broken_Access_Control/"
+        ]
+      },
+      "public_access": {
+        "id": "cloud_security.public_access",
+        "name": "公共访问配置",
+        "description": "检测配置为公共访问的云资源",
+        "severity": "HIGH",
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-284",
+        "owasp": "A05:2021",
+        "patterns": [
+          "PublicAccess:\\s*true",
+          "PubliclyAccessible:\\s*true",
+          "AccessControl:\\s*public-read",
+          "AccessControl:\\s*public-read-write",
+          "acl:\\s*public",
+          "blockPublicAccess:\\s*false"
+        ],
+        "exclude_patterns": [
+          "PublicAccess:\\s*false",
+          "blockPublicAccess:\\s*true"
+        ],
+        "context_patterns": [],
+        "fix": "禁用公共访问，使用私有访问控制，配置适当的 IAM 策略",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
+      },
+      "unencrypted_storage": {
+        "id": "cloud_security.unencrypted_storage",
+        "name": "未加密存储",
+        "description": "检测未启用加密的云存储配置",
+        "severity": "MEDIUM",
+        "confidence": 0.85,
+        "weight": 1.0,
+        "cwe": "CWE-311",
+        "owasp": "A02:2021",
+        "patterns": [
+          "ServerSideEncryption:\\s*false",
+          "EncryptionConfiguration:\\s*\\{\\s*Enabled:\\s*false",
+          "encrypted:\\s*false",
+          "encryption:\\s*none",
+          "kms_key_id:\\s*null"
+        ],
+        "exclude_patterns": [
+          "ServerSideEncryption:\\s*(true|AES256|aws:kms)",
+          "EncryptionConfiguration:\\s*\\{\\s*Enabled:\\s*true"
+        ],
+        "context_patterns": [],
+        "fix": "启用服务器端加密，使用 KMS 密钥管理，配置传输加密",
+        "references": [
+          "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/"
+        ]
+      }
+    },
+    "privacy_security": {
+      "pii_exposure": {
+        "id": "privacy_security.pii_exposure",
+        "name": "个人信息暴露",
+        "description": "检测潜在的个人信息（PII）暴露",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "weight": 1.5,
+        "cwe": "CWE-359",
+        "owasp": "A04:2021",
+        "patterns": [
+          "(?i)\\b\\d{3}-\\d{2}-\\d{4}\\b",
+          "(?i)\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b",
+          "(?i)\\b\\d{11}\\b",
+          "(?i)(phone|telephone|mobile)\\s*[:=]\\s*[\"']\\+?[\\d\\s-]{7,}[\"']",
+          "(?i)(ssn|social.?security|passport)\\s*[:=]",
+          "(?i)(credit.?card|card.?number)\\s*[:=]"
+        ],
+        "exclude_patterns": [
+          "example\\.com",
+          "test@example",
+          "xxx-xx-xxxx",
+          "encrypted",
+          "hashed",
+          "masked",
+          "redacted"
+        ],
+        "context_patterns": [],
+        "fix": "对个人信息进行加密、脱敏或匿名化处理，遵循数据最小化原则",
+        "references": [
+          "https://owasp.org/Top10/A04_2021-Insecure_Design/",
+          "https://gdpr.eu/"
+        ]
+      },
+      "gdpr_violation": {
+        "id": "privacy_security.gdpr_violation",
+        "name": "GDPR 违规",
+        "description": "检测潜在的 GDPR 违规行为",
+        "severity": "HIGH",
+        "confidence": 0.75,
+        "weight": 1.5,
+        "cwe": "CWE-259",
+        "owasp": "A07:2021",
+        "patterns": [
+          "(?i)consent\\s*[:=]\\s*false",
+          "(?i)opt.?out\\s*[:=]\\s*false",
+          "(?i)data_retention\\s*[:=]\\s*forever",
+          "(?i)delete.*data\\s*[:=]\\s*false",
+          "(?i)export.*data\\s*[:=]\\s*false",
+          "(?i)right.?to.?be.?forgotten\\s*[:=]\\s*false"
+        ],
+        "exclude_patterns": [
+          "consent\\s*[:=]\\s*true",
+          "opt.?out\\s*[:=]\\s*true",
+          "gdpr_compliant\\s*[:=]\\s*true"
+        ],
+        "context_patterns": [],
+        "fix": "实施用户同意机制，提供数据导出和删除功能，设置数据保留策略",
+        "references": [
+          "https://gdpr.eu/",
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+        ]
+      },
+      "insecure_logging": {
+        "id": "privacy_security.insecure_logging",
+        "name": "不安全的日志记录",
+        "description": "检测日志中记录敏感信息",
+        "severity": "MEDIUM",
+        "confidence": 0.80,
+        "weight": 1.0,
+        "cwe": "CWE-532",
+        "owasp": "A09:2021",
+        "patterns": [
+          "(?i)log.*password",
+          "(?i)log.*token",
+          "(?i)log.*secret",
+          "(?i)log.*api.?key",
+          "(?i)log.*credit.?card",
+          "(?i)log.*ssn",
+          "(?i)print.*password",
+          "(?i)print.*token"
+        ],
+        "exclude_patterns": [
+          "log.*level",
+          "log.*config",
+          "log.*file",
+          "redact",
+          "mask",
+          "sanitize"
+        ],
+        "context_patterns": [],
+        "fix": "避免在日志中记录敏感信息，使用日志脱敏，设置适当的日志级别",
+        "references": [
+          "https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/"
+        ]
       }
     },
     "permission_security": {
       "root_user": {
-        "description": "检测使用root用户运行",
+        "id": "permission_security.root_user",
+        "name": "使用 root 用户运行",
+        "description": "检测使用 root 用户运行应用程序",
         "severity": "MEDIUM",
-        "fix": "创建专用用户运行AI工具，遵循最小权限原则"
+        "confidence": 0.85,
+        "weight": 1.0,
+        "cwe": "CWE-250",
+        "owasp": "A05:2021",
+        "patterns": [
+          "os\\.getuid\\s*\\(\\s*\\)\\s*==\\s*0",
+          "geteuid\\s*\\(\\s*\\)\\s*==\\s*0",
+          "USER\\s+root",
+          "runAsUser:\\s*0"
+        ],
+        "exclude_patterns": [
+          "os\\.getuid\\s*\\(\\s*\\)\\s*!=\\s*0",
+          "if\\s+os\\.getuid\\s*\\(\\s*\\)\\s*==\\s*0:\\s*sys\\.exit"
+        ],
+        "context_patterns": [],
+        "fix": "创建专用用户运行应用程序，遵循最小权限原则",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
       },
       "executable_files": {
-        "description": "检测可执行文件",
+        "id": "permission_security.executable_files",
+        "name": "可执行文件权限",
+        "description": "检测文件具有执行权限",
         "severity": "MEDIUM",
-        "fix": "仅对必要的脚本设置执行权限"
+        "confidence": 0.70,
+        "weight": 1.0,
+        "cwe": "CWE-732",
+        "owasp": "A05:2021",
+        "patterns": [],
+        "exclude_patterns": [
+          "\\.sh$",
+          "\\.bash$",
+          "\\.py$.*shebang",
+          "bin/"
+        ],
+        "context_patterns": [],
+        "fix": "仅对必要的脚本设置执行权限，移除不必要的执行权限",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
       },
       "model_file_permissions": {
-        "description": "检测AI模型文件权限过于宽松",
+        "id": "permission_security.model_file_permissions",
+        "name": "模型文件权限",
+        "description": "检测 AI 模型文件权限过于宽松",
         "severity": "HIGH",
-        "fix": "执行 'chmod 640 <file>' 限制模型文件访问"
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-732",
+        "owasp": "A05:2021",
+        "patterns": [
+          "\\.pt$",
+          "\\.pth$",
+          "\\.onnx$",
+          "\\.h5$",
+          "\\.pb$",
+          "\\.tflite$",
+          "\\.safetensors$",
+          "\\.bin$"
+        ],
+        "exclude_patterns": [],
+        "context_patterns": [],
+        "fix": "执行 'chmod 640 <file>' 限制模型文件访问",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
       },
       "ssh_key_permissions": {
-        "description": "检测SSH私钥权限不安全",
+        "id": "permission_security.ssh_key_permissions",
+        "name": "SSH 密钥权限",
+        "description": "检测 SSH 私钥权限不安全",
         "severity": "HIGH",
-        "fix": "执行 'chmod 600 <key>' 限制私钥访问"
+        "confidence": 0.95,
+        "weight": 1.5,
+        "cwe": "CWE-522",
+        "owasp": "A07:2021",
+        "patterns": [
+          "id_rsa",
+          "id_ed25519",
+          "id_ecdsa",
+          "\\.pem$",
+          "\\.key$"
+        ],
+        "exclude_patterns": [
+          "\\.pub$",
+          "authorized_keys",
+          "known_hosts"
+        ],
+        "context_patterns": [],
+        "fix": "执行 'chmod 600 <key>' 限制私钥访问",
+        "references": [
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+        ]
       }
     },
     "network_security": {
       "public_ports": {
+        "id": "network_security.public_ports",
+        "name": "端口暴露到公网",
         "description": "检测端口暴露到公网",
         "severity": "HIGH",
-        "fix": "修改配置，将监听地址改为 127.0.0.1 或配置防火墙限制访问"
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-284",
+        "owasp": "A05:2021",
+        "patterns": [
+          "0\\.0\\.0\\.0:\\d+",
+          "host\\s*[:=]\\s*[\"']0\\.0\\.0\\.0[\"']",
+          "listen\\s*\\([^)]*0\\.0\\.0\\.0",
+          "bind\\s*\\([^)]*0\\.0\\.0\\.0",
+          "port\\s*[:=]\\s*\\d+.*public"
+        ],
+        "exclude_patterns": [
+          "127\\.0\\.0\\.1:\\d+",
+          "localhost:\\d+",
+          "host\\s*[:=]\\s*[\"']127\\.0\\.0\\.1[\"']"
+        ],
+        "context_patterns": [],
+        "fix": "修改配置，将监听地址改为 127.0.0.1 或配置防火墙限制访问",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
       },
       "firewall_disabled": {
+        "id": "network_security.firewall_disabled",
+        "name": "防火墙未启用",
         "description": "检测防火墙未启用",
         "severity": "HIGH",
-        "fix": "安装并启用防火墙，如 ufw、firewalld 或 iptables"
+        "confidence": 0.80,
+        "weight": 1.5,
+        "cwe": "CWE-693",
+        "owasp": "A05:2021",
+        "patterns": [
+          "ufw\\s+disable",
+          "firewalld\\s+stop",
+          "iptables\\s+-F",
+          "systemctl\\s+stop\\s+firewalld",
+          "systemctl\\s+disable\\s+ufw"
+        ],
+        "exclude_patterns": [
+          "ufw\\s+enable",
+          "firewalld\\s+start",
+          "systemctl\\s+start\\s+firewalld"
+        ],
+        "context_patterns": [],
+        "fix": "安装并启用防火墙，如 ufw、firewalld 或 iptables",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
       },
       "ssh_root_login": {
-        "description": "检测SSH允许root登录",
+        "id": "network_security.ssh_root_login",
+        "name": "SSH 允许 root 登录",
+        "description": "检测 SSH 配置允许 root 登录",
         "severity": "HIGH",
-        "fix": "修改 /etc/ssh/sshd_config，设置 'PermitRootLogin no'"
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-250",
+        "owasp": "A05:2021",
+        "patterns": [
+          "PermitRootLogin\\s+yes",
+          "PermitRootLogin\\s+without-password"
+        ],
+        "exclude_patterns": [
+          "PermitRootLogin\\s+no",
+          "PermitRootLogin\\s+prohibit-password"
+        ],
+        "context_patterns": [],
+        "fix": "修改 /etc/ssh/sshd_config，设置 'PermitRootLogin no'",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
       },
       "reverse_shell": {
-        "description": "检测反向Shell",
+        "id": "network_security.reverse_shell",
+        "name": "反向 Shell",
+        "description": "检测反向 Shell",
         "severity": "HIGH",
-        "fix": "立即检查进程详情并终止可疑进程"
+        "confidence": 0.95,
+        "weight": 1.5,
+        "cwe": "CWE-94",
+        "owasp": "A03:2021",
+        "patterns": [
+          "/dev/tcp/",
+          "nc\\s+-e\\s+/bin/(ba)?sh",
+          "bash\\s+-i\\s*>&\\s*/dev/tcp/",
+          "python\\s+-c\\s+['\"]import socket,subprocess",
+          "perl\\s+-e\\s+['\"]use Socket;",
+          "ruby\\s+-rsocket\\s+-e",
+          "php\\s+-r\\s+['\"]\\$sock=fsockopen"
+        ],
+        "exclude_patterns": [
+          "test_reverse_shell",
+          "example_reverse_shell"
+        ],
+        "context_patterns": [],
+        "fix": "立即检查进程详情并终止可疑进程，审查系统日志",
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/"
+        ]
+      },
+      "hardcoded_ip": {
+        "id": "network_security.hardcoded_ip",
+        "name": "硬编码 IP 地址",
+        "description": "检测硬编码的 IP 地址",
+        "severity": "MEDIUM",
+        "confidence": 0.75,
+        "weight": 1.0,
+        "cwe": "CWE-798",
+        "owasp": "A05:2021",
+        "patterns": [
+          "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b",
+          "host\\s*[:=]\\s*[\"']\\d{1,3}(\\.\\d{1,3}){3}[\"']"
+        ],
+        "exclude_patterns": [
+          "127\\.0\\.0\\.1",
+          "0\\.0\\.0\\.0",
+          "255\\.255\\.255\\.255",
+          "example\\.com",
+          "localhost"
+        ],
+        "context_patterns": [],
+        "fix": "使用环境变量或配置文件存储 IP 地址",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
       }
     },
     "dependency_security": {
       "unpinned_versions": {
+        "id": "dependency_security.unpinned_versions",
+        "name": "依赖版本未固定",
         "description": "检测依赖库版本未固定",
         "severity": "MEDIUM",
-        "fix": "固定依赖库版本，避免自动更新引入安全问题"
+        "confidence": 0.90,
+        "weight": 1.0,
+        "cwe": "CWE-1104",
+        "owasp": "A06:2021",
+        "patterns": [
+          "^[a-zA-Z].*[^=]$",
+          "\\^\\d+",
+          "~\\d+",
+          "\\*$"
+        ],
+        "exclude_patterns": [
+          "==\\d+",
+          ">=\\d+,<\\d+",
+          "~=\\d+"
+        ],
+        "context_patterns": [],
+        "fix": "固定依赖库版本，避免自动更新引入安全问题",
+        "references": [
+          "https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/"
+        ]
       },
       "ai_dependencies": {
-        "description": "检测AI相关依赖库",
+        "id": "dependency_security.ai_dependencies",
+        "name": "AI 依赖库",
+        "description": "检测 AI 相关依赖库",
         "severity": "MEDIUM",
-        "fix": "确保依赖库版本安全，定期更新"
+        "confidence": 0.80,
+        "weight": 1.0,
+        "cwe": "CWE-1104",
+        "owasp": "A06:2021",
+        "patterns": [
+          "^tensorflow==",
+          "^pytorch==",
+          "^torch==",
+          "^transformers==",
+          "^onnx==",
+          "^onnxruntime==",
+          "^keras==",
+          "^fastai==",
+          "^huggingface"
+        ],
+        "exclude_patterns": [],
+        "context_patterns": [],
+        "fix": "确保依赖库版本安全，定期更新，检查安全公告",
+        "references": [
+          "https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/"
+        ]
+      },
+      "known_vulnerabilities": {
+        "id": "dependency_security.known_vulnerabilities",
+        "name": "已知漏洞依赖",
+        "description": "检测已知存在漏洞的依赖库版本",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "weight": 1.5,
+        "cwe": "CWE-1104",
+        "owasp": "A06:2021",
+        "patterns": [
+          "django==1\\.",
+          "django==2\\.0",
+          "django==2\\.1",
+          "flask==0\\.",
+          "flask==1\\.0",
+          "requests==2\\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17)\\.",
+          "urllib3==1\\.(2[0-4]|1[0-9]|[0-9])\\.",
+          "pillow==5\\.",
+          "pillow==6\\.",
+          "pillow==7\\."
+        ],
+        "exclude_patterns": [],
+        "context_patterns": [],
+        "fix": "立即升级到最新安全版本，查看 CVE 公告",
+        "references": [
+          "https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/",
+          "https://cve.mitre.org/"
+        ]
       }
     },
     "config_security": {
       "sensitive_config": {
+        "id": "config_security.sensitive_config",
+        "name": "配置包含敏感信息",
         "description": "检测配置文件中包含敏感信息",
-        "patterns": [
-          "api[_-]?key",
-          "password",
-          "secret",
-          "token",
-          "database[_-]?url"
-        ],
         "severity": "HIGH",
-        "fix": "移除敏感信息，使用环境变量存储"
+        "confidence": 0.90,
+        "weight": 1.5,
+        "cwe": "CWE-798",
+        "owasp": "A07:2021",
+        "patterns": [
+          "(?i)api[_\\s-]?key\\s*[:=]\\s*[\"']([^\"']{8,})[\"']",
+          "(?i)password\\s*[:=]\\s*[\"']([^\"']{4,})[\"']",
+          "(?i)secret\\s*[:=]\\s*[\"']([^\"']{8,})[\"']",
+          "(?i)token\\s*[:=]\\s*[\"']([^\"']{8,})[\"']",
+          "(?i)database[_\\s-]?url\\s*[:=]\\s*[\"']([^\"']+)[\"']"
+        ],
+        "exclude_patterns": [
+          "os\\.environ\\.get\\(",
+          "getenv\\(",
+          "your_.*_here",
+          "xxx",
+          "placeholder",
+          "example",
+          "CHANGE_ME"
+        ],
+        "context_patterns": [],
+        "fix": "移除敏感信息，使用环境变量存储",
+        "references": [
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+        ]
       },
       "ai_config": {
-        "description": "检测AI特定配置",
+        "id": "config_security.ai_config",
+        "name": "AI 配置",
+        "description": "检测 AI 特定配置",
+        "severity": "MEDIUM",
+        "confidence": 0.80,
+        "weight": 1.0,
+        "cwe": "CWE-798",
+        "owasp": "A05:2021",
         "patterns": [
-          "model_path",
-          "model_name",
-          "model_dir",
-          "api_key",
-          "api_token",
-          "endpoint",
-          "url"
+          "(?i)model_path\\s*[:=]",
+          "(?i)model_name\\s*[:=]",
+          "(?i)model_dir\\s*[:=]",
+          "(?i)api_key\\s*[:=]",
+          "(?i)api_token\\s*[:=]",
+          "(?i)endpoint\\s*[:=]",
+          "(?i)base_url\\s*[:=]"
         ],
+        "exclude_patterns": [
+          "os\\.environ\\.get\\(",
+          "getenv\\(",
+          "huggingface\\.co",
+          "openai\\.com"
+        ],
+        "context_patterns": [],
+        "fix": "确保配置安全，避免硬编码敏感信息",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
+      },
+      "debug_enabled": {
+        "id": "config_security.debug_enabled",
+        "name": "调试模式启用",
+        "description": "检测生产环境启用调试模式",
         "severity": "MEDIUM",
-        "fix": "确保配置安全，避免硬编码敏感信息"
-      }
-    },
-    "openclaw_security": {
-      "version_outdated": {
-        "description": "检测OpenClaw版本过旧",
-        "severity": "HIGH",
-        "fix": "立即执行 'openclaw update' 升级到最新版本"
-      },
-      "untrusted_source": {
-        "description": "检测OpenClaw安装来源非官方",
-        "severity": "MEDIUM",
-        "fix": "建议从官方渠道安装：https://openclaw.ai 或 https://github.com/openclaw/openclaw"
-      },
-      "public_ports": {
-        "description": "检测OpenClaw端口暴露到公网",
-        "severity": "HIGH",
-        "fix": "修改 ~/.openclaw/config.json 中的 'host' 配置，将 '0.0.0.0' 改为 '127.0.0.1'，或在防火墙中限制访问"
-      },
-      "skill_malicious_code": {
-        "description": "检测OpenClaw技能包可能包含恶意代码",
-        "severity": "HIGH",
-        "fix": "审查技能包代码，确保不包含恶意代码"
-      }
-    },
-    "cursor_security": {
-      "hardcoded_api_keys": {
-        "description": "检测Cursor生成的代码中硬编码的API密钥",
-        "severity": "HIGH",
-        "fix": "使用环境变量存储API密钥"
-      },
-      "unsafe_prompts": {
-        "description": "检测不安全的AI提示模板",
-        "severity": "MEDIUM",
-        "fix": "确保提示模板不包含敏感信息，并且经过安全审查"
+        "confidence": 0.85,
+        "weight": 1.0,
+        "cwe": "CWE-215",
+        "owasp": "A05:2021",
+        "patterns": [
+          "DEBUG\\s*=\\s*True",
+          "DEBUG\\s*:\\s*true",
+          "debug\\s*=\\s*true",
+          "debug:\\s*true",
+          "app\\.debug\\s*=\\s*True"
+        ],
+        "exclude_patterns": [
+          "DEBUG\\s*=\\s*False",
+          "DEBUG\\s*:\\s*false",
+          "if\\s+DEBUG",
+          "test.*DEBUG"
+        ],
+        "context_patterns": [],
+        "fix": "在生产环境中禁用调试模式",
+        "references": [
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+        ]
       }
     }
   },
@@ -203,5 +1583,44 @@
       "rule_format": "• {description}: {fix}",
       "footer": "代码安全是首要考虑因素。"
     }
+  },
+  "false_positive_filters": {
+    "file_patterns": [
+      "test_*.py",
+      "*_test.py",
+      "test_*.js",
+      "*_test.js",
+      "example_*.py",
+      "demo_*.py",
+      "sample_*.py",
+      "*.test.ts",
+      "*.spec.ts",
+      "*.test.js",
+      "*.spec.js"
+    ],
+    "path_patterns": [
+      "node_modules/",
+      "venv/",
+      ".venv/",
+      "__pycache__/",
+      ".git/",
+      "dist/",
+      "build/",
+      "target/",
+      "*.min.js",
+      "vendor/"
+    ],
+    "code_patterns": [
+      "//\\s*nosec",
+      "#\\s*nosec",
+      "//\\s*safe",
+      "#\\s*safe",
+      "//\\s*test-only",
+      "#\\s*test-only",
+      "//\\s*example code",
+      "#\\s*example code",
+      "/*\\s*noqa\\s*/",
+      "#\\s*noqa"
+    ]
   }
 }
