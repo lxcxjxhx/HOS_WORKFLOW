@@ -70,6 +70,27 @@ def main():
         help='扫描结果文件路径'
     )
     
+    parser.add_argument(
+        '--parallel',
+        action='store_true',
+        default=True,
+        help='启用并行扫描 (默认开启)'
+    )
+    
+    parser.add_argument(
+        '--no-parallel',
+        action='store_false',
+        dest='parallel',
+        help='禁用并行扫描'
+    )
+    
+    parser.add_argument(
+        '--workers',
+        type=int,
+        default=4,
+        help='并行扫描工作进程数 (默认：4)'
+    )
+    
     args = parser.parse_args()
     
     if args.version:
@@ -92,12 +113,15 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
     
     if not args.silent:
-        print(f'{Fore.BLUE}开始检测: {args.target}{Style.RESET_ALL}')
-        print(f'{Fore.BLUE}输出格式: {args.output}{Style.RESET_ALL}')
-        print(f'{Fore.BLUE}输出目录: {args.output_dir}{Style.RESET_ALL}')
+        print(f'{Fore.BLUE}开始检测：{args.target}{Style.RESET_ALL}')
+        print(f'{Fore.BLUE}输出格式：{args.output}{Style.RESET_ALL}')
+        print(f'{Fore.BLUE}输出目录：{args.output_dir}{Style.RESET_ALL}')
+        print(f'{Fore.BLUE}扫描模式：{"并行" if args.parallel else "串行"}{Style.RESET_ALL}')
+        if args.parallel:
+            print(f'{Fore.BLUE}工作进程数：{args.workers}{Style.RESET_ALL}')
     
     # 导入安全扫描模块
-    from security_scanner import SecurityScanner
+    from enhanced_scanner import EnhancedSecurityScanner
     from report_generator import ReportGenerator
     
     # 从文件读取扫描结果或执行安全扫描
@@ -105,10 +129,15 @@ def main():
         with open(args.scan_result, 'r', encoding='utf-8') as f:
             results = json.load(f)
         if not args.silent:
-            print(f'{Fore.GREEN}从文件读取扫描结果: {args.scan_result}{Style.RESET_ALL}')
+            print(f'{Fore.GREEN}从文件读取扫描结果：{args.scan_result}{Style.RESET_ALL}')
     else:
-        # 执行安全扫描
-        scanner = SecurityScanner(args.target, silent=args.silent)
+        # 执行安全扫描 (使用增强扫描器，支持并行)
+        scanner = EnhancedSecurityScanner(
+            args.target, 
+            silent=args.silent,
+            use_parallel=args.parallel,
+            max_workers=args.workers
+        )
         results = scanner.scan()
 
     # 生成AI辅助安全建议

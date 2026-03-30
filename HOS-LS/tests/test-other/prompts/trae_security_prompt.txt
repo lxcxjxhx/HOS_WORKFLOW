@@ -1,0 +1,45 @@
+## 敏感信息保护
+要求：禁止在代码中硬编码密钥、密码等敏感信息，应使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+api_key = "sk_live_123456789"
+# 正确做法
+import os
+api_key = os.environ.get("API_KEY")
+```
+
+## 危险函数禁用
+要求：避免使用 `eval()`、`exec()` 等可执行任意代码的危险函数，防止代码注入。
+示例：```python
+# 错误做法
+result = eval(user_input)
+# 正确做法
+# 使用安全的替代方案，如字典映射或条件判断
+```
+
+## 输入验证与过滤
+要求：对所有外部输入（如用户输入、API 响应）进行严格的验证、过滤或转义。
+示例：```python
+# 错误做法
+query = f"SELECT * FROM users WHERE name = '{user_input}'"
+# 正确做法（使用参数化查询）
+cursor.execute("SELECT * FROM users WHERE name = %s", (user_input,))
+```
+
+## 最小文件权限原则
+要求：为文件操作设置最小必要权限，避免使用 `0o777` 等宽泛权限。
+示例：```python
+# 错误做法
+os.chmod("config.json", 0o777)
+# 正确做法
+os.chmod("config.json", 0o600)  # 仅所有者可读写
+```
+
+## 网络请求安全
+要求：发起网络请求时使用 HTTPS 并验证 TLS 证书，避免中间人攻击。
+示例：```python
+# 错误做法（不验证证书）
+requests.get("https://api.example.com", verify=False)
+# 正确做法
+requests.get("https://api.example.com", verify=True)  # 默认即 True
+```

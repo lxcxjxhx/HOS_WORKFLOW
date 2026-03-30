@@ -1,63 +1,63 @@
-# Cursor IDE 安全提示词（精简版）
-
-## 1. 敏感信息保护
-要求：禁止在代码中硬编码密钥、密码等敏感信息，应使用环境变量或安全配置管理。
+## 敏感信息保护
+要求：禁止在代码中硬编码密钥、令牌等敏感信息，应使用环境变量或安全配置管理。
 示例：```python
 # 错误做法
-API_KEY = "sk-live-1234567890abcdef"
+API_KEY = "sk-live-123456789"
 
 # 正确做法
 import os
 API_KEY = os.environ.get("API_KEY")
 ```
 
-## 2. 危险函数限制
-要求：避免使用 `eval()`、`exec()` 等动态执行函数，防止代码注入攻击。
+## 危险函数调用
+要求：避免直接执行动态生成的代码或命令，防止代码注入攻击。
 示例：```python
 # 错误做法
-user_input = "print('恶意代码')"
+user_input = input("Enter command: ")
 eval(user_input)
 
 # 正确做法
-# 使用安全的替代方案，如字典映射
-commands = {"help": show_help}
-action = user_input
-if action in commands:
-    commands[action]()
+# 使用安全的替代方案，如预定义函数映射，避免直接执行用户输入。
 ```
 
-## 3. 输入验证
-要求：对所有用户输入进行严格的验证和过滤，防止注入攻击。
+## 输入验证与过滤
+要求：对所有外部输入（如用户输入、API 数据）进行严格的验证和清理。
 示例：```python
 # 错误做法
-query = f"SELECT * FROM users WHERE name = '{user_input}'"
+user_id = request.args.get('id')
+query = f"SELECT * FROM users WHERE id = {user_id}"
 
 # 正确做法
-import sqlite3
-conn = sqlite3.connect('db.sqlite3')
-cursor = conn.cursor()
-cursor.execute("SELECT * FROM users WHERE name = ?", (user_input,))
+import re
+user_id = request.args.get('id')
+if not re.match(r'^\d+$', user_id):
+    raise ValueError("Invalid input")
+# 使用参数化查询
 ```
 
-## 4. 文件权限控制
-要求：设置最小必要文件权限，避免过度授权导致安全风险。
+## 文件操作权限
+要求：限制文件操作的权限，避免使用过高权限（如 `chmod 777`）或访问敏感系统路径。
 示例：```python
 # 错误做法
-import os
-os.chmod("/etc/passwd", 0o777)  # 赋予所有用户读写执行权限
+with open('/etc/passwd', 'r') as f:
+    content = f.read()
 
 # 正确做法
-# 仅授予必要的最小权限
-os.chmod("config.ini", 0o600)  # 仅所有者可读写
+# 明确指定应用内的安全路径，并验证路径合法性。
+SAFE_BASE_DIR = '/app/data'
+def safe_join(base, path):
+    # 路径规范化与越界检查
+    ...
 ```
 
-## 5. 网络安全配置
-要求：使用 HTTPS 加密传输，避免明文传输敏感数据。
+## 网络请求安全
+要求：对外部网络请求使用 HTTPS 等加密协议，并验证 SSL/TLS 证书。
 示例：```python
 # 错误做法
+import urllib.request
+urllib.request.urlopen('http://example.com/api/data')
+
+# 正确做法
 import requests
-response = requests.get("http://api.example.com/data")  # 明文HTTP
-
-# 正确做法
-response = requests.get("https://api.example.com/data")  # 加密HTTPS
+response = requests.get('https://example.com/api/data', verify=True) # 默认验证证书
 ```

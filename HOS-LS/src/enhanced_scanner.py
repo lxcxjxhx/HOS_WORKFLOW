@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-核心安全检测模块 - 增强版
+核心安全检测模块 - 增强版 (优化版)
 
 功能：
-1. 正则表达式检测
+1. 正则表达式检测 (预编译优化)
 2. AST 抽象语法树分析
 3. 上下文感知检测
 4. 误报过滤机制
 5. 置信度评分
 6. 行号和代码片段提取
+7. 并行扫描支持
+8. 智能文件过滤 (.gitignore)
+9. 缓存机制
 """
 
 import os
 import re
 import json
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+import time
+from typing import List, Dict, Any, Optional, Tuple, Set
 from colorama import Fore, Style
 
 try:
@@ -24,25 +28,37 @@ try:
 except ImportError:
     ASTScanner = None
 
+try:
+    from .parallel_scanner import ParallelSecurityScanner, ScanConfig
+except ImportError:
+    ParallelSecurityScanner = None
+
 logger = logging.getLogger(__name__)
 
 
 class EnhancedSecurityScanner:
-    """增强型安全扫描器"""
+    """增强型安全扫描器 (优化版)"""
     
-    def __init__(self, target: str, rules_file: str = None, silent: bool = False):
+    def __init__(self, target: str, rules_file: str = None, silent: bool = False, 
+                 use_parallel: bool = True, max_workers: int = 4):
         """初始化扫描器
         
         Args:
             target: 要扫描的目标路径
             rules_file: 规则文件路径（可选）
             silent: 是否启用静默模式
+            use_parallel: 是否使用并行扫描
+            max_workers: 最大工作进程数
         """
         self.target = target
         self.silent = silent
         self.rules_file = rules_file
+        self.use_parallel = use_parallel
+        self.max_workers = max_workers
+        
         self.rules = self._load_rules()
         self.false_positive_filters = self._load_fp_filters()
+        self.compiled_rules = self._compile_rules()
         
         self.results = {
             "target": target,
@@ -55,14 +71,21 @@ class EnhancedSecurityScanner:
             "permission_security": [],
             "network_security": [],
             "dependency_security": [],
-            "config_security": []
+            "config_security": [],
+            "supply_chain_security": [],
+            "compliance_governance": []
         }
         self.high_risk = 0
         self.medium_risk = 0
         self.low_risk = 0
         
-        # 初始化 AST 扫描器
         self.ast_scanner = ASTScanner() if ASTScanner else None
+        self.stats = {
+            'total_files': 0,
+            'scanned_files': 0,
+            'scan_time': 0.0,
+            'method': 'parallel' if use_parallel else 'sequential'
+        }
     
     def _load_rules(self) -> Dict[str, Any]:
         """加载规则配置"""
@@ -91,16 +114,98 @@ class EnhancedSecurityScanner:
             logger.error(f"加载误报过滤配置失败：{e}")
             return {}
     
+    def _compile_rules(self) -> Dict[str, Dict[str, Dict[str, Any]]]:
+        """预编译正则表达式规则"""
+        compiled = {}
+        
+        for category, rules in self.rules.items():
+            if not isinstance(rules, dict):
+                continue
+            
+            compiled[category] = {}
+            for rule_name, rule in rules.items():
+                patterns = rule.get('patterns', [])
+                if not patterns:
+                    continue
+                
+                compiled[category][rule_name] = {
+                    'compiled_patterns': [],
+                    'rule': rule
+                }
+                
+                for pattern_str in patterns:
+                    try:
+                        compiled_pattern = re.compile(pattern_str, re.IGNORECASE | re.MULTILINE)
+                        compiled[category][rule_name]['compiled_patterns'].append(compiled_pattern)
+                    except re.error as e:
+                        logger.debug(f"编译规则失败 {pattern_str}: {e}")
+        
+        return compiled
+    
     def scan(self) -> Dict[str, Any]:
         """执行完整扫描"""
+        start_time = time.time()
+        
         if not self.silent:
             print(f'{Fore.BLUE}开始增强安全扫描...{Style.RESET_ALL}')
+            print(f'{Fore.CYAN}扫描模式：{"并行" if self.use_parallel else "串行"}{Style.RESET_ALL}')
+        
+        # 使用并行扫描器 (如果可用且启用)
+        if self.use_parallel and ParallelSecurityScanner:
+            try:
+                return self._parallel_scan()
+            except Exception as e:
+                logger.warning(f"并行扫描失败，回退到串行扫描：{e}")
+                return self._sequential_scan()
+        else:
+            return self._sequential_scan()
+    
+    def _parallel_scan(self) -> Dict[str, Any]:
+        """使用并行扫描器"""
+        if not self.silent:
+            print(f'{Fore.CYAN}使用并行扫描器 (工作进程：{self.max_workers})...{Style.RESET_ALL}')
+        
+        config = ScanConfig(
+            target=self.target,
+            max_workers=self.max_workers,
+            use_gitignore=True,
+            use_cache=True
+        )
+        
+        scanner = ParallelSecurityScanner(config)
+        results = scanner.scan()
+        summary = scanner.get_summary()
+        
+        self.results = results
+        self.high_risk = summary['high_risk']
+        self.medium_risk = summary['medium_risk']
+        self.low_risk = summary['low_risk']
+        self.stats = {
+            'total_files': summary.get('total_files', 0),
+            'scanned_files': summary.get('scanned_files', 0),
+            'scan_time': summary.get('scan_time', 0.0),
+            'method': 'parallel'
+        }
+        
+        if not self.silent:
+            print(f'{Fore.GREEN}扫描完成!{Style.RESET_ALL}')
+            print(f'{Fore.RED}高风险：{self.high_risk}{Style.RESET_ALL}')
+            print(f'{Fore.YELLOW}中风险：{self.medium_risk}{Style.RESET_ALL}')
+            print(f'{Fore.GREEN}低风险：{self.low_risk}{Style.RESET_ALL}')
+            print(f'{Fore.CYAN}扫描耗时：{self.stats["scan_time"]:.2f}秒{Style.RESET_ALL}')
+        
+        return self.results
+    
+    def _sequential_scan(self) -> Dict[str, Any]:
+        """串行扫描 (向后兼容)"""
+        if not self.silent:
+            print(f'{Fore.CYAN}使用串行扫描器...{Style.RESET_ALL}')
         
         # 1. AST 分析（如果可用）
         if self.ast_scanner:
             self._scan_with_ast()
         
-        # 2. 正则检测
+        # 2. 正则检测 (使用预编译规则)
         self._scan_with_regex()
         
         # 3. 上下文分析
@@ -111,6 +216,8 @@ class EnhancedSecurityScanner:
         
         # 5. 计算置信度
         self._calculate_confidence()
+        
+        self.stats['scan_time'] = time.time() - start_time if 'start_time' in locals() else 0.0
         
         if not self.silent:
             print(f'{Fore.GREEN}扫描完成!{Style.RESET_ALL}')
@@ -152,30 +259,26 @@ class EnhancedSecurityScanner:
             logger.error(f"AST 扫描失败：{e}")
     
     def _scan_with_regex(self):
-        """使用正则表达式扫描"""
+        """使用预编译正则表达式扫描"""
         if not self.silent:
             print(f'{Fore.CYAN}正则检测...{Style.RESET_ALL}')
         
-        # 遍历所有规则类别
-        for category, rules in self.rules.items():
+        for category, rules in self.compiled_rules.items():
             if not self.silent:
                 print(f'{Fore.CYAN}扫描 {category}...{Style.RESET_ALL}')
             
-            for rule_name, rule in rules.items():
-                patterns = rule.get('patterns', [])
-                if not patterns:
-                    continue
+            for rule_name, rule_data in rules.items():
+                compiled_patterns = rule_data['compiled_patterns']
+                rule = rule_data['rule']
                 
-                self._apply_rule(category, rule_name, rule, patterns)
+                self._apply_compiled_rule(category, rule_name, rule, compiled_patterns)
     
-    def _apply_rule(self, category: str, rule_name: str, rule: Dict, patterns: List[str]):
-        """应用单个规则"""
+    def _apply_compiled_rule(self, category: str, rule_name: str, rule: Dict, compiled_patterns: List[re.Pattern]):
+        """应用预编译规则"""
         severity = rule.get('severity', 'MEDIUM').lower()
         exclude_patterns = rule.get('exclude_patterns', [])
         
-        # 遍历目标文件
         for root, dirs, files in os.walk(self.target):
-            # 跳过忽略目录
             dirs[:] = [d for d in dirs if d not in [
                 'node_modules', 'venv', '.venv', '__pycache__',
                 '.git', 'dist', 'build', 'target', '.trae'
@@ -187,7 +290,6 @@ class EnhancedSecurityScanner:
                 
                 file_path = os.path.join(root, file)
                 
-                # 检查是否在误报路径中
                 if self._is_fp_path(file_path):
                     continue
                 
@@ -196,21 +298,17 @@ class EnhancedSecurityScanner:
                         content = f.read()
                         lines = content.splitlines()
                     
-                    # 应用所有模式
-                    for pattern in patterns:
+                    for compiled_pattern in compiled_patterns:
                         try:
-                            matches = re.finditer(pattern, content, re.IGNORECASE | re.MULTILINE)
+                            matches = compiled_pattern.finditer(content)
                             
                             for match in matches:
-                                # 获取匹配的行号
                                 line_number = content[:match.start()].count('\n') + 1
                                 code_snippet = lines[line_number - 1] if line_number <= len(lines) else ''
                                 
-                                # 检查排除模式
                                 if self._matches_exclude(content, line_number, exclude_patterns):
                                     continue
                                 
-                                # 创建问题记录
                                 issue = {
                                     'file': file_path,
                                     'line_number': line_number,
@@ -219,7 +317,7 @@ class EnhancedSecurityScanner:
                                     'details': rule.get('description', ''),
                                     'code_snippet': code_snippet.strip(),
                                     'match': match.group(0),
-                                    'detection_method': 'regex',
+                                    'detection_method': 'compiled_regex',
                                     'confidence': rule.get('confidence', 0.7),
                                     'weight': rule.get('weight', 1.0),
                                     'cwe': rule.get('cwe', ''),
@@ -230,7 +328,6 @@ class EnhancedSecurityScanner:
                                 
                                 self.results[category].append(issue)
                                 
-                                # 统计风险
                                 if severity == 'high':
                                     self.high_risk += 1
                                 elif severity == 'medium':
@@ -239,7 +336,7 @@ class EnhancedSecurityScanner:
                                     self.low_risk += 1
                         
                         except re.error as e:
-                            logger.debug(f"正则表达式错误 {pattern}: {e}")
+                            logger.debug(f"正则表达式错误：{e}")
                 
                 except Exception as e:
                     logger.error(f"读取文件 {file_path} 时出错：{e}")
@@ -259,7 +356,6 @@ class EnhancedSecurityScanner:
         if not exclude_patterns:
             return False
         
-        # 获取上下文（前后 5 行）
         lines = content.splitlines()
         start = max(0, line_number - 5)
         end = min(len(lines), line_number + 5)
@@ -285,22 +381,17 @@ class EnhancedSecurityScanner:
                 continue
             
             for issue in issues:
-                # 获取文件内容
                 try:
                     with open(issue['file'], 'r', encoding='utf-8', errors='ignore') as f:
                         content = f.read()
                         lines = content.splitlines()
                     
                     line_number = issue.get('line_number', 1)
-                    
-                    # 获取上下文
                     start = max(0, line_number - 5)
                     end = min(len(lines), line_number + 5)
                     context = '\n'.join(lines[start:end])
                     
-                    # 检查是否有安全处理
                     if self._has_safe_context(context, issue):
-                        # 降低风险等级
                         if issue['severity'] == 'high':
                             issue['severity'] = 'medium'
                             self.high_risk -= 1
@@ -352,21 +443,17 @@ class EnhancedSecurityScanner:
             if not isinstance(issues, list):
                 continue
             
-            # 过滤文件模式
             filtered_issues = []
             for issue in issues:
                 file_name = os.path.basename(issue['file'])
                 is_fp = False
                 
-                # 检查文件模式
                 for pattern in file_patterns:
-                    # 转换为正则
                     regex_pattern = pattern.replace('*', '.*').replace('?', '.')
                     if re.match(regex_pattern, file_name, re.IGNORECASE):
                         is_fp = True
                         break
                 
-                # 检查代码模式
                 if not is_fp and code_patterns:
                     code_snippet = issue.get('code_snippet', '')
                     for pattern in code_patterns:
@@ -382,7 +469,6 @@ class EnhancedSecurityScanner:
                 if not is_fp:
                     filtered_issues.append(issue)
                 else:
-                    # 从统计中移除
                     severity = issue.get('severity', 'low')
                     if severity == 'high':
                         self.high_risk -= 1
@@ -400,22 +486,17 @@ class EnhancedSecurityScanner:
                 continue
             
             for issue in issues:
-                # 基础置信度
                 base_confidence = issue.get('confidence', 0.7)
                 
-                # 根据检测方法调整
                 if issue.get('detection_method') == 'ast':
                     base_confidence += 0.1
                 
-                # 根据是否有代码片段调整
                 if issue.get('code_snippet'):
                     base_confidence += 0.05
                 
-                # 根据 CWE/OWASP 信息调整
                 if issue.get('cwe') or issue.get('owasp'):
                     base_confidence += 0.05
                 
-                # 限制在 0-1 范围
                 issue['final_confidence'] = min(max(base_confidence, 0.0), 1.0)
     
     def get_summary(self) -> Dict[str, Any]:
@@ -431,6 +512,8 @@ class EnhancedSecurityScanner:
             'high_risk': self.high_risk,
             'medium_risk': self.medium_risk,
             'low_risk': self.low_risk,
+            'scan_time': self.stats.get('scan_time', 0.0),
+            'scan_method': self.stats.get('method', 'sequential'),
             'categories': {
                 category: len(issues) if isinstance(issues, list) else 0
                 for category, issues in self.results.items()
@@ -438,9 +521,8 @@ class EnhancedSecurityScanner:
         }
 
 
-# 兼容旧版本的 SecurityScanner 类
 class SecurityScanner(EnhancedSecurityScanner):
-    """兼容旧版本的扫描器（继承自增强版）"""
+    """兼容旧版本的扫描器"""
     pass
 
 
@@ -452,34 +534,15 @@ if __name__ == '__main__':
     else:
         target = '.'
     
-    scanner = EnhancedSecurityScanner(target)
+    scanner = EnhancedSecurityScanner(target, use_parallel=True, max_workers=4)
     results = scanner.scan()
     
-    # 显示摘要
     summary = scanner.get_summary()
     print(f"\n{Fore.BLUE}=== 扫描摘要 ==={Style.RESET_ALL}")
     print(f"目标：{summary['target']}")
+    print(f"扫描模式：{summary['scan_method']}")
+    print(f"扫描耗时：{summary['scan_time']:.2f}秒")
     print(f"总问题数：{summary['total_issues']}")
     print(f"{Fore.RED}高风险：{summary['high_risk']}{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}中风险：{summary['medium_risk']}{Style.RESET_ALL}")
     print(f"{Fore.GREEN}低风险：{summary['low_risk']}{Style.RESET_ALL}")
-    
-    # 显示前 10 个问题
-    print(f"\n{Fore.BLUE}=== 问题详情（前 10 个）=== {Style.RESET_ALL}")
-    count = 0
-    for category, issues in results.items():
-        if not isinstance(issues, list) or not issues:
-            continue
-        
-        for issue in issues[:10 - count]:
-            print(f"\n[{issue['severity'].upper()}] {issue['file']}:{issue['line_number']}")
-            print(f"  问题：{issue['issue']}")
-            print(f"  详情：{issue['details']}")
-            print(f"  代码：{issue['code_snippet']}")
-            print(f"  置信度：{issue.get('final_confidence', 0.7):.2f}")
-            if issue.get('fix'):
-                print(f"  修复：{issue['fix']}")
-        
-        count += len(issues)
-        if count >= 10:
-            break

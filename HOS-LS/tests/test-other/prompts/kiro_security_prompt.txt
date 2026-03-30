@@ -1,0 +1,61 @@
+## 敏感信息处理
+要求：禁止在代码中硬编码密钥、令牌等敏感信息，应使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+api_key = "sk-live-1234567890abcdef"
+
+# 正确做法
+import os
+api_key = os.environ.get("API_KEY")
+```
+
+## 危险函数调用
+要求：避免直接执行动态生成的代码或命令，优先使用安全的替代函数或严格限制参数。
+示例：```python
+# 错误做法
+user_input = input()
+eval(user_input)
+
+# 正确做法
+# 使用明确的函数映射或安全的解析库
+```
+
+## 输入验证与过滤
+要求：对所有外部输入（如用户输入、API响应）进行严格的类型、格式和范围验证。
+示例：```python
+# 错误做法
+user_id = request.args.get('id')
+query = f"SELECT * FROM users WHERE id = {user_id}"
+
+# 正确做法
+import re
+if re.match(r'^\d+$', user_id):
+    # 使用参数化查询
+    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+```
+
+## 文件操作权限
+要求：限制文件操作的权限，避免使用过高权限（如`777`）或对关键路径进行写操作。
+示例：```python
+# 错误做法
+with open('/etc/passwd', 'w') as f:
+    f.write(data)
+
+# 正确做法
+# 将文件操作限制在应用专用的非特权目录内
+safe_path = '/app/data/user_upload/'
+with open(os.path.join(safe_path, filename), 'w') as f:
+    f.write(data)
+```
+
+## 网络请求安全
+要求：对外部网络请求使用HTTPS并验证TLS证书，避免使用不安全的协议（如HTTP、未经验证的SSL）。
+示例：```python
+# 错误做法
+import urllib.request
+response = urllib.request.urlopen('http://example.com/api')
+
+# 正确做法
+import requests
+response = requests.get('https://example.com/api', verify=True)  # 默认验证证书
+```

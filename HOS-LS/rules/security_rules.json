@@ -2931,24 +2931,58 @@
         "id": "dependency_security.unpinned_versions",
         "name": "依赖版本未固定",
         "description": "检测依赖库版本未固定",
-        "severity": "MEDIUM",
-        "confidence": 0.90,
-        "weight": 1.0,
+        "severity": "LOW",
+        "confidence": 0.70,
+        "weight": 0.5,
         "cwe": "CWE-1104",
         "owasp": "A06:2021",
         "patterns": [
-          "^[a-zA-Z].*[^=]$",
-          "\\^\\d+",
-          "~\\d+",
-          "\\*$"
+          "\"[^\"]+\":\\s*\"[\\^~][0-9]+[^\\\"]*\""
         ],
         "exclude_patterns": [
-          "==\\d+",
-          ">=\\d+,<\\d+",
-          "~=\\d+"
+          "workspace:\\^",
+          "workspace:~",
+          "file:",
+          "link:",
+          "git\\+",
+          "https?://"
         ],
         "context_patterns": [],
-        "fix": "固定依赖库版本，避免自动更新引入安全问题",
+        "file_filter": {
+          "include": ["package.json"],
+          "exclude": ["*.lock", "yarn.lock", "package-lock.json"]
+        },
+        "fix": "生产依赖应固定精确版本，开发依赖可使用范围版本",
+        "references": [
+          "https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/"
+        ]
+      },
+      "python_unpinned_versions": {
+        "id": "dependency_security.python_unpinned_versions",
+        "name": "Python 依赖版本未固定",
+        "description": "检测 Python 依赖版本未固定",
+        "severity": "LOW",
+        "confidence": 0.70,
+        "weight": 0.5,
+        "cwe": "CWE-1104",
+        "owasp": "A06:2021",
+        "patterns": [
+          "^[a-zA-Z0-9_-]+\\s*(>=|<=|~=|!=|>|<)\\s*[0-9][^=]*$"
+        ],
+        "exclude_patterns": [
+          "==",
+          "@ ",
+          "git\\+",
+          "https?://",
+          "-e ",
+          "-r "
+        ],
+        "context_patterns": [],
+        "file_filter": {
+          "include": ["requirements.txt", "requirements-*.txt"],
+          "exclude": ["*.in", "*.template"]
+        },
+        "fix": "使用 == 固定精确版本号，或使用哈希验证",
         "references": [
           "https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/"
         ]

@@ -1,5 +1,5 @@
-## 敏感信息保护
-要求：禁止在代码中硬编码密钥、令牌等敏感信息，应使用环境变量或安全配置管理。
+## 敏感信息处理
+要求：禁止在代码中硬编码密码、API密钥等敏感信息，应使用环境变量或安全配置管理。
 示例：```python
 # 错误做法
 api_key = "sk-live-1234567890abcdef"
@@ -10,54 +10,50 @@ api_key = os.environ.get("API_KEY")
 ```
 
 ## 危险函数调用
-要求：避免使用可能导致命令注入或代码执行的危险函数（如 `eval`, `os.system`），优先使用安全的替代方案。
+要求：避免使用可能导致命令注入或代码执行的危险函数（如`eval`, `os.system`），优先使用安全的替代方案。
 示例：```python
 # 错误做法
 user_input = input()
 eval(user_input)
 
 # 正确做法
-# 使用安全的解析库或白名单验证
+# 使用安全的解析库或严格限制的功能
 ```
 
 ## 输入验证与过滤
-要求：对所有外部输入（用户输入、API 参数、文件内容）进行严格的类型、格式和范围验证。
+要求：对所有外部输入（如用户输入、API响应、文件内容）进行严格的验证、过滤或转义，防止注入攻击。
 示例：```python
 # 错误做法
-user_id = request.args.get('id')
-query = f"SELECT * FROM users WHERE id = {user_id}"
+query = f"SELECT * FROM users WHERE name = '{user_input}'"
 
 # 正确做法
-import re
-if re.match(r'^\d+$', user_id):
-    # 使用参数化查询
-    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+# 使用参数化查询
+cursor.execute("SELECT * FROM users WHERE name = %s", (user_input,))
 ```
 
-## 文件操作权限
-要求：限制文件操作的权限，避免使用过于宽泛的权限（如 `777`），并验证文件路径防止路径遍历攻击。
+## 文件权限管理
+要求：为生成或创建的文件设置最小必要权限，避免全局可写或可执行。
 示例：```python
 # 错误做法
-with open(user_provided_path, 'w') as f:
+with open("config.json", "w") as f:
     f.write(data)
+# 文件默认权限可能过宽
 
 # 正确做法
 import os
-base_dir = '/safe/dir/'
-full_path = os.path.abspath(os.path.join(base_dir, filename))
-if not full_path.startswith(base_dir):
-    raise SecurityError("路径非法")
-os.chmod(full_path, 0o600)  # 仅所有者可读写
+with open("config.json", "w") as f:
+    f.write(data)
+os.chmod("config.json", 0o600)  # 仅所有者可读写
 ```
 
 ## 网络请求安全
-要求：发起网络请求时使用 HTTPS 等加密协议，并验证服务器证书，避免中间人攻击。
+要求：发起网络请求时使用HTTPS等加密协议，并验证服务器证书，避免中间人攻击。
 示例：```python
 # 错误做法
 import urllib.request
-urllib.request.urlopen('http://example.com/api')
+response = urllib.request.urlopen("http://example.com/api")  # 使用HTTP
 
 # 正确做法
-import requests
-response = requests.get('https://example.com/api', verify=True)  # 默认验证证书
+import urllib.request
+response = urllib.request.urlopen("https://example.com/api")  # 使用HTTPS
 ```

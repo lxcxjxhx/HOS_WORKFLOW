@@ -1,27 +1,27 @@
-## 敏感信息
-要求：禁止在代码中硬编码密钥、密码等敏感信息，应使用环境变量或安全配置管理。
+## 敏感信息处理
+要求：禁止在代码中硬编码密码、API密钥等敏感信息，应使用环境变量或安全配置管理。
 示例：```python
 # 错误做法
-api_key = "sk-live-1234567890abcdef"
+api_key = "sk-live-123456789"
 
 # 正确做法
 import os
 api_key = os.environ.get("API_KEY")
 ```
 
-## 危险函数
-要求：避免使用 `eval()`、`exec()` 等可执行任意代码的危险函数，防止代码注入。
+## 危险函数调用
+要求：避免直接执行动态生成的代码或命令，优先使用安全的替代方案。
 示例：```python
 # 错误做法
-user_input = "__import__('os').system('rm -rf /')"
-result = eval(user_input)
+user_input = "os.system('rm -rf /')"
+eval(user_input)
 
 # 正确做法
-# 使用安全的替代方案，如字典映射或条件判断。
+# 使用白名单或特定函数处理，避免eval/exec
 ```
 
 ## 输入验证
-要求：对所有外部输入（如用户输入、API 响应）进行严格的类型、格式和范围验证。
+要求：对所有外部输入（如用户输入、API响应）进行严格的类型、格式和范围验证。
 示例：```python
 # 错误做法
 user_id = request.args.get('id')
@@ -29,35 +29,32 @@ query = f"SELECT * FROM users WHERE id = {user_id}"
 
 # 正确做法
 import re
-user_id = request.args.get('id')
-if not re.match(r'^\d{1,10}$', user_id):
-    raise ValueError("Invalid user ID")
-# 使用参数化查询
+if re.match(r'^\d+$', user_id):
+    # 使用参数化查询
+    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
 ```
 
-## 文件权限
-要求：创建或写入文件时，应设置最小必要权限，避免使用 `0o777` 等宽松权限。
+## 文件权限管理
+要求：为生成或操作的文件设置最小必要权限，避免全局可写或可执行。
 示例：```python
 # 错误做法
-with open('config.json', 'w') as f:
-    f.write(data)
-# 默认权限可能过于宽松
+with open("config.json", "w") as f:
+    f.write(data)  # 默认权限可能过宽
 
 # 正确做法
 import os
-with open('config.json', 'w') as f:
+with open("config.json", "w") as f:
     f.write(data)
-os.chmod('config.json', 0o600)  # 仅所有者可读写
+os.chmod("config.json", 0o600)  # 仅所有者可读写
 ```
 
-## 网络安全
-要求：发起网络请求时，必须验证 SSL/TLS 证书，并使用超时设置防止资源耗尽。
+## 网络安全配置
+要求：对外部网络请求启用HTTPS并验证证书，防止中间人攻击。
 示例：```python
 # 错误做法
-import urllib.request
-urllib.request.urlopen('https://example.com')  # 默认不验证证书（某些环境）
+import requests
+resp = requests.get("http://api.example.com/data")  # 使用HTTP
 
 # 正确做法
-import requests
-response = requests.get('https://example.com', verify=True, timeout=10)
+resp = requests.get("https://api.example.com/data", verify=True)  # 启用HTTPS与证书验证
 ```

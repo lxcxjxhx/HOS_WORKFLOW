@@ -1,0 +1,69 @@
+# Cursor IDE 安全提示词（精简版）
+
+## 1. 敏感信息保护
+要求：禁止在代码中硬编码密钥、密码等敏感信息，应使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+API_KEY = "sk_live_123456789"
+
+# 正确做法
+import os
+API_KEY = os.getenv("API_KEY")
+```
+
+## 2. 危险函数限制
+要求：避免使用 `eval()`、`exec()` 等动态执行函数，防止代码注入攻击。
+示例：```python
+# 错误做法
+user_input = "os.system('rm -rf /')"
+eval(user_input)
+
+# 正确做法
+# 使用安全的替代方案，如字典映射或条件判断
+```
+
+## 3. 输入验证
+要求：对所有外部输入进行严格的类型、格式和范围验证。
+示例：```python
+# 错误做法
+user_id = request.args.get('id')
+query = f"SELECT * FROM users WHERE id = {user_id}"
+
+# 正确做法
+import re
+user_id = request.args.get('id')
+if not re.match(r'^\d+$', user_id):
+    raise ValueError("Invalid ID")
+# 使用参数化查询
+```
+
+## 4. 文件权限控制
+要求：设置最小必要文件权限，避免全局可写或可执行。
+示例：```python
+# 错误做法
+with open("config.json", "w") as f:
+    f.write(data)
+# 文件默认权限可能过宽
+
+# 正确做法
+import os
+with open("config.json", "w") as f:
+    f.write(data)
+os.chmod("config.json", 0o600)  # 仅所有者可读写
+```
+
+## 5. 网络安全配置
+要求：使用 HTTPS、设置安全头部，避免敏感信息明文传输。
+示例：```python
+# 错误做法（Flask示例）
+app.run(debug=True)
+# 默认使用HTTP，且调试模式开启
+
+# 正确做法
+from flask import Flask
+app = Flask(__name__)
+# 生产环境应使用：
+# 1. HTTPS（通过反向代理如Nginx）
+# 2. 设置安全头部（如HSTS、CSP）
+# 3. 关闭调试模式
+```
