@@ -11,6 +11,9 @@ import logging
 import json
 from colorama import init, Fore, Style
 
+# 添加当前目录到 Python 路径
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 # 初始化colorama
 init(autoreset=True)
 
@@ -123,6 +126,32 @@ def main():
     # 导入安全扫描模块
     from enhanced_scanner import EnhancedSecurityScanner
     from report_generator import ReportGenerator
+    
+    # 调试导入状态
+    print("导入状态:")
+    try:
+        from enhanced_scanner import ASTScanner
+        print(f"ASTScanner: {ASTScanner}")
+    except ImportError:
+        print("ASTScanner: ImportError")
+    
+    try:
+        from enhanced_scanner import AttackSurfaceAnalyzer
+        print(f"AttackSurfaceAnalyzer: {AttackSurfaceAnalyzer}")
+    except ImportError:
+        print("AttackSurfaceAnalyzer: ImportError")
+    
+    try:
+        from enhanced_scanner import AttackPlanner
+        print(f"AttackPlanner: {AttackPlanner}")
+    except ImportError:
+        print("AttackPlanner: ImportError")
+    
+    try:
+        from enhanced_scanner import DynamicExecutor
+        print(f"DynamicExecutor: {DynamicExecutor}")
+    except ImportError:
+        print("DynamicExecutor: ImportError")
     
     # 从文件读取扫描结果或执行安全扫描
     if args.scan_result and os.path.exists(args.scan_result):

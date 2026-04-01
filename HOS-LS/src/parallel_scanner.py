@@ -30,6 +30,40 @@ except ImportError:
     except ImportError:
         ASTScanner = None
 
+try:
+    from .attack_surface_analyzer import AttackSurfaceAnalyzer
+except ImportError:
+    try:
+        from attack_surface_analyzer import AttackSurfaceAnalyzer
+    except ImportError:
+        AttackSurfaceAnalyzer = None
+
+try:
+    from .attack_planner import AttackPlanner
+except ImportError:
+    try:
+        from attack_planner import AttackPlanner
+    except ImportError:
+        AttackPlanner = None
+
+try:
+    from .dynamic_executor import DynamicExecutor, HttpRequest
+except ImportError:
+    try:
+        from dynamic_executor import DynamicExecutor, HttpRequest
+    except ImportError:
+        DynamicExecutor = None
+        HttpRequest = None
+
+try:
+    from .vulnerability_assessor import VulnerabilityAssessor, VulnerabilityAssessment
+except ImportError:
+    try:
+        from vulnerability_assessor import VulnerabilityAssessor, VulnerabilityAssessment
+    except ImportError:
+        VulnerabilityAssessor = None
+        VulnerabilityAssessment = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -302,6 +336,10 @@ class ParallelSecurityScanner:
         self.gitignore_parser = GitIgnoreParser(config.target) if config.use_gitignore else None
         self.cache = ScanCache(config.cache_file) if config.use_cache else None
         self.ast_scanner = ASTScanner() if ASTScanner else None
+        self.attack_surface_analyzer = AttackSurfaceAnalyzer() if AttackSurfaceAnalyzer else None
+        self.attack_planner = AttackPlanner() if AttackPlanner else None
+        self.dynamic_executor = DynamicExecutor() if DynamicExecutor else None
+        self.vulnerability_assessor = VulnerabilityAssessor() if VulnerabilityAssessor else None
         
         # 统计信息
         self.stats = {
@@ -365,6 +403,11 @@ class ParallelSecurityScanner:
             dirs[:] = [d for d in dirs if d not in self.config.exclude_dirs]
             
             for file in files:
+                # 过滤 README.md 文件
+                if file.lower() == 'readme.md':
+                    self.stats['skipped_files'] += 1
+                    continue
+                
                 file_path = os.path.join(root, file)
                 
                 # 检查扩展名
@@ -492,6 +535,21 @@ class ParallelSecurityScanner:
             logger.info("执行 AST 分析...")
             self._run_ast_scan()
         
+        # 攻击面分析 (如果可用)
+        if self.attack_surface_analyzer:
+            logger.info("执行攻击面分析...")
+            self._run_attack_surface_scan()
+        
+        # 攻击策略生成 (如果可用)
+        if self.attack_planner:
+            logger.info("生成攻击策略...")
+            self._run_attack_planner()
+        
+        # 动态执行攻击 (如果可用)
+        if self.dynamic_executor and 'attack_strategies' in self.results:
+            logger.info("执行攻击策略...")
+            self._run_dynamic_execution()
+        
         return self._build_results(start_time)
     
     def _run_ast_scan(self):
@@ -522,6 +580,310 @@ class ParallelSecurityScanner:
         except Exception as e:
             logger.error(f"AST 扫描失败：{e}")
     
+    def _run_attack_surface_scan(self):
+        """执行攻击面分析"""
+        try:
+            attack_surface_result = self.attack_surface_analyzer.analyze(self.config.target)
+            
+            # 添加攻击面分析结果到扫描结果
+            self.results['attack_surface'] = attack_surface_result
+            
+            # 处理高风险的 Prompt 注入点
+            for injection_point in attack_surface_result.get('prompt_injection_points', []):
+                self.results['ai_security'].append({
+                    'file': injection_point['file'],
+                    'line_number': injection_point['line_number'],
+                    'issue': 'Prompt 注入点',
+                    'severity': 'high',
+                    'details': f"发现 Prompt 注入点: {injection_point['prompt_content']}",
+                    'code_snippet': injection_point['prompt_content'],
+                    'detection_method': 'attack_surface',
+                    'confidence': 0.85,
+                    'category': 'ai_security'
+                })
+                self.high_risk += 1
+            
+            # 处理 Tool 调用
+            for tool_call in attack_surface_result.get('tool_calls', []):
+                self.results['ai_security'].append({
+                    'file': tool_call['file'],
+                    'line_number': tool_call['line_number'],
+                    'issue': f"Tool 调用: {tool_call['tool_name']}",
+                    'severity': 'medium',
+                    'details': f"发现 Tool 调用: {tool_call['tool_name']}",
+                    'code_snippet': f"tool.call('{tool_call['tool_name']}')",
+                    'detection_method': 'attack_surface',
+                    'confidence': 0.75,
+                    'category': 'ai_security'
+                })
+                self.medium_risk += 1
+            
+            # 处理 API 依赖
+            for api_endpoint in attack_surface_result.get('api_dependencies', {}).get('apis', []):
+                self.results['network_security'].append({
+                    'file': 'API 依赖',
+                    'line_number': 0,
+                    'issue': f'API 调用: {api_endpoint}',
+                    'severity': 'medium',
+                    'details': f"发现 API 调用: {api_endpoint}",
+                    'code_snippet': api_endpoint,
+                    'detection_method': 'attack_surface',
+                    'confidence': 0.7,
+                    'category': 'network_security'
+                })
+                self.medium_risk += 1
+                
+        except Exception as e:
+            logger.error(f"攻击面分析失败：{e}")
+    
+    def _run_attack_planner(self):
+        """生成攻击策略"""
+        try:
+            # 收集目标信息
+            target_info = {
+                'target': self.config.target,
+                'attack_surface': self.results.get('attack_surface', {}),
+                'vulnerabilities': []
+            }
+            
+            # 收集已发现的漏洞
+            for category, issues in self.results.items():
+                if isinstance(issues, list):
+                    for issue in issues:
+                        target_info['vulnerabilities'].append({
+                            'type': issue.get('issue', 'unknown'),
+                            'severity': issue.get('severity', 'medium'),
+                            'file': issue.get('file', 'unknown')
+                        })
+            
+            # 生成三种模式的攻击策略
+            strategies = {
+                'template': self.attack_planner.generate_strategy(target_info, 'template'),
+                'llm': self.attack_planner.generate_strategy(target_info, 'llm'),
+                'agent': self.attack_planner.generate_strategy(target_info, 'agent')
+            }
+            
+            # 添加攻击策略到扫描结果
+            self.results['attack_strategies'] = strategies
+            
+        except Exception as e:
+            logger.error(f"攻击策略生成失败：{e}")
+    
+    def _run_dynamic_execution(self):
+        """执行攻击策略"""
+        try:
+            execution_results = {
+                'http_requests': [],
+                'fuzzing': [],
+                'xss_tests': [],
+                'command_execution': [],
+                'vulnerability_assessments': []
+            }
+            
+            # 从攻击策略中提取攻击链
+            strategies = self.results.get('attack_strategies', {})
+            for strategy_name, strategy in strategies.items():
+                if 'attack_chain' in strategy:
+                    attack_chain = strategy['attack_chain']
+                    for step in attack_chain.get('steps', []):
+                        attack_type = step.get('attack_type')
+                        payload = step.get('payload')
+                        target_param = step.get('target')
+                        
+                        # 生成测试请求
+                        if attack_type in ['sql_injection', 'xss', 'ssrf']:
+                            # 构建测试URL（使用示例URL）
+                            test_url = f"http://localhost:8080/test"
+                            
+                            # 发送HTTP请求
+                            request = HttpRequest(
+                                method="GET",
+                                url=test_url,
+                                params={target_param: payload}
+                            )
+                            
+                            result = self.dynamic_executor.send_http_request(request)
+                            http_result = {
+                                'strategy': strategy_name,
+                                'attack_type': attack_type,
+                                'payload': payload,
+                                'url': test_url,
+                                'status_code': result.status_code,
+                                'response_time': result.response_time,
+                                'error': result.error
+                            }
+                            execution_results['http_requests'].append(http_result)
+                            
+                            # 执行漏洞评估
+                            if self.vulnerability_assessor:
+                                response_content = result.error if result.error else str(result.status_code)
+                                assessment = self.vulnerability_assessor.assess_response(
+                                    response_content,
+                                    attack_type,
+                                    payload
+                                )
+                                if assessment.is_vulnerable:
+                                    execution_results['vulnerability_assessments'].append({
+                                        'strategy': strategy_name,
+                                        'attack_type': attack_type,
+                                        'payload': payload,
+                                        'severity': assessment.severity,
+                                        'confidence': assessment.confidence,
+                                        'details': assessment.details
+                                    })
+                                    
+                                    # 添加到扫描结果中
+                                    category = 'injection_security' if attack_type in ['sql_injection', 'xss'] else 'network_security'
+                                    if category not in self.results:
+                                        self.results[category] = []
+                                    self.results[category].append({
+                                        'file': 'dynamic_analysis',
+                                        'line_number': 0,
+                                        'issue': f'{attack_type} vulnerability',
+                                        'severity': assessment.severity,
+                                        'details': assessment.details.get('evidence', 'Vulnerability detected'),
+                                        'code_snippet': f'Payload: {payload}',
+                                        'detection_method': 'dynamic',
+                                        'confidence': assessment.confidence,
+                                        'category': category
+                                    })
+                                    
+                                    # 更新风险计数
+                                    if assessment.severity == 'high':
+                                        self.high_risk += 1
+                                    elif assessment.severity == 'medium':
+                                        self.medium_risk += 1
+                                    else:
+                                        self.low_risk += 1
+                            
+                            # 执行Fuzzing
+                            if attack_type == 'sql_injection':
+                                fuzz_payloads = self.dynamic_executor.generate_fuzz_payloads(attack_type, 5)
+                                fuzz_results = self.dynamic_executor.fuzz_api(
+                                    url=test_url,
+                                    params={target_param: "test"},
+                                    payloads=fuzz_payloads
+                                )
+                                for fr in fuzz_results:
+                                    fuzz_result = {
+                                        'strategy': strategy_name,
+                                        'attack_type': attack_type,
+                                        'payload': fr.payload,
+                                        'status_code': fr.status_code,
+                                        'is_vulnerable': fr.is_vulnerable
+                                    }
+                                    execution_results['fuzzing'].append(fuzz_result)
+                                    
+                                    # 执行漏洞评估
+                                    if self.vulnerability_assessor and fr.is_vulnerable:
+                                        response_content = str(fr.status_code)
+                                        assessment = self.vulnerability_assessor.assess_response(
+                                            response_content,
+                                            attack_type,
+                                            fr.payload
+                                        )
+                                        if assessment.is_vulnerable:
+                                            execution_results['vulnerability_assessments'].append({
+                                                'strategy': strategy_name,
+                                                'attack_type': attack_type,
+                                                'payload': fr.payload,
+                                                'severity': assessment.severity,
+                                                'confidence': assessment.confidence,
+                                                'details': assessment.details
+                                            })
+                            
+                            # 执行XSS测试
+                            if attack_type == 'xss':
+                                xss_results = self.dynamic_executor.test_xss(
+                                    url=test_url,
+                                    param=target_param
+                                )
+                                for xr in xss_results:
+                                    xss_result = {
+                                        'strategy': strategy_name,
+                                        'payload': xr['payload'],
+                                        'url': xr['url'],
+                                        'is_vulnerable': xr['is_vulnerable']
+                                    }
+                                    execution_results['xss_tests'].append(xss_result)
+                                    
+                                    # 执行漏洞评估
+                                    if self.vulnerability_assessor and xr['is_vulnerable']:
+                                        response_content = xr['url']  # 简化处理
+                                        assessment = self.vulnerability_assessor.assess_response(
+                                            response_content,
+                                            attack_type,
+                                            xr['payload']
+                                        )
+                                        if assessment.is_vulnerable:
+                                            execution_results['vulnerability_assessments'].append({
+                                                'strategy': strategy_name,
+                                                'attack_type': attack_type,
+                                                'payload': xr['payload'],
+                                                'severity': assessment.severity,
+                                                'confidence': assessment.confidence,
+                                                'details': assessment.details
+                                            })
+                        
+                        # 模拟命令执行
+                        elif attack_type == 'command_injection':
+                            command_result = self.dynamic_executor.simulate_command_execution(payload)
+                            cmd_result = {
+                                'strategy': strategy_name,
+                                'payload': payload,
+                                'exit_code': command_result.get('exit_code'),
+                                'stdout': command_result.get('stdout'),
+                                'stderr': command_result.get('stderr')
+                            }
+                            execution_results['command_execution'].append(cmd_result)
+                            
+                            # 执行漏洞评估
+                            if self.vulnerability_assessor:
+                                response_content = command_result.get('stdout', '') + command_result.get('stderr', '')
+                                assessment = self.vulnerability_assessor.assess_response(
+                                    response_content,
+                                    attack_type,
+                                    payload
+                                )
+                                if assessment.is_vulnerable:
+                                    execution_results['vulnerability_assessments'].append({
+                                        'strategy': strategy_name,
+                                        'attack_type': attack_type,
+                                        'payload': payload,
+                                        'severity': assessment.severity,
+                                        'confidence': assessment.confidence,
+                                        'details': assessment.details
+                                    })
+                                    
+                                    # 添加到扫描结果中
+                                    if 'injection_security' not in self.results:
+                                        self.results['injection_security'] = []
+                                    self.results['injection_security'].append({
+                                        'file': 'dynamic_analysis',
+                                        'line_number': 0,
+                                        'issue': 'Command injection vulnerability',
+                                        'severity': assessment.severity,
+                                        'details': assessment.details.get('evidence', 'Vulnerability detected'),
+                                        'code_snippet': f'Payload: {payload}',
+                                        'detection_method': 'dynamic',
+                                        'confidence': assessment.confidence,
+                                        'category': 'injection_security'
+                                    })
+                                    
+                                    # 更新风险计数
+                                    if assessment.severity == 'high':
+                                        self.high_risk += 1
+                                    elif assessment.severity == 'medium':
+                                        self.medium_risk += 1
+                                    else:
+                                        self.low_risk += 1
+            
+            # 添加执行结果到扫描结果
+            self.results['execution_results'] = execution_results
+            
+        except Exception as e:
+            logger.error(f"攻击执行失败：{e}")
+    
     def _build_results(self, start_time: float) -> Dict[str, Any]:
         """构建扫描结果"""
         end_time = time.time()
@@ -541,6 +903,9 @@ class ParallelSecurityScanner:
             'config_security': self.results.get('config_security', []),
             'supply_chain_security': self.results.get('supply_chain_security', []),
             'compliance_governance': self.results.get('compliance_governance', []),
+            'attack_surface': self.results.get('attack_surface', {}),
+            'attack_strategies': self.results.get('attack_strategies', {}),
+            'execution_results': self.results.get('execution_results', {}),
             'stats': self.stats,
             'summary': {
                 'high_risk': self.high_risk,
