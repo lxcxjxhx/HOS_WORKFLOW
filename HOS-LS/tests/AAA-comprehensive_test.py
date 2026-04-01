@@ -47,7 +47,7 @@ def print_step(step_num, description):
 def run_comprehensive_test():
     """运行全功能综合测试"""
     # 配置路径
-    target_dir = r"c:\1AAA_PROJECT\HOS\HOS-LS\HOS-LS\tests\test-ai-tool"
+    target_dir = r"c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main"
     output_dir = r"c:\1AAA_PROJECT\HOS\HOS-LS\HOS-LS\tests\test-output"
     
     # 确保输出目录存在
