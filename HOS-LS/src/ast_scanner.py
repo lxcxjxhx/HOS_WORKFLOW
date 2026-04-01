@@ -46,6 +46,22 @@ class SecurityVisitor(ast.NodeVisitor):
             'loads': 'pickle.loads 可能反序列化恶意数据',
         }
         self.dangerous_modules = ['pickle', 'marshal', 'shelve', 'commands']
+        self.ai_sensitive_patterns = {
+            'prompt': '提示词处理需要验证',
+            'user_input': '用户输入需要验证',
+            'chat_input': '聊天输入需要验证',
+            'query': '查询输入需要验证',
+            'user_message': '用户消息需要验证',
+        }
+        self.data_flow = {}
+        self.variable_assignments = {}
+        self.function_definitions = {}
+        self.class_definitions = {}
+        self.imports = []
+        self.business_logic_issues = []
+        self.access_control_issues = []
+        self.control_flow = []
+        self.sensitive_data_flow = []
     
     def visit_Call(self, node):
         """访问函数调用节点"""
@@ -137,6 +153,11 @@ class SecurityVisitor(ast.NodeVisitor):
     def visit_Import(self, node):
         """访问导入语句"""
         for alias in node.names:
+            self.imports.append({
+                'module': alias.name,
+                'alias': alias.asname,
+                'lineno': node.lineno
+            })
             if alias.name in self.dangerous_modules:
                 self._report_issue(
                     node.lineno,
@@ -149,6 +170,11 @@ class SecurityVisitor(ast.NodeVisitor):
     
     def visit_ImportFrom(self, node):
         """访问 from 导入语句"""
+        self.imports.append({
+            'module': node.module,
+            'names': [n.name for n in node.names],
+            'lineno': node.lineno
+        })
         if node.module in self.dangerous_modules:
             self._report_issue(
                 node.lineno,
@@ -159,12 +185,43 @@ class SecurityVisitor(ast.NodeVisitor):
             )
         self.generic_visit(node)
     
+    def visit_FunctionDef(self, node):
+        """访问函数定义"""
+        self.function_definitions[node.name] = {
+            'lineno': node.lineno,
+            'args': [arg.arg for arg in node.args.args],
+            'defaults': len(node.args.defaults),
+            'body': node.body
+        }
+        # 检查函数参数中的敏感信息
+        for arg in node.args.args:
+            arg_name = arg.arg.lower()
+            if any(pattern in arg_name for pattern in self.ai_sensitive_patterns.keys()):
+                self._report_issue(
+                    node.lineno,
+                    'MEDIUM',
+                    f'函数参数包含敏感输入：{arg.arg}',
+                    '敏感输入参数需要验证和过滤',
+                    self._get_code_snippet(node.lineno)
+                )
+        self.generic_visit(node)
+    
+    def visit_ClassDef(self, node):
+        """访问类定义"""
+        self.class_definitions[node.name] = {
+            'lineno': node.lineno,
+            'bases': [base.id for base in node.bases if isinstance(base, ast.Name)],
+            'body': node.body
+        }
+        self.generic_visit(node)
+    
     def visit_Assign(self, node):
         """访问赋值语句"""
         # 检查敏感信息赋值
         for target in node.targets:
             if isinstance(target, ast.Name):
                 var_name = target.id.lower()
+                # 检查敏感变量名
                 if any(secret in var_name for secret in ['password', 'passwd', 'pwd', 'secret', 'api_key', 'token', 'private_key']):
                     # 检查是否是字符串字面量赋值
                     if isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
@@ -178,7 +235,25 @@ class SecurityVisitor(ast.NodeVisitor):
                                 '敏感信息应该存储在环境变量或配置文件中',
                                 self._get_code_snippet(node.lineno)
                             )
+                # 检查AI相关变量
+                elif any(pattern in var_name for pattern in self.ai_sensitive_patterns.keys()):
+                    # 记录变量赋值
+                    self.variable_assignments[target.id] = {
+                        'value': node.value,
+                        'lineno': node.lineno
+                    }
+                    # 检查是否有验证
+                    if not self._has_validation_nearby(node.lineno):
+                        self._report_issue(
+                            node.lineno,
+                            'MEDIUM',
+                            f'AI输入变量缺少验证：{target.id}',
+                            'AI输入应该进行验证和过滤',
+                            self._get_code_snippet(node.lineno)
+                        )
         self.generic_visit(node)
+    
+
     
     def visit_BinOp(self, node):
         """访问二元操作（检测字符串拼接）"""
@@ -192,6 +267,31 @@ class SecurityVisitor(ast.NodeVisitor):
                     '使用参数化查询替代字符串拼接',
                     self._get_code_snippet(node.lineno)
                 )
+            # 检查提示词拼接
+            elif self._is_prompt_concatenation(node):
+                self._report_issue(
+                    node.lineno,
+                    'HIGH',
+                    '提示词拼接风险',
+                    '避免直接拼接用户输入到提示词，使用模板或隔离上下文',
+                    self._get_code_snippet(node.lineno)
+                )
+        self.generic_visit(node)
+    
+    def visit_Subscript(self, node):
+        """访问下标操作（检测字典访问）"""
+        # 检查敏感配置访问
+        if isinstance(node.value, ast.Name) and node.value.id.lower() in ['config', 'settings', 'env']:
+            if isinstance(node.slice, ast.Constant) and isinstance(node.slice.value, str):
+                key = node.slice.value.lower()
+                if any(secret in key for secret in ['password', 'passwd', 'pwd', 'secret', 'api_key', 'token', 'private_key']):
+                    self._report_issue(
+                        node.lineno,
+                        'MEDIUM',
+                        '敏感配置访问',
+                        '敏感配置应该通过安全的方式访问',
+                        self._get_code_snippet(node.lineno)
+                    )
         self.generic_visit(node)
     
     def _is_sql_query(self, node) -> bool:
@@ -200,6 +300,29 @@ class SecurityVisitor(ast.NodeVisitor):
         if isinstance(node.left, ast.Constant) and isinstance(node.left.value, str):
             sql_keywords = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'DROP', 'CREATE']
             return any(kw in node.left.value.upper() for kw in sql_keywords)
+        return False
+    
+    def _is_prompt_concatenation(self, node) -> bool:
+        """检查是否是提示词拼接"""
+        # 检查是否包含提示词相关的变量
+        prompt_patterns = ['prompt', 'system_prompt', 'base_prompt', 'user_input', 'chat_input', 'query']
+        
+        # 检查左操作数
+        if isinstance(node.left, ast.Name):
+            if any(pattern in node.left.id.lower() for pattern in prompt_patterns):
+                return True
+        elif isinstance(node.left, ast.Constant) and isinstance(node.left.value, str):
+            if any(pattern in node.left.value.lower() for pattern in prompt_patterns):
+                return True
+        
+        # 检查右操作数
+        if isinstance(node.right, ast.Name):
+            if any(pattern in node.right.id.lower() for pattern in prompt_patterns):
+                return True
+        elif isinstance(node.right, ast.Constant) and isinstance(node.right.value, str):
+            if any(pattern in node.right.value.lower() for pattern in prompt_patterns):
+                return True
+        
         return False
     
     def _has_shell_true(self, node) -> bool:
@@ -250,6 +373,114 @@ class SecurityVisitor(ast.NodeVisitor):
             'code_snippet': code_snippet,
             'category': 'ast_analysis'
         })
+    
+    def _track_data_flow(self, node, variable_name, value):
+        """追踪数据流"""
+        if variable_name not in self.data_flow:
+            self.data_flow[variable_name] = []
+        
+        self.data_flow[variable_name].append({
+            'lineno': node.lineno,
+            'value': value,
+            'type': type(node).__name__
+        })
+    
+    def _analyze_business_logic(self):
+        """分析业务逻辑漏洞"""
+        # 检查认证绕过
+        for func_name, func_info in self.function_definitions.items():
+            func_body = func_info['body']
+            for node in ast.walk(ast.Module(body=func_body)):
+                if isinstance(node, ast.If):
+                    # 检查简单的认证绕过
+                    if self._is_auth_bypass(node):
+                        self._report_issue(
+                            node.lineno,
+                            'HIGH',
+                            '认证绕过风险',
+                            '检测到可能的认证绕过逻辑',
+                            self._get_code_snippet(node.lineno)
+                        )
+    
+    def _is_auth_bypass(self, node) -> bool:
+        """检查是否存在认证绕过"""
+        if not isinstance(node.test, ast.Compare):
+            return False
+        
+        # 检查常见的认证绕过模式
+        auth_patterns = ['auth', 'authenticated', 'logged_in', 'user_id', 'session']
+        
+        # 检查条件是否过于宽松
+        if isinstance(node.test, ast.Compare):
+            # 检查是否使用了简单的字符串比较
+            if isinstance(node.test.left, ast.Name):
+                if any(pattern in node.test.left.id.lower() for pattern in auth_patterns):
+                    # 检查是否使用了 == '' 或类似的宽松条件
+                    if isinstance(node.test.comparators[0], ast.Constant):
+                        if node.test.comparators[0].value in ['', None, False]:
+                            return True
+        
+        return False
+    
+    def _analyze_access_control(self):
+        """分析访问控制缺陷"""
+        # 检查权限检查缺失
+        for func_name, func_info in self.function_definitions.items():
+            # 检查常见的需要权限控制的函数
+            protected_funcs = ['admin', 'delete', 'update', 'create', 'modify']
+            if any(pattern in func_name.lower() for pattern in protected_funcs):
+                # 检查函数体内是否有权限检查
+                if not self._has_permission_check(func_info['body']):
+                    self._report_issue(
+                        func_info['lineno'],
+                        'HIGH',
+                        '访问控制缺失',
+                        f'函数 {func_name} 可能缺少权限检查',
+                        self._get_code_snippet(func_info['lineno'])
+                    )
+    
+    def _has_permission_check(self, body) -> bool:
+        """检查是否有权限检查"""
+        permission_patterns = ['check_permission', 'has_permission', 'require_permission', 'is_admin', 'role']
+        
+        for node in ast.walk(ast.Module(body=body)):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name):
+                    if any(pattern in node.func.id.lower() for pattern in permission_patterns):
+                        return True
+                elif isinstance(node.func, ast.Attribute):
+                    if any(pattern in node.func.attr.lower() for pattern in permission_patterns):
+                        return True
+        
+        return False
+    
+    def _analyze_sensitive_data_flow(self):
+        """分析敏感数据流"""
+        # 检查敏感数据是否被泄露
+        for var_name, assignments in self.variable_assignments.items():
+            if any(secret in var_name.lower() for secret in ['password', 'secret', 'api_key', 'token']):
+                # 检查变量是否被打印或记录
+                for node in ast.walk(ast.parse(self.source_code)):
+                    if isinstance(node, ast.Call):
+                        if isinstance(node.func, ast.Name) and node.func.id in ['print', 'logging.info', 'logging.debug', 'logging.warning']:
+                            for arg in node.args:
+                                if isinstance(arg, ast.Name) and arg.id == var_name:
+                                    self._report_issue(
+                                        node.lineno,
+                                        'HIGH',
+                                        '敏感信息泄露',
+                                        f'敏感变量 {var_name} 被记录或打印',
+                                        self._get_code_snippet(node.lineno)
+                                    )
+    
+    def analyze(self):
+        """执行完整分析"""
+        # 分析业务逻辑
+        self._analyze_business_logic()
+        # 分析访问控制
+        self._analyze_access_control()
+        # 分析敏感数据流
+        self._analyze_sensitive_data_flow()
 
 
 class ASTScanner:
@@ -274,6 +505,9 @@ class ASTScanner:
             # 创建访问者并遍历
             visitor = SecurityVisitor(file_path, source_code)
             visitor.visit(tree)
+            
+            # 执行完整分析
+            visitor.analyze()
             
             # 添加文件信息到每个问题
             for issue in visitor.issues:

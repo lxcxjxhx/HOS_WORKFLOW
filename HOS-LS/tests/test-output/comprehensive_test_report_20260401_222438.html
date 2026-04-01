@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOS-LS 安全检测报告</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .summary {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .summary-item {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .high-risk {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .medium-risk {
+            color: #f57c00;
+            font-weight: bold;
+        }
+        .low-risk {
+            color: #388e3c;
+            font-weight: bold;
+        }
+        .risk-level {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+        .risk-high {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .risk-medium {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        .risk-low {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        .project-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .security-assessment {
+            background-color: #f3e5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .recommendations {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .recommendation-item {
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        /* 选项卡样式 */
+        .tab-button {
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+            transition: background-color 0.3s;
+        }
+        .tab-button:hover {
+            background-color: #ddd;
+        }
+        .tab-button.active {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .tab-content {
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        /* 复制按钮样式 */
+        .copy-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .copy-button:hover {
+            background-color: #45a049;
+        }
+        .copy-button:active {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HOS-LS 安全检测报告</h1>
+        
+        <div class="project-info">
+            <h2>项目信息</h2>
+            <div class="summary-item">检测目标: c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main</div>
+            <div class="summary-item">检测时间: 2026-04-01 22:24:39</div>
+            <div class="summary-item">项目类型: unknown</div>
+            <div class="summary-item">使用规则集: default</div>
+        </div>
+        
+        <div class="summary">
+            <h2>检测摘要</h2>
+            <div class="summary-item high-risk">高风险: 5</div>
+            <div class="summary-item medium-risk">中风险: 11</div>
+            <div class="summary-item low-risk">低风险: 45</div>
+            <div class="summary-item">总体风险等级: <span class="risk-level risk-high">高风险</span></div>
+        </div>
+        
+        <div class="security-assessment">
+            <h2>安全评估</h2>
+            <p>本次安全扫描共发现 5 个高风险问题，11 个中风险问题，45 个低风险问题。 系统存在严重安全隐患，建议立即处理高风险问题。</p>
+        </div>
+        
+        <div class="recommendations">
+            <h2>安全建议</h2>
+            
+            <div class="recommendation-item">
+                <strong>高风险:</strong> 立即处理所有高风险问题，特别是硬编码的敏感信息和后门代码。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>中风险:</strong> 尽快处理中风险问题，如网络访问代码的安全验证和依赖库版本管理。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>低风险:</strong> 定期进行安全检查，保持系统和依赖库的更新。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>低风险:</strong> 使用环境变量存储敏感信息，避免硬编码。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>低风险:</strong> 遵循最小权限原则，限制文件和目录权限。
+            </div>
+            
+            <div class="recommendation-item">
+                <strong>低风险:</strong> 定期进行安全扫描，及时发现和处理安全问题。
+            </div>
+            
+        </div>
+        
+        
+        <h2>代码安全</h2>
+        <table>
+            <tr>
+                <th>文件</th>
+                <th>行号</th>
+                <th>问题</th>
+                <th>严重程度</th>
+                <th>详情</th>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\cli\src\plugin\prompts.ts</td>
+                <td>13</td>
+                <td>AI 输入验证</td>
+                <td class="medium-risk">medium</td>
+                <td>检测 AI 输入处理代码，可能缺少输入验证</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\cli\src\plugin\prompts.ts</td>
+                <td>77</td>
+                <td>AI 输入验证</td>
+                <td class="medium-risk">medium</td>
+                <td>检测 AI 输入处理代码，可能缺少输入验证</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\test\ast\visitors.test.ts</td>
+                <td>84</td>
+                <td>后门代码</td>
+                <td class="high-risk">high</td>
+                <td>检测潜在的后门代码（危险函数使用）</td>
+            </tr>
+            
+        </table>
+        
+        
+        
+        
+        
+        
+        
+        <h2>依赖安全</h2>
+        <table>
+            <tr>
+                <th>文件</th>
+                <th>行号</th>
+                <th>问题</th>
+                <th>严重程度</th>
+                <th>详情</th>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\package.json</td>
+                <td>16</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\package.json</td>
+                <td>17</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\package.json</td>
+                <td>19</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\package.json</td>
+                <td>20</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\package.json</td>
+                <td>21</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\docs\package.json</td>
+                <td>11</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\examples\package.json</td>
+                <td>8</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\examples\package.json</td>
+                <td>9</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\examples\package.json</td>
+                <td>10</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\cli\package.json</td>
+                <td>35</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\cli\package.json</td>
+                <td>36</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\cli\package.json</td>
+                <td>37</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\cli\package.json</td>
+                <td>38</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\cli\package.json</td>
+                <td>41</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>30</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>31</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>32</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>33</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>34</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>35</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>36</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>37</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>38</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>39</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>40</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>41</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>42</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>43</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>44</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>45</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>46</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>47</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>48</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>49</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>50</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>51</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>52</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>53</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>54</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\core\package.json</td>
+                <td>57</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\create-agentflow\package.json</td>
+                <td>31</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\create-agentflow\package.json</td>
+                <td>32</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\create-agentflow\package.json</td>
+                <td>33</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\create-agentflow\package.json</td>
+                <td>36</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\packages\create-agentflow\package.json</td>
+                <td>37</td>
+                <td>依赖版本未固定</td>
+                <td class="low-risk">low</td>
+                <td>检测依赖库版本未固定</td>
+            </tr>
+            
+        </table>
+        
+        
+        
+        <h2>配置安全</h2>
+        <table>
+            <tr>
+                <th>文件</th>
+                <th>行号</th>
+                <th>问题</th>
+                <th>严重程度</th>
+                <th>详情</th>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\docs\guide\configuration.md</td>
+                <td>77</td>
+                <td>AI 配置</td>
+                <td class="medium-risk">medium</td>
+                <td>检测 AI 特定配置</td>
+            </tr>
+            
+            <tr>
+                <td>c:\1AAA_PROJECT\HOS\HOS-LS\real-project\agentflow-main\docs\guide\configuration.md</td>
+                <td>78</td>
+                <td>AI 配置</td>
+                <td class="medium-risk">medium</td>
+                <td>检测 AI 特定配置</td>
+            </tr>
+            
+        </table>
+        
+        
+        <div class="recommendations">
+            <h2>AI安全建议</h2>
+            
+            <div class="recommendation-item">
+                <strong>风险评估:</strong> ### **Agentflow 项目安全修复建议**
+
+**总体优先级：** 立即修复所有**高风险**问题，随后处理**中风险**，最后优化**低风险**项。
+
+---
+
+### **一、 高风险问题修复 (5个)**
+
+#### **1. 问题：测试代码中的危险函数引用**
+- **文件：** `packages/core/test/ast/visitors.test.ts`
+- **行号：** 84
+- **详情：** 测试代码中直接使用 `eval` 字符串作为测试用例，可能被误用或误导开发者。
+- **风险：** 虽然位于测试中，但可能模糊安全边界，暗示 `eval` 是可接受的模式，增加生产代码误用的风险。
+- **修复建议：**
+    1.  **重构测试用例：** 将测试焦点从“使用了`eval`字符串”转移到“验证器能正确识别并拒绝危险代码模式”。
+    2.  **使用更安全的测试数据：** 避免直接使用 `eval`、`Function` 构造函数等字符串。可以测试其他语法错误或非危险的不合规模式。
+- **修复示例：**
+    ```typescript
+
+            </div>
+            <h3>针对性建议</h3>
+            
+            <div class="recommendation-item">
+                使用环境变量管理敏感信息
+            </div>
+            
+            <div class="recommendation-item">
+                避免使用危险函数
+            </div>
+            
+            <div class="recommendation-item">
+                定期更新依赖
+            </div>
+            
+            <div class="recommendation-item">
+                实施输入验证
+            </div>
+            
+            <div class="recommendation-item">
+                使用参数化查询
+            </div>
+            
+            <h3>安全最佳实践</h3>
+            
+            <div class="recommendation-item">
+                最小权限原则
+            </div>
+            
+            <div class="recommendation-item">
+                输入验证
+            </div>
+            
+            <div class="recommendation-item">
+                输出编码
+            </div>
+            
+            <div class="recommendation-item">
+                安全配置管理
+            </div>
+            
+            <div class="recommendation-item">
+                日志记录与监控
+            </div>
+            
+            
+            <h3>AI 工具提示词（由 AI 生成）</h3>
+            
+            <!-- 选项卡 -->
+            <div style="margin-bottom: 10px;">
+                <button class="tab-button active" onclick="switchTab('cursor')">Cursor</button>
+                <button class="tab-button" onclick="switchTab('trae')">Trae</button>
+                <button class="tab-button" onclick="switchTab('kiro')">Kiro</button>
+            </div>
+            
+            <!-- 提示词内容 - 使用 AI 生成的内容 -->
+            <div id="cursor-tab" class="tab-content active" style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace;">
+                
+# Cursor IDE 安全提示词（精简版）
+
+## 1. 敏感信息保护
+要求：禁止在代码中硬编码密钥、密码等敏感信息，必须使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+api_key = "sk_live_123456789"
+
+# 正确做法
+import os
+api_key = os.environ.get("API_KEY")
+```
+
+## 2. 危险函数限制
+要求：避免使用 `eval()`、`exec()` 等动态执行函数，防止代码注入攻击。
+示例：```python
+# 错误做法
+user_input = "__import__('os').system('rm -rf /')"
+eval(user_input)
+
+# 正确做法
+# 使用安全的替代方案，如字典映射或条件判断
+```
+
+## 3. 输入验证强化
+要求：对所有用户输入进行严格的类型、格式和范围验证，防止注入攻击。
+示例：```python
+# 错误做法
+user_id = request.args.get('id')
+query = f"SELECT * FROM users WHERE id = {user_id}"
+
+# 正确做法
+import re
+if re.match(r'^\d+$', user_id):
+    query = "SELECT * FROM users WHERE id = %s"
+    cursor.execute(query, (user_id,))
+```
+
+## 4. 文件权限控制
+要求：设置最小必要文件权限，避免使用 `777` 等过度宽松的权限。
+示例：```bash
+# 错误做法
+chmod 777 config.json
+
+# 正确做法
+chmod 600 config.json  # 仅所有者可读写
+```
+
+## 5. 网络安全配置
+要求：使用 HTTPS 加密传输，设置安全头部，避免敏感信息明文传输。
+示例：```python
+# Flask 示例 - 错误做法
+app.run(debug=True)  # 明文传输，调试模式暴露
+
+# 正确做法
+from flask_talisman import Talisman
+Talisman(app, content_security_policy=None)  #
+                
+            </div>
+            <div id="trae-tab" class="tab-content" style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; display: none;">
+                
+## 敏感信息保护
+要求：禁止在代码中硬编码密钥、密码等敏感信息，应使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+api_key = "sk_live_123456789"
+
+# 正确做法
+import os
+api_key = os.environ.get("API_KEY")
+```
+
+## 危险函数禁用
+要求：避免使用 `eval()`、`exec()` 等可执行任意代码的危险函数，防止代码注入。
+示例：```python
+# 错误做法
+result = eval(user_input)
+
+# 正确做法
+# 使用安全的解析库或白名单验证逻辑处理输入
+```
+
+## 输入验证过滤
+要求：对所有外部输入（如用户输入、API 数据）进行严格的类型、格式和范围验证与过滤。
+示例：```python
+# 错误做法
+user_id = request.args.get('id')
+query = f"SELECT * FROM users WHERE id = {user_id}"
+
+# 正确做法
+import re
+user_id = request.args.get('id')
+if not re.match(r'^\d+$', user_id):
+    raise ValueError("Invalid input")
+# 使用参数化查询
+```
+
+## 文件权限控制
+要求：为生成或操作的文件设置最小必要权限，避免过宽的读写执行权限。
+示例：```python
+# 错误做法
+with open("config.yaml", "w") as f:
+    f.write(data)
+# 文件默认权限可能过宽（如0o666）
+
+# 正确做法
+import os
+with open("config.yaml", "w") as f:
+    f.write(data)
+os.chmod("config.yaml", 0o600) # 仅所有者可读写
+```
+
+## 网络请求安全
+要求：发起网络请求时使用 HTTPS 等加密协议，并验证服务器证书，避免中间人攻击。
+示例：```python
+# 错误做法
+import urllib.request
+response = urllib.request.urlopen('http://example.c
+                
+            </div>
+            <div id="kiro-tab" class="tab-content" style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; display: none;">
+                
+## 敏感信息处理
+要求：禁止在代码中硬编码密码、API密钥等敏感信息，应使用环境变量或安全配置管理。
+示例：```python
+# 错误做法
+db_password = "MySuperSecret123"
+
+# 正确做法
+import os
+db_password = os.environ.get('DB_PASSWORD')
+```
+
+## 危险函数调用
+要求：避免使用可能导致命令注入或代码执行的危险函数（如`eval`, `os.system`），优先使用安全的替代方案。
+示例：```python
+# 错误做法
+user_input = input("Enter calculation: ")
+result = eval(user_input)  # 危险！
+
+# 正确做法
+# 使用安全的数学库或严格限制的解析器
+```
+
+## 输入验证与过滤
+要求：对所有外部输入（用户输入、API参数、文件内容）进行严格的验证、过滤和转义，防止注入攻击。
+示例：```python
+# 错误做法
+query = f"SELECT * FROM users WHERE name = '{user_input}'"  # SQL注入风险
+
+# 正确做法（使用参数化查询）
+cursor.execute("SELECT * FROM users WHERE name = %s", (user_input,))
+```
+
+## 文件操作权限
+要求：限制文件操作的权限，避免使用过高权限（如`chmod 777`）创建或访问文件。
+示例：```python
+# 错误做法
+with open('/tmp/myfile', 'w') as f:
+    os.chmod('/tmp/myfile', 0o777)  # 权限过宽
+
+# 正确做法
+with open('/tmp/myfile', 'w') as f:
+    os.chmod('/tmp/myfile', 0o600)  # 仅所有者可读写
+```
+
+## 网络请求安全
+要求：发起网络请求时使用HTTPS等加密协议，并验证服务器证书，避免中间人攻击。
+示例：```python
+# 错误做法
+import urllib.request
+response = urllib.request.urlopen('http://examp
+                
+            </div>
+            
+            <div id="trae-tab" class="tab-content" style="display: none; background-color: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace;">
+                # trae 安全提示词
+                AI工具安全提示词
+
+                ## 针对 trae 的安全建议
+
+                ### 风险评估
+                本次扫描发现5个高风险问题，11个中风险问题，45个低风险问题。
+                
+                系统存在严重安全隐患，建议立即处理高风险问题。
+                
+
+                ### 针对性建议
+                
+                
+                - [安全提示] 使用环境变量管理敏感信息
+                
+                - [安全提示] 避免使用危险函数
+                
+                - [安全提示] 定期更新依赖
+                
+                - [安全提示] 实施输入验证
+                
+                - [安全提示] 使用参数化查询
+                
+                
+
+                ### 上下文感知建议
+                - [安全提示] 使用虚拟环境管理Python依赖，避免依赖冲突和安全漏洞
+
+                ### 安全最佳实践
+                
+                
+                - [安全提示] 最小权限原则
+                
+                - [安全提示] 输入验证
+                
+                - [安全提示] 输出编码
+                
+                - [安全提示] 安全配置管理
+                
+                - [安全提示] 日志记录与监控
+                
+                
+
+                ### 通用安全规则
+                [安全规则] 请遵循以下安全要求：
+                检测硬编码的敏感信息 - 移除硬编码的敏感信息，使用环境变量或配置文件存储
+                检测潜在的后门代码 - 审查代码，确保这些函数的使用是安全的
+                检测网络访问代码 - 确保网络访问代码有适当的错误处理和安全验证
+                检测AI模型加载代码 - 确保模型加载路径安全，避免加载恶意模型
+                检测AI输入处理代码，可能缺少输入验证 - 添加输入验证和sanitization代码
+                检测使用root用户运行 - 创建专用用户运行AI工具，遵循最小权限原则
+                检测可执行文件 - 仅对必要的脚本设置执行权限
+                检测AI模型文件权限过于宽松 - 执行 'chmod 640 <file>' 限制模型文件访问
+                检测SSH私钥权限不安全 - 执行 'chmod 600 <key>' 限制私钥访问
+                检测端口暴露到公网 - 修改配置，将监听地址改为 127.0.0.1 或配置防火墙限制访问
+                检测防火墙未启用 - 安装并启用防火墙，如 ufw、firewalld 或 iptables
+                检测SSH允许root登录 - 修改 /etc/ssh/sshd_config，设置 'PermitRootLogin no'
+                检测反向Shell - 立即检查进程详情并终止可疑进程
+                检测依赖库版本未固定 - 固定依赖库版本，避免自动更新引入安全问题
+                检测AI相关依赖库 - 确保依赖库版本安全，定期更新
+                检测配置文件中包含敏感信息 - 移除敏感信息，使用环境变量存储
+                检测AI特定配置 - 确保配置安全，避免硬编码敏感信息
+                检测OpenClaw版本过旧 - 立即执行 'openclaw update' 升级到最新版本
+                检测OpenClaw安装来源非官方 - 建议从官方渠道安装：https://openclaw.ai 或 https://github.com/openclaw/openclaw
+                检测OpenClaw端口暴露到公网 - 修改 ~/.openclaw/config.json 中的 'host' 配置，将 '0.0.0.0' 改为 '127.0.0.1'，或在防火墙中限制访问
+                检测OpenClaw技能包可能包含恶意代码 - 审查技能包代码，确保不包含恶意代码
+                检测Cursor生成的代码中硬编码的API密钥 - 使用环境变量存储API密钥
+                检测不安全的AI提示模板 - 确保提示模板不包含敏感信息，并且经过安全审查
+
+                确保代码符合安全最佳实践。
+            </div>
+            
+            <div id="kiro-tab" class="tab-content" style="display: none; background-color: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace;">
+                # kiro 安全提示词
+                AI工具安全提示词
+
+                ## 针对 kiro 的安全建议
+
+                ### 风险评估
+                本次扫描发现5个高风险问题，11个中风险问题，45个低风险问题。
+                
+                系统存在严重安全隐患，建议立即处理高风险问题。
+                
+
+                ### 针对性建议
+                
+                
+                - 安全提醒：使用环境变量管理敏感信息
+                
+                - 安全提醒：避免使用危险函数
+                
+                - 安全提醒：定期更新依赖
+                
+                - 安全提醒：实施输入验证
+                
+                - 安全提醒：使用参数化查询
+                
+                
+
+                ### 上下文感知建议
+                - 安全提醒：使用虚拟环境管理Python依赖，避免依赖冲突和安全漏洞
+
+                ### 安全最佳实践
+                
+                
+                - 安全提醒：最小权限原则
+                
+                - 安全提醒：输入验证
+                
+                - 安全提醒：输出编码
+                
+                - 安全提醒：安全配置管理
+                
+                - 安全提醒：日志记录与监控
+                
+                
+
+                ### 通用安全规则
+                • 避免硬编码敏感信息，使用环境变量存储
+                • 谨慎使用exec()、eval()等函数，防止代码注入攻击
+                • 确保网络访问代码有适当的错误处理和安全验证
+            </div>
+            
+            <!-- 复制按钮 -->
+            <div style="margin-top: 10px;">
+                <button onclick="copyContent('cursor-tab')" class="copy-button">复制Cursor提示词</button>
+                <button onclick="copyContent('trae-tab')" class="copy-button">复制Trae提示词</button>
+                <button onclick="copyContent('kiro-tab')" class="copy-button">复制Kiro提示词</button>
+            </div>
+            <p style="margin-top: 10px; font-size: 12px; color: #666;">提示：点击上方按钮复制对应IDE的提示词</p>
+        </div>
+        
+        <div class="footer">
+            <p>报告生成时间: 2026-04-01 22:24:39</p>
+            <p>HOS-LS 安全检测工具 v1.0.0</p>
+        </div>
+    </div>
+    <script>
+        // 选项卡切换功能
+        function switchTab(tabName) {
+            // 隐藏所有选项卡内容
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // 移除所有选项卡按钮的活动状态
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // 显示选中的选项卡内容
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // 激活选中的选项卡按钮
+            event.currentTarget.classList.add('active');
+        }
+        
+        // 复制内容到剪贴板
+        function copyContent(tabId) {
+            const content = document.getElementById(tabId).innerText;
+            navigator.clipboard.writeText(content)
+                .then(() => {
+                    // 显示复制成功提示
+                    const button = event.currentTarget;
+                    const originalText = button.innerText;
+                    button.innerText = '已复制!';
+                    button.style.backgroundColor = '#4CAF50';
+                    
+                    // 2秒后恢复按钮状态
+                    setTimeout(() => {
+                        button.innerText = originalText;
+                        button.style.backgroundColor = '';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('复制失败:', err);
+                });
+        }
+    </script>
+</body>
+</html>

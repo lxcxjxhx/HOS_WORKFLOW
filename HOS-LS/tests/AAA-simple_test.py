@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-HOS-LS 简化测试脚本 - 针对 OpenClaw 项目
-使用简化的规则集进行快速测试
+HOS-LS 全功能测试脚本 - 针对 test-ai-tool 项目
+使用所有新功能进行综合测试
 """
 
 import os
@@ -16,136 +16,373 @@ from colorama import init, Fore, Style
 init(autoreset=True)
 
 # 添加项目路径
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src'))
 
-from src.security_scanner import SecurityScanner
-from src.report_generator import ReportGenerator
+from enhanced_scanner import EnhancedSecurityScanner
+from ast_scanner import ASTScanner
+from taint_analyzer import TaintAnalyzer
+from encoding_detector import EncodingDetector
+from ai_suggestion_generator import AISuggestionGenerator
+from attack_simulator import AttackSimulator
+from report_generator import ReportGenerator
+from sandbox_analyzer import SandboxAnalyzer
+
+# 添加规则验证功能导入
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'rule_validation'))
+from run_validation import RuleValidator
 
 
-def run_simplified_test():
-    """运行简化版测试"""
-    print(f"\n{'='*80}")
-    print(f"HOS-LS v2.0 简化测试 - OpenClaw 项目")
-    print(f"{'='*80}\n")
-    
-    target_dir = r"c:\1AAA_PROJECT\HOS\HOS-LS\openclaw-main"
-    output_dir = r"c:\1AAA_PROJECT\HOS\HOS-LS\HOS-LS\tests\test-output"
+def print_section(title):
+    """打印章节标题"""
+    print(f"\n{Fore.CYAN}{'='*80}{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}{title}{Style.RESET_ALL}")
+    print(f"\n{Fore.CYAN}{'='*80}{Style.RESET_ALL}\n")
+
+
+def print_step(step_num, description):
+    """打印步骤信息"""
+    print(f"{Fore.GREEN}[{step_num}]{Style.RESET_ALL} {description}...")
+
+
+def run_comprehensive_test():
+    """运行全功能综合测试"""
+    # 配置路径
+    target_dir = r"c:\1AAA_PROJECT\HOS\HOS-LS\HOS-LS\tests\test-ai-tool"
+    output_dir = r"c:\1AAA_PROJECT\HOS\HOS-LS\HOS-LS\tests\test-simple"
     
     # 确保输出目录存在
     os.makedirs(output_dir, exist_ok=True)
     
-    print(f"目标：{target_dir}")
-    print(f"输出：{output_dir}\n")
+    print_section(f"HOS-LS v2.0 全功能测试 - test-ai-tool 项目")
+    print(f"目标项目：{target_dir}")
+    print(f"输出目录：{output_dir}")
+    print(f"测试时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    start_time = time.time()
+    
+    # 初始化结果存储
+    all_results = {}
+    all_summary = {
+        'total_issues': 0,
+        'high_risk': 0,
+        'medium_risk': 0,
+        'low_risk': 0,
+        'ast_issues': 0,
+        'taint_issues': 0,
+        'encoding_issues': 0,
+        'sandbox_issues': 0,
+        'attack_scenarios': 0
+    }
     
     try:
-        # 使用基础 SecurityScanner 进行扫描（更简单、更稳定）
-        print(f"{Fore.CYAN}开始使用基础扫描器进行安全扫描...{Style.RESET_ALL}")
-        start_time = time.time()
+        # ==================== 第一部分：增强规则扫描 ====================
+        print_section("第一部分：增强规则扫描")
+        step = 1
         
-        scanner = SecurityScanner(target=target_dir, silent=False)
-        results = scanner.scan()
+        print_step(step, "初始化增强安全扫描器 (并行模式)")
+        scanner = EnhancedSecurityScanner(
+            target=target_dir,
+            silent=False,
+            use_parallel=True,
+            max_workers=4
+        )
+        
+        print_step(step + 1, "执行安全规则扫描")
+        rule_results = scanner.scan()
+        
+        print_step(step + 2, "获取扫描摘要")
+        rule_summary = scanner.get_summary()
+        print(f"  {Fore.GREEN}[OK]{Style.RESET_ALL} 完成，发现问题数：{rule_summary['total_issues']}")
+        
+        all_results['rule_results'] = rule_results
+        all_summary['total_issues'] += rule_summary['total_issues']
+        all_summary['high_risk'] += rule_summary.get('high_risk', 0)
+        all_summary['medium_risk'] += rule_summary.get('medium_risk', 0)
+        all_summary['low_risk'] += rule_summary.get('low_risk', 0)
+        
+        # ==================== 第二部分：AST 分析 ====================
+        print_section("第二部分：AST 抽象语法树分析")
+        step = 10
+        
+        print_step(step, "初始化 AST 扫描器")
+        ast_scanner = ASTScanner()
+        
+        print_step(step + 1, "执行 AST 分析")
+        ast_results = ast_scanner.analyze(target_dir)
+        print(f"  {Fore.GREEN}[OK]{Style.RESET_ALL} 完成，发现问题数：{len(ast_results)}")
+        
+        all_results['ast_analysis'] = ast_results
+        all_summary['ast_issues'] = len(ast_results)
+        all_summary['total_issues'] += len(ast_results)
+        
+        # ==================== 第三部分：数据流分析 ====================
+        print_section("第三部分：数据流分析（污点追踪）")
+        step = 20
+        
+        print_step(step, "初始化污点分析器")
+        taint_analyzer = TaintAnalyzer()
+        
+        print_step(step + 1, "执行数据流分析")
+        taint_results = taint_analyzer.analyze(target_dir)
+        print(f"  {Fore.GREEN}[OK]{Style.RESET_ALL} 完成，发现问题数：{len(taint_results)}")
+        
+        all_results['taint_analysis'] = taint_results
+        all_summary['taint_issues'] = len(taint_results)
+        all_summary['total_issues'] += len(taint_results)
+        
+        # ==================== 第四部分：编码检测 ====================
+        print_section("第四部分：编码检测")
+        step = 30
+        
+        print_step(step, "初始化编码检测器")
+        detector = EncodingDetector()
+        encoding_issues = []
+        
+        print_step(step + 1, "遍历项目文件")
+        file_count = 0
+        for root, dirs, files in os.walk(target_dir):
+            # 跳过 node_modules 等目录
+            dirs[:] = [d for d in dirs if d not in ['node_modules', '.git', '__pycache__', '.venv', 'venv']]
+            
+            for file in files:
+                if file.endswith('.py') or file.endswith('.ts') or file.endswith('.js'):
+                    file_path = os.path.join(root, file)
+                    try:
+                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            content = f.read()
+                        results = detector.scan(content)
+                        if results:
+                            for result in results:
+                                result['file'] = file_path
+                                encoding_issues.append(result)
+                        file_count += 1
+                    except Exception as e:
+                        pass
+        
+        print(f"  {Fore.GREEN}[OK]{Style.RESET_ALL} 完成，扫描文件数：{file_count}，发现问题数：{len(encoding_issues)}")
+        
+        all_results['encoding_detection'] = encoding_issues
+        all_summary['encoding_issues'] = len(encoding_issues)
+        all_summary['total_issues'] += len(encoding_issues)
+        
+        # ==================== 第五部分：AI 安全建议生成 ====================
+        print_section("第五部分：AI 安全建议生成")
+        step = 40
+        
+        print_step(step, "初始化 AI 建议生成器")
+        ai_generator = AISuggestionGenerator()
+        
+        print_step(step + 1, "生成安全风险评估")
+        ai_advice = ai_generator.generate_security_advice(rule_results)
+        
+        print_step(step + 2, "生成 Cursor 安全提示")
+        ai_prompt_cursor = ai_generator.generate_security_prompts(tool_name='cursor', scan_results=rule_results)
+        
+        print_step(step + 3, "生成 Trae 安全提示")
+        ai_prompt_trae = ai_generator.generate_security_prompts(tool_name='trae', scan_results=rule_results)
+        
+        print_step(step + 4, "生成 Kiro 安全提示")
+        ai_prompt_kiro = ai_generator.generate_security_prompts(tool_name='kiro', scan_results=rule_results)
+        
+        print(f"  {Fore.GREEN}[OK]{Style.RESET_ALL} 完成，已生成 AI 安全建议和提示")
+        
+        all_results['ai_advice'] = ai_advice
+        all_results['ai_prompts'] = {
+            'cursor': ai_prompt_cursor,
+            'trae': ai_prompt_trae,
+            'kiro': ai_prompt_kiro
+        }
+        
+        # ==================== 第六部分：攻击模拟测试 ====================
+        print_section("第六部分：攻击模拟测试")
+        step = 50
+        
+        print_step(step, "初始化攻击模拟器")
+        attack_sim = AttackSimulator()
+        
+        print_step(step + 1, "获取 Agent 攻击场景")
+        attack_scenarios = attack_sim.get_agent_scenarios()
+        scenario_count = len(attack_scenarios) if isinstance(attack_scenarios, dict) else len(attack_scenarios) if isinstance(attack_scenarios, list) else 0
+        print(f"  {Fore.GREEN}[OK]{Style.RESET_ALL} 完成，加载 {scenario_count} 个攻击场景")
+        
+        all_results['attack_scenarios'] = attack_scenarios
+        all_summary['attack_scenarios'] = scenario_count
+        
+        # ==================== 第七部分：沙盒分析 ====================
+        print_section("第七部分：沙盒分析")
+        step = 60
+        
+        print_step(step, "初始化沙盒分析器")
+        sandbox = SandboxAnalyzer()
+        sandbox_results = []
+        
+        print_step(step + 1, "遍历项目文件进行沙盒分析")
+        sandbox_file_count = 0
+        for root, dirs, files in os.walk(target_dir):
+            # 跳过 node_modules 等目录
+            dirs[:] = [d for d in dirs if d not in ['node_modules', '.git', '__pycache__', '.venv', 'venv']]
+            
+            for file in files:
+                if file.endswith('.py') or file.endswith('.ts') or file.endswith('.js'):
+                    file_path = os.path.join(root, file)
+                    try:
+                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            content = f.read()
+                        result = sandbox.analyze_code(content)
+                        if result:
+                            result['file'] = file_path
+                            sandbox_results.append(result)
+                        sandbox_file_count += 1
+                    except Exception as e:
+                        pass
+        
+        print(f"  {Fore.GREEN}[OK]{Style.RESET_ALL} 完成，分析文件数：{sandbox_file_count}，发现问题数：{len(sandbox_results)}")
+        
+        all_results['sandbox_analysis'] = sandbox_results
+        all_summary['sandbox_issues'] = len(sandbox_results)
+        all_summary['total_issues'] += len(sandbox_results)
+        
+        # ==================== 第八部分：规则验证 ====================
+        print_section("第八部分：规则验证")
+        step = 70
+        
+        # 生成时间戳
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        print_step(step, "初始化规则验证器")
+        # 配置规则验证器路径
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        rules_file = os.path.join(project_root, 'rules', 'security_rules.json')
+        test_cases_dir = os.path.join(project_root, 'rule_validation', 'test_cases')
+        
+        print_step(step + 1, "执行规则验证测试")
+        validator = RuleValidator(rules_file, test_cases_dir)
+        validation_results = validator.run_all_tests()
+        
+        print_step(step + 2, "计算验证指标")
+        validation_metrics = validator.calculate_metrics()
+        
+        print_step(step + 3, "生成验证报告")
+        validation_report_file = os.path.join(output_dir, f'rule_validation_report_{timestamp}.json')
+        validator.save_report(validation_report_file, output_format='json')
+        
+        # 保存验证结果到总结果中
+        all_results['rule_validation'] = {
+            'results': validation_results,
+            'metrics': validation_metrics,
+            'report_file': validation_report_file
+        }
+        
+        # 添加验证统计到摘要
+        all_summary['validation_passed'] = validation_metrics.get('overall', {}).get('passed_tests', 0)
+        all_summary['validation_total'] = validation_metrics.get('overall', {}).get('total_tests', 0)
+        
+        # ==================== 第九部分：生成报告 ====================
+        print_section("第九部分：生成测试报告")
+        step = 80
         
         elapsed_time = time.time() - start_time
         
-        print(f"\n[OK] 扫描完成！耗时：{elapsed_time:.2f} 秒")
-        print(f"  高风险：{scanner.high_risk}")
-        print(f"  中风险：{scanner.medium_risk}")
-        print(f"  低风险：{scanner.low_risk}")
+        print_step(step, "准备报告数据")
+        # 将 rule_results 中的内容展开合并到顶层，以便 report_generator 能正确识别
+        report_results = all_results.copy()
+        if 'rule_results' in report_results:
+            rule_data = report_results.pop('rule_results')
+            # 将 rule_results 中的各个类别合并到顶层
+            for key, value in rule_data.items():
+                if key not in report_results:
+                    report_results[key] = value
         
-        # 生成文本报告
-        report_file = os.path.join(output_dir, '01_basic_scan_report.txt')
-        print(f"\n{Fore.CYAN}生成扫描报告...{Style.RESET_ALL}")
+        # 构建 all_issues 字典，包含所有安全问题
+        all_issues = {}
+        for key, value in report_results.items():
+            if isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                all_issues[key] = value
+        report_results['all_issues'] = all_issues
         
-        with open(report_file, 'w', encoding='utf-8') as f:
-            f.write(f"{'='*80}\n")
-            f.write(f"HOS-LS v2.0 安全检测报告\n")
-            f.write(f"{'='*80}\n\n")
-            
-            f.write(f"目标项目：{target_dir}\n")
-            f.write(f"扫描时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write(f"耗时：{elapsed_time:.2f} 秒\n\n")
-            
-            f.write(f"{'='*80}\n")
-            f.write(f"扫描摘要\n")
-            f.write(f"{'='*80}\n\n")
-            
-            total_issues = scanner.high_risk + scanner.medium_risk + scanner.low_risk
-            f.write(f"总问题数：{total_issues}\n")
-            f.write(f"高风险：{scanner.high_risk}\n")
-            f.write(f"中风险：{scanner.medium_risk}\n")
-            f.write(f"低风险：{scanner.low_risk}\n\n")
-            
-            f.write(f"{'='*80}\n")
-            f.write(f"各类别问题统计\n")
-            f.write(f"{'='*80}\n\n")
-            
-            for category, issues in results.items():
-                if isinstance(issues, list) and issues:
-                    f.write(f"{category}: {len(issues)}\n")
-            
-            f.write(f"\n{'='*80}\n")
-            f.write(f"详细问题列表\n")
-            f.write(f"{'='*80}\n\n")
-            
-            # 输出各类别问题
-            for category, issues in results.items():
-                if isinstance(issues, list) and issues:
-                    f.write(f"\n{'-'*80}\n")
-                    f.write(f"{category}\n")
-                    f.write(f"{'-'*80}\n")
-                    
-                    for i, issue in enumerate(issues, 1):
-                        f.write(f"\n[{i}] {issue.get('issue', 'Unknown')}\n")
-                        f.write(f"    严重程度：{issue.get('severity', 'Unknown').upper()}\n")
-                        f.write(f"    文件：{issue.get('file', 'Unknown')}\n")
-                        if issue.get('details'):
-                            f.write(f"    详情：{issue.get('details')}\n")
-            
-            f.write(f"\n{'='*80}\n")
-            f.write(f"报告结束\n")
-            f.write(f"{'='*80}\n")
+        report_results['ai_suggestions'] = {
+            'risk_assessment': ai_advice[:500] if ai_advice else '正在生成...',
+            'specific_suggestions': [
+                '使用环境变量管理敏感信息',
+                '避免使用危险函数',
+                '定期更新依赖',
+                '实施输入验证',
+                '使用参数化查询'
+            ],
+            'best_practices': [
+                '最小权限原则',
+                '输入验证',
+                '输出编码',
+                '安全配置管理',
+                '日志记录与监控'
+            ],
+            'cursor_prompt': ai_prompt_cursor[:1000] if ai_prompt_cursor else '正在生成...',
+            'trae_prompt': ai_prompt_trae[:1000] if ai_prompt_trae else '正在生成...',
+            'kiro_prompt': ai_prompt_kiro[:1000] if ai_prompt_kiro else '正在生成...'
+        }
         
-        print(f"[OK] 报告已生成：{report_file}")
+        print_step(step + 1, "创建报告生成器")
+        report_gen = ReportGenerator(
+            results=report_results,
+            target=target_dir,
+            output_dir=output_dir
+        )
         
-        # 生成 HTML 报告
-        try:
-            print(f"\n{Fore.CYAN}生成 HTML 报告...{Style.RESET_ALL}")
-            
-            # 添加 AI 建议
-            results['ai_suggestions'] = {
-                'risk_assessment': f'本次扫描发现{scanner.high_risk}个高风险问题，{scanner.medium_risk}个中风险问题，{scanner.low_risk}个低风险问题。',
-                'specific_suggestions': ['请查看报告中的详细问题列表'],
-                'best_practices': ['定期更新依赖', '使用环境变量存储敏感信息', '实施输入验证']
-            }
-            
-            generator = ReportGenerator(results, target_dir, output_dir)
-            html_report = generator.generate_html()
-            
-            if html_report and os.path.exists(html_report):
-                print(f"[OK] HTML 报告已生成：{html_report}")
-            else:
-                print(f"[WARN] HTML 报告生成失败")
-        except Exception as e:
-            print(f"[ERROR] 生成 HTML 报告时出错：{e}")
-            import traceback
-            traceback.print_exc()
+        print_step(step + 2, "生成 HTML 报告")
+        html_report = report_gen.generate_html(filename=f'comprehensive_test_report_{timestamp}.html')
         
-        print(f"\n{'='*80}")
-        print(f"测试完成！")
-        print(f"{'='*80}\n")
-        print(f"生成的报告文件:")
-        print(f"  1. {report_file}")
-        print(f"  2. {output_dir}\\security_report.html (如果生成成功)\n")
+        print_step(step + 3, "生成 Markdown 报告")
+        md_report = report_gen.generate_md(filename=f'comprehensive_test_report_{timestamp}.md')
         
-        return True
+        print_step(step + 4, "生成 JSON 报告")
+        json_report_file = os.path.join(output_dir, f'comprehensive_test_report_{timestamp}.json')
+        with open(json_report_file, 'w', encoding='utf-8') as f:
+            json.dump({
+                'metadata': {
+                    'target': target_dir,
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'duration': elapsed_time,
+                    'test_type': 'comprehensive'
+                },
+                'summary': all_summary,
+                'results': all_results,
+                'ai_advice': ai_advice,
+                'ai_prompts': report_results['ai_suggestions'],
+                'attack_scenarios': attack_scenarios if isinstance(attack_scenarios, dict) else {}
+            }, f, ensure_ascii=False, indent=2, default=str)
+        
+        # ==================== 测试结果汇总 ====================
+        print_section("测试结果汇总")
+        
+        print(f"{Fore.GREEN}[SUCCESS] 测试完成！{Style.RESET_ALL}")
+        print(f"  耗时：{elapsed_time:.2f} 秒")
+        print(f"  总问题数：{all_summary['total_issues']}")
+        print(f"  高风险：{all_summary['high_risk']}")
+        print(f"  中风险：{all_summary['medium_risk']}")
+        print(f"  低风险：{all_summary['low_risk']}")
+        print(f"  AST 问题：{all_summary['ast_issues']}")
+        print(f"  数据流问题：{all_summary['taint_issues']}")
+        print(f"  编码问题：{all_summary['encoding_issues']}")
+        print(f"  沙盒问题：{all_summary['sandbox_issues']}")
+        print(f"  攻击场景：{all_summary['attack_scenarios']}")
+        print(f"  规则验证：{all_summary.get('validation_passed', 0)}/{all_summary.get('validation_total', 0)}")
+        print(f"\n  报告文件:")
+        print(f"    HTML: {html_report}")
+        print(f"    MD:   {md_report}")
+        print(f"    JSON: {json_report_file}")
+        
+        print(f"\n{Fore.CYAN}{'='*80}{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}所有测试模块运行成功！{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}{'='*80}{Style.RESET_ALL}\n")
+        
+        return 0
         
     except Exception as e:
-        print(f"\n[ERROR] 测试失败：{e}")
+        print(f"\n{Fore.RED}[ERROR] 测试失败：{e}{Style.RESET_ALL}")
         import traceback
         traceback.print_exc()
-        return False
+        return 1
 
 
 if __name__ == '__main__':
-    success = run_simplified_test()
-    sys.exit(0 if success else 1)
+    sys.exit(run_comprehensive_test())

@@ -292,6 +292,14 @@ def run_comprehensive_test():
             for key, value in rule_data.items():
                 if key not in report_results:
                     report_results[key] = value
+        
+        # 构建 all_issues 字典，包含所有安全问题
+        all_issues = {}
+        for key, value in report_results.items():
+            if isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                all_issues[key] = value
+        report_results['all_issues'] = all_issues
+        
         report_results['ai_suggestions'] = {
             'risk_assessment': ai_advice[:500] if ai_advice else '正在生成...',
             'specific_suggestions': [

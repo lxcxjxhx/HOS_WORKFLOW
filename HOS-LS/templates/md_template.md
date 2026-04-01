@@ -9,50 +9,50 @@
 {% if code_security %}
 ## 代码安全
 
-| 文件 | 问题 | 严重程度 | 详情 |
-|------|------|---------|------|
+| 文件 | 行号 | 问题 | 严重程度 | 详情 |
+|------|------|------|---------|------|
 {% for item in code_security %}
-| {{ item.file }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
+| {{ item.file }} | {{ item.line_number }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
 {% endfor %}
 {% endif %}
 
 {% if permission_security %}
 ## 权限安全
 
-| 文件 | 问题 | 严重程度 | 详情 |
-|------|------|---------|------|
+| 文件 | 行号 | 问题 | 严重程度 | 详情 |
+|------|------|------|---------|------|
 {% for item in permission_security %}
-| {{ item.file }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
+| {{ item.file }} | {{ item.line_number }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
 {% endfor %}
 {% endif %}
 
 {% if network_security %}
 ## 网络安全
 
-| 文件 | 问题 | 严重程度 | 详情 |
-|------|------|---------|------|
+| 文件 | 行号 | 问题 | 严重程度 | 详情 |
+|------|------|------|---------|------|
 {% for item in network_security %}
-| {{ item.file }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
+| {{ item.file }} | {{ item.line_number }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
 {% endfor %}
 {% endif %}
 
 {% if dependency_security %}
 ## 依赖安全
 
-| 文件 | 问题 | 严重程度 | 详情 |
-|------|------|---------|------|
+| 文件 | 行号 | 问题 | 严重程度 | 详情 |
+|------|------|------|---------|------|
 {% for item in dependency_security %}
-| {{ item.file }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
+| {{ item.file }} | {{ item.line_number }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
 {% endfor %}
 {% endif %}
 
 {% if config_security %}
 ## 配置安全
 
-| 文件 | 问题 | 严重程度 | 详情 |
-|------|------|---------|------|
+| 文件 | 行号 | 问题 | 严重程度 | 详情 |
+|------|------|------|---------|------|
 {% for item in config_security %}
-| {{ item.file }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
+| {{ item.file }} | {{ item.line_number }} | {{ item.issue }} | {{ item.severity }} | {{ item.details }} |
 {% endfor %}
 {% endif %}
 

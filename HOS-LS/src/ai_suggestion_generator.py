@@ -194,20 +194,31 @@ Found {high_risk} high-risk issues.
         
         return advice.get(language, advice['zh'])
     
-    def generate_security_prompts(self, tool_name='cursor', language=None):
+    def generate_security_prompts(self, tool_name='cursor', language=None, scan_results=None):
         """
         生成 IDE 安全提示词 - 预防性指导，用于下次编码时
         """
         if language is None:
             language = self.language_config["default_language"]
         
+        # 构建问题摘要
+        issue_summary = """
+        以下是实际扫描中发现的安全问题：
+        """
+        if scan_results:
+            issue_summary = self._build_issue_summary(scan_results)
+        
         ai_prompt = f"""你是 AI 安全专家，为{tool_name} IDE 生成精简安全提示词。
 
+基于以下实际扫描结果：
+{issue_summary}
+
 严格要求：
-1. 只生成 5 条核心安全规则（每条 1 句话 +1 个代码示例）
-2. 仅包含：敏感信息、危险函数、输入验证、文件权限、网络安全
-3. 总字数控制在 800 字以内
-4. 使用 Markdown 格式，{language if language == 'en' else '中文'}
+1. 基于实际发现的问题，生成针对性的安全规则
+2. 只生成 5 条核心安全规则（每条 1 句话 +1 个代码示例）
+3. 重点关注实际发现的问题类型
+4. 总字数控制在 800 字以内
+5. 使用 Markdown 格式，{language if language == 'en' else '中文'}
 
 示例格式：
 ## 规则名
@@ -216,7 +227,7 @@ Found {high_risk} high-risk issues.
 # 正确做法
 ```
 
-请生成{tool_name}安全提示词（精简版）："""
+请生成{tool_name}安全提示词（基于实际扫描结果）："""
         
         # 启用 AI 调用
         print(f"  生成{tool_name}提示词...")
@@ -633,7 +644,7 @@ Security is priority!"""
         for tool_name in ['cursor', 'trae', 'kiro']:
             if scan_results:
                 prompts[f'{tool_name}_advice'] = self.generate_security_advice(scan_results, language)
-            prompts[f'{tool_name}_prompt'] = self.generate_security_prompts(tool_name, language)
+            prompts[f'{tool_name}_prompt'] = self.generate_security_prompts(tool_name, language, scan_results)
         
         return prompts
     

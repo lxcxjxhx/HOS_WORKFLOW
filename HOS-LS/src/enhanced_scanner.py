@@ -117,7 +117,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 # 导出模块
-__all__ = ['EnhancedSecurityScanner', 'ASTScanner', 'ParallelSecurityScanner', 'ScanConfig', 'AttackSurfaceAnalyzer', 'AttackPlanner', 'DynamicExecutor', 'HttpRequest']
+__all__ = ['EnhancedSecurityScanner', 'SecurityScanner', 'ASTScanner', 'ParallelSecurityScanner', 'ScanConfig', 'AttackSurfaceAnalyzer', 'AttackPlanner', 'DynamicExecutor', 'HttpRequest']
 
 
 class EnhancedSecurityScanner:
@@ -338,6 +338,9 @@ class EnhancedSecurityScanner:
         # 8. 自学习（如果可用）
         if self.self_learning_engine:
             self._perform_self_learning()
+        
+        # 9. 权限安全扫描
+        self._scan_permission_security()
         
         self.stats['scan_time'] = time.time() - start_time
         
@@ -1063,10 +1066,11 @@ class EnhancedSecurityScanner:
                         lines = content.splitlines()
                     
                     line_number = issue.get('line_number', 1)
-                    start = max(0, line_number - 5)
-                    end = min(len(lines), line_number + 5)
+                    start = max(0, line_number - 10)
+                    end = min(len(lines), line_number + 10)
                     context = '\n'.join(lines[start:end])
                     
+                    # 1. 检查安全上下文
                     if self._has_safe_context(context, issue):
                         if issue['severity'] == 'high':
                             issue['severity'] = 'medium'
@@ -1078,6 +1082,33 @@ class EnhancedSecurityScanner:
                             self.low_risk += 1
                         
                         issue['context_analysis'] = '检测到安全处理代码'
+                    
+                    # 2. 检查危险上下文
+                    elif self._has_dangerous_context(context, issue):
+                        if issue['severity'] == 'low':
+                            issue['severity'] = 'medium'
+                            self.low_risk -= 1
+                            self.medium_risk += 1
+                        elif issue['severity'] == 'medium':
+                            issue['severity'] = 'high'
+                            self.medium_risk -= 1
+                            self.high_risk += 1
+                        
+                        issue['context_analysis'] = '检测到危险处理代码'
+                    
+                    # 3. 检查AI特定的上下文
+                    elif 'ai_security' in category:
+                        if self._has_ai_safe_context(context, issue):
+                            if issue['severity'] == 'high':
+                                issue['severity'] = 'medium'
+                                self.high_risk -= 1
+                                self.medium_risk += 1
+                            elif issue['severity'] == 'medium':
+                                issue['severity'] = 'low'
+                                self.medium_risk -= 1
+                                self.low_risk += 1
+                            
+                            issue['context_analysis'] = '检测到AI安全处理代码'
                 
                 except Exception as e:
                     logger.debug(f"上下文分析失败：{e}")
@@ -1107,6 +1138,51 @@ class EnhancedSecurityScanner:
         
         return False
     
+    def _has_dangerous_context(self, context: str, issue: Dict) -> bool:
+        """检查是否有危险的上下文"""
+        dangerous_patterns = [
+            r'exec\s*\(',
+            r'eval\s*\(',
+            r'compile\s*\(',
+            r'os\.system\s*\(',
+            r'subprocess\..*shell\s*=\s*True',
+            r'pickle\.load',
+            r'yaml\.load\s*\([^)]*\)',
+            r'input\s*\(',
+            r'open\s*\([^)]*request\.',
+            r'os\.path\.join\s*\([^)]*request\.'
+        ]
+        
+        for pattern in dangerous_patterns:
+            if re.search(pattern, context, re.IGNORECASE):
+                return True
+        
+        return False
+    
+    def _has_ai_safe_context(self, context: str, issue: Dict) -> bool:
+        """检查是否有AI安全的上下文"""
+        ai_safe_patterns = [
+            r'prompt\s*template',
+            r'system\s*prompt',
+            r'input\s*validation',
+            r'sanitize\s*input',
+            r'filter\s*prompt',
+            r'validate\s*user\s*input',
+            r'limit\s*prompt\s*length',
+            r'token\s*limit',
+            r'content\s*filter',
+            r'safety\s*check',
+            r'rate\s*limit',
+            r'throttle',
+            r'context\s*isolation'
+        ]
+        
+        for pattern in ai_safe_patterns:
+            if re.search(pattern, context, re.IGNORECASE):
+                return True
+        
+        return False
+    
     def _filter_false_positives(self):
         """过滤误报"""
         if not self.silent:
@@ -1114,6 +1190,8 @@ class EnhancedSecurityScanner:
         
         file_patterns = self.false_positive_filters.get('file_patterns', [])
         code_patterns = self.false_positive_filters.get('code_patterns', [])
+        path_patterns = self.false_positive_filters.get('path_patterns', [])
+        context_patterns = self.false_positive_filters.get('context_patterns', [])
         
         for category, issues in self.results.items():
             if not isinstance(issues, list):
@@ -1121,15 +1199,27 @@ class EnhancedSecurityScanner:
             
             filtered_issues = []
             for issue in issues:
-                file_name = os.path.basename(issue['file'])
                 is_fp = False
                 
-                for pattern in file_patterns:
-                    regex_pattern = pattern.replace('*', '.*').replace('?', '.')
-                    if re.match(regex_pattern, file_name, re.IGNORECASE):
+                # 1. 检查文件路径模式
+                file_path = issue.get('file', '')
+                file_name = os.path.basename(file_path)
+                
+                # 检查路径模式
+                for pattern in path_patterns:
+                    if pattern in file_path:
                         is_fp = True
                         break
                 
+                # 2. 检查文件名称模式
+                if not is_fp:
+                    for pattern in file_patterns:
+                        regex_pattern = pattern.replace('*', '.*').replace('?', '.')
+                        if re.match(regex_pattern, file_name, re.IGNORECASE):
+                            is_fp = True
+                            break
+                
+                # 3. 检查代码模式
                 if not is_fp and code_patterns:
                     code_snippet = issue.get('code_snippet', '')
                     for pattern in code_patterns:
@@ -1141,6 +1231,54 @@ class EnhancedSecurityScanner:
                             if pattern in code_snippet:
                                 is_fp = True
                                 break
+                
+                # 4. 检查上下文模式
+                if not is_fp and context_patterns:
+                    try:
+                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            content = f.read()
+                            lines = content.splitlines()
+                        
+                        line_number = issue.get('line_number', 1)
+                        start = max(0, line_number - 10)
+                        end = min(len(lines), line_number + 10)
+                        context = '\n'.join(lines[start:end])
+                        
+                        for pattern in context_patterns:
+                            try:
+                                if re.search(pattern, context, re.IGNORECASE):
+                                    is_fp = True
+                                    break
+                            except re.error:
+                                if pattern in context:
+                                    is_fp = True
+                                    break
+                    except Exception:
+                        pass
+                
+                # 5. 检查特定类型的误报
+                if not is_fp:
+                    # 检查硬编码敏感信息的误报
+                    if issue.get('issue', '').startswith('硬编码敏感信息'):
+                        code_snippet = issue.get('code_snippet', '')
+                        # 排除示例和占位符
+                        placeholders = ['your_', 'example', 'placeholder', 'xxx', 'change_me', 'todo', 'fixme', 'test', 'demo', 'sample']
+                        if any(p in code_snippet.lower() for p in placeholders):
+                            is_fp = True
+                    
+                    # 检查网络访问的误报
+                    elif issue.get('issue', '').startswith('网络访问代码'):
+                        code_snippet = issue.get('code_snippet', '')
+                        # 检查是否有超时和验证设置
+                        if 'timeout' in code_snippet.lower() and 'verify' in code_snippet.lower():
+                            is_fp = True
+                    
+                    # 检查命令注入的误报
+                    elif '命令注入' in issue.get('issue', ''):
+                        code_snippet = issue.get('code_snippet', '')
+                        # 检查是否使用了安全的参数列表
+                        if 'shell=False' in code_snippet or '[' in code_snippet and ']' in code_snippet:
+                            is_fp = True
                 
                 if not is_fp:
                     filtered_issues.append(issue)
@@ -1174,6 +1312,53 @@ class EnhancedSecurityScanner:
                     base_confidence += 0.05
                 
                 issue['final_confidence'] = min(max(base_confidence, 0.0), 1.0)
+    
+    def _scan_permission_security(self):
+        """扫描权限安全"""
+        if not self.silent:
+            print(f'{Fore.CYAN}扫描权限安全...{Style.RESET_ALL}')
+        
+        # 检查文件权限
+        for root, dirs, files in os.walk(self.target):
+            for file in files:
+                file_path = os.path.join(root, file)
+                try:
+                    # 检查执行权限
+                    if os.access(file_path, os.X_OK):
+                        self.results["permission_security"].append({
+                            "file": file_path,
+                            "issue": "文件具有执行权限",
+                            "severity": "medium",
+                            "details": "建议仅对必要的脚本设置执行权限",
+                            "code_snippet": "",
+                            "detection_method": "permission_scan",
+                            "confidence": 0.8,
+                            "category": "permission_security"
+                        })
+                        self.medium_risk += 1
+                    
+                    # 检查AI模型文件权限
+                    if file.endswith(('.pt', '.pth', '.onnx', '.h5', '.pb', '.tflite', '.safetensors', '.bin')):
+                        # 获取文件权限
+                        import stat
+                        file_stat = os.stat(file_path)
+                        permissions = oct(file_stat.st_mode)[-3:]
+                        
+                        # 检查是否过于宽松
+                        if '7' in permissions:
+                            self.results["permission_security"].append({
+                                "file": file_path,
+                                "issue": "AI模型文件权限过于宽松",
+                                "severity": "high",
+                                "details": f"当前权限: {permissions}，建议设置为 640",
+                                "code_snippet": "",
+                                "detection_method": "permission_scan",
+                                "confidence": 0.9,
+                                "category": "permission_security"
+                            })
+                            self.high_risk += 1
+                except Exception as e:
+                    logger.error(f"检查文件权限 {file_path} 时出错: {e}")
     
     def scan_code(self, code: str) -> List[Dict[str, Any]]:
         """扫描代码内容
